@@ -16,17 +16,13 @@ pwd , programming world , android knowledge summary;
  interview | 常见面试知识 | android,java,数据结构算法面试题库总结| 无
  dev_spring | 后台设计及使用 | 后台相关框架及设计 | 无
  dev_android | android设计及使用 | android开发中常用框架及常用库(kotlin,reactnative,java) | :cyclone:
- dev_ios | ios设计及使用 | 无 | 无
- dev_front | 前端网页设计 | 无 |无
 
 -----
 
 - [ ] master
 - [ ] interview
 - [ ] dev_spring
-- [ ] dev_android
-- [ ] dev_ios
-- [ ] dev_front
+- [ x ] dev_android
 
 
 
