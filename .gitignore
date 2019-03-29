@@ -63,3 +63,16 @@ fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
 fastlane/readme.md
+
+# other
+build/
+.idea/
+gradle.properties
+gradle/
+.gradle/
+gradlew
+gradlew.bat
+
+# private
+
+local.properties
