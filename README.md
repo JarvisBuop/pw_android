@@ -19,10 +19,10 @@ pwd , programming world , android knowledge summary;
 
 -----
 
-- [ ] master
+- [x] master
 - [ ] interview
 - [ ] dev_spring
-- [x] dev_android
+- [ ] dev_android
 
 
 
