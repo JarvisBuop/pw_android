@@ -1,0 +1,65 @@
+ext {
+
+//    android version ;
+    androidVersion = [
+            compileSdkVersion: 26,
+            buildToolsVersion: "28.0.3",
+            minSdkVersion    : 16,
+            targetSdkVersion : 26,
+            versionName      : "1.0",
+            applicationId    : "com.jdev.wandroid"
+    ]
+
+//    android support version ;
+    dependencyVersion = [
+            supportLibraryVersion: "27.1.1",
+            constraintVersion    : "1.1.3",
+            multidex_version     : "1.0.0",
+            rxjava_version       : "2.1.9",
+            rxandroid_version    : "2.0.1",
+
+    ]
+
+//    android support ;
+    dependencies = [
+            //
+            appcompatV7         : "com.android.support:appcompat-v7:${dependencyVersion.supportLibraryVersion}",
+            support             : "com.android.support:support-v4:${dependencyVersion.supportLibraryVersion}",
+            support_annotations : "com.android.support:support-annotations:${dependencyVersion.supportLibraryVersion}",
+            support_design      : "com.android.support:design:${dependencyVersion.supportLibraryVersion}",
+            support_recyclerview: "com.android.support:recyclerview-v7:${dependencyVersion.supportLibraryVersion}",
+            support_cardview    : "com.android.support:cardview-v7:${dependencyVersion.supportLibraryVersion}",
+            support_palette     : "com.android.support:palette-v7:${dependencyVersion.supportLibraryVersion}",
+            constraint_layout   : "com.android.support.constraint:constraint-layout:${dependencyVersion.constraintVersion}",
+
+            //kotlin support
+            kotlin_stdlib       : "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",
+            kotlin_stdlib_jdk8  : "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version",
+            kotlin_stdlib_common: "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version",
+
+//            //分包;
+//            android_multidex    : "com.android.support:multidex:${dependencyVersion.multidex_version}",
+
+            /**
+             * 异步消息框架
+             */
+            rxjava2_core        : "io.reactivex.rxjava2:rxjava:${dependencyVersion.rxjava_version}",
+            rxandroid_core      : "io.reactivex.rxjava2:rxandroid:${dependencyVersion.rxandroid_version}"
+
+            /**
+             * 依赖注入框架
+             */
+//            // dependency injection
+//            implementation "com.google.dagger:dagger:$rootProject.dagger2Version"
+//            annotationProcessor "com.google.dagger:dagger-compiler:$rootProject.dagger2Version"
+//            annotationProcessor "com.google.dagger:dagger-android-processor:$rootProject.dagger2Version"
+//            implementation "com.google.dagger:dagger-android-support:$rootProject.dagger2Version"
+            /**
+             * 网络框架
+             */
+//            //下载框架retrofit;
+//            compile 'com.squareup.retrofit2:retrofit:2.3.0'
+//            compile 'com.squareup.retrofit2:converter-gson:2.3.0'//对序列化和反序列化的转化;
+//            compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'//对Call对象的转化为Observe对象
+    ]
+}

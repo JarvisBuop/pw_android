@@ -1,15 +1,8 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
 
-
-//本地数据,可以不上传至远程;
-Properties properties = new Properties()
-properties.load(project.rootProject.file("local.properties").newDataInputStream())
-
-//自定义信息
 def static getGitVersion() {
     def cmd = 'git rev-list HEAD --count'
     try {
@@ -19,34 +12,18 @@ def static getGitVersion() {
     }
 }
 
-def static getBuildTime() {
-    try {
-        return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("UTC"))
-    } catch (Throwable th) {
-        return new Date().toLocaleString()
-    }
-}
-
 android {
     compileSdkVersion rootProject.ext.androidVersion.compileSdkVersion
     buildToolsVersion rootProject.ext.androidVersion.buildToolsVersion
 
     defaultConfig {
-
-        applicationId rootProject.ext.androidVersion.applicationId
         minSdkVersion rootProject.ext.androidVersion.minSdkVersion
         targetSdkVersion rootProject.ext.androidVersion.targetSdkVersion
         versionCode getGitVersion()
         versionName rootProject.ext.androidVersion.versionName
 
-
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
-        externalNativeBuild {
-            cmake {
-                cppFlags ""
-            }
-        }
     }
 
     buildTypes {
@@ -56,24 +33,44 @@ android {
         }
     }
 
-    externalNativeBuild {
-        cmake {
-            path "CMakeLists.txt"
-        }
-    }
-
-    //kotlin 实验性功能;(在引用其他module中,扩展类会出现Unresolved reference:问题,使用以下解决)
     androidExtensions {
         experimental = true
     }
+
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    api project(path: ':kit')
-
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    /**
+     * android support
+     */
+    api rootProject.ext.dependencies.appcompatV7
+    api rootProject.ext.dependencies.support_design
+    api rootProject.ext.dependencies.support_recyclerview
+    api rootProject.ext.dependencies.support_annotations
+    api rootProject.ext.dependencies.support_cardview
+
+    /**
+     * kotlin support
+     */
+    api rootProject.ext.dependencies.kotlin_stdlib
+    api rootProject.ext.dependencies.kotlin_stdlib_common
+    api rootProject.ext.dependencies.kotlin_stdlib_jdk8
+
+    /**
+     * third layout
+     */
+    api rootProject.ext.dependencies.constraint_layout
+
+    /**
+     * third lib
+     */
+    //rxjava
+    api rootProject.ext.dependencies.rxjava2_core
+    api rootProject.ext.dependencies.rxandroid_core
 }
