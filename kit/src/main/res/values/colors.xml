@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="color_permit">#009688</color>
+    <color name="color_gray">#333333</color>
+    <color name="color_orange">#FA6035</color>
+    <color name="color_screen">#f4f5f7</color>
+    <color name="color_blue">#28a9f2</color>
+    <color name="color_green">#089706</color>
+    <color name="color_yellow">#f78f00</color>
+    <color name="color_violet">#b991f1</color>
+
+    <color name="color_text">#888</color>
+    <color name="color_text_gray">#2A2A2A</color>
+    <color name="color_text_gray_72">#727272</color>
+    <color name="color_toolbar">#3D4247</color>
+
+    <color name="line_a7">#a7a7a7</color>
+    <color name="line_ccc">#cccccc</color>
+    <color name="gray_e1">#e1e1e1</color>
+    <color name="gray_text">#aaaaaa</color>
+    <color name="empty_bg">#F0F0F0</color>
+    <color name="color_grey_eaeaea">#eaeaea</color>
+    <color name="color_black_333333">#333333</color>
+    <color name="color_grey_999999">#999999</color>
+    <color name="color_grey_555555">#555555</color>
+    <color name="color_grey_888888">#888888</color>
+    <color name="color_grey_666666">#666666</color>
+
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="red">#ff0000</color>
+    <color name="blue">#0000ff</color>
+    <color name="green">#00ff00</color>
+
+    <color name="goo_red">#FFC93437</color>
+    <color name="goo_blue">#FF375BF1</color>
+    <color name="goo_yellow">#FFF7D23E</color>
+    <color name="goo_green">#FF34A350</color>
+
+    <color name="orange_alpha">#EB6100</color>
+    <color name="blue_alpha">#00a0e9</color>
+    <color name="yellow_alpha">#f5bba3</color>
+    <color name="black_alpha">#90000000</color>
+    <color name="teal">#00796B</color>
+    <color name="brown">#8D6E63</color>
+    <color name="grey">#607D8B</color>
+    <color name="violet">#ae6cd4</color>
+
+    <color name="colorYellow">#FFFF33</color>
+    <color name="color_warning">#FFA900</color>
+    <color name="color_success">#388E3C</color>
+    <color name="color_info">#3F51B5</color>
+    <color name="color_error">#D50000</color>
+
+    <color name="green_4DC0A4">#4DC0A4</color>
+    <color name="color_red_ccfa3c55">#ccfa3c55</color>
+    <color name="color_green_disable">#a2efe0</color>
+    <color name="color_green_00d3a9">#ff00D3A9</color>
+    <color name="color_yellow_796413">#796413</color>
+    <color name="color_yellow_b39729">#b39729</color>
+    <color name="color_blue_0888ff">#0888ff</color>
+
+
+    <color name="transparent">#00000000</color>
+    <color name="global_bg">#9000</color>
+    <color name="color_green_01d9ae">#01D9AE</color>
+    <color name="color_gray_d9d9d9">#d9d9d9</color>
+    <color name="action_bar_tittle_color_555555">#555555</color>
+    <color name="grey_white">#F7F7F7</color>
+    <color name="grey_white_has_alpha">#66FAFAFA</color>
+    <color name="color_network_bar_bg_ee4b62">#ee4b62</color>
+
+    <color name="color_activity_blue_bg">#f7389fff</color>
+    <color name="color_green_00ae8c">#00ae8c</color>
+    <color name="split_line_grey_color_d9d9d9">#D9D9D9</color>
+    <color name="gray7">#c5c4c4</color>
+    <color name="GreyWhite">#F7F7F7</color>
+    <color name="line_eee">#eee</color>
+    <color name="color_register_text_normal_1ca086">#1ca086</color>
+    <color name="color_register_text_normal_246b61">#246b61</color>
+    <color name="color_register_text_disable_39b79d">#39b79d</color>
+    <color name="im_list_select_hover">#dbdbdb</color>
+    <color name="color_aaaaaa_content_text">#ffaaaaaa</color>
+    <color name="title_color_01d9ae">#01D9AE</color>
+    <color name="color_b3b3b3">#b3b3b3</color>
+    <color name="color_black_b3000000">#b3000000</color>
+    <color name="color_white_66ffffff">#66ffffff</color>
+    <color name="color_white_ffffffff">#ffffffff</color>
+    <color name="color_blue_1081ea">#1081ea</color>
+
+    <color name="color_green_4bbda2">#4bbda2</color>
+    <color name="color_yellow_fcf3cd">#fcf3cd</color>
+    <color name="color_blue_3a9efb">#3a9efb</color>
+    <color name="color_green_89fbff">#89fbff</color>
+
+    <color name="bg_media_player_controller">#7f000000</color>
+
+    <color name="color_black_CC000000">#CC000000</color>
+    <color name="color_blue_FF2084FF">#FF2084FF</color>
+
+    <color name="text_second_color">#2A2A2A</color>
+    <color name="text_thired_color">#727272</color>
+    <color name="text_four_color">#ccc</color>
+    <color name="text_five_color">#999</color>
+    <color name="text_six_color">#333</color>
+    <color name="text_seven_color">#666</color>
+
+</resources>

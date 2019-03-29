@@ -2,27 +2,28 @@ package com.jdev.wandroid
 
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-
-import kotlinx.android.synthetic.main.activity_main.*
+import com.jarvisdong.kotlindemo.ui.BaseActivity
 import kotlinx.android.synthetic.main.fragment_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
+    override fun getViewStubId(): Int {
+        return R.layout.activity_main
+    }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+    override fun initIntentData(): Boolean {
         setSupportActionBar(toolbar)
+        return true
+    }
 
-        fab.setOnClickListener { view ->
+    override fun customOperate(savedInstanceState: Bundle?) {
+        fabView?.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
         }
 
-    // Example of a call to a native method
-    sample_text.text = stringFromJNI()
+        sample_text.text = stringFromJNI()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -45,6 +46,7 @@ class MainActivity : AppCompatActivity() {
      * A native method that is implemented by the 'native-lib' native library,
      * which is packaged with this application.
      */
+
     external fun stringFromJNI(): String
 
     companion object {

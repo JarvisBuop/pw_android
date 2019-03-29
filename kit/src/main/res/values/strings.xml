@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">kit</string>
+    <string name="app_name">wandroid</string>
+    <string name="app_name_module_welcome">wandroid_module_welcome</string>
+
+
+    <string name="action_settings">Settings</string>
 </resources>

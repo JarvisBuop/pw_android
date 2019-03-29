@@ -17,6 +17,7 @@ ext {
             multidex_version     : "1.0.0",
             rxjava_version       : "2.1.9",
             rxandroid_version    : "2.0.1",
+            lottie_version       : "3.0.0",
 
     ]
 
@@ -44,7 +45,7 @@ ext {
              * 异步消息框架
              */
             rxjava2_core        : "io.reactivex.rxjava2:rxjava:${dependencyVersion.rxjava_version}",
-            rxandroid_core      : "io.reactivex.rxjava2:rxandroid:${dependencyVersion.rxandroid_version}"
+            rxandroid_core      : "io.reactivex.rxjava2:rxandroid:${dependencyVersion.rxandroid_version}",
 
             /**
              * 依赖注入框架
@@ -61,5 +62,10 @@ ext {
 //            compile 'com.squareup.retrofit2:retrofit:2.3.0'
 //            compile 'com.squareup.retrofit2:converter-gson:2.3.0'//对序列化和反序列化的转化;
 //            compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'//对Call对象的转化为Observe对象
+
+            /**
+             * 动画
+             */
+            lottie_lib          : "com.airbnb.android:lottie:$dependencyVersion.lottie_version",
     ]
 }
