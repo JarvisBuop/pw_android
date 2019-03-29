@@ -22,7 +22,7 @@ pwd , programming world , android knowledge summary;
 - [ ] master
 - [ ] interview
 - [ ] dev_spring
-- [ x ] dev_android
+- [x] dev_android
 
 
 
