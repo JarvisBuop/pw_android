@@ -1,6 +1,7 @@
 package com.jdev.module_welcome
 
 import android.os.Bundle
+import com.jarvisdong.kit.baseui.BaseApp
 import com.jarvisdong.kotlindemo.ui.BaseActivity
 
 /**

@@ -50,8 +50,24 @@ android {
 
     sourceSets {
         main {
-            if (isModule.toBoolean()) {
-                manifest.srcFile 'src/main/debug/AndroidManifest.xml'
+            //组件化清单文件配置:
+            def debugManifest = 'src/main/debug/AndroidManifest.xml'
+            if (isModule.toBoolean() && project.file(debugManifest).exists()) {
+                //debug模式下,加载独立的清单文件;
+                manifest.srcFile debugManifest
+
+                //debug模式下，如果存在src/main/debug/assets，则自动将其添加到assets源码目录
+                if (project.file('src/main/debug/assets').exists()) {
+                    assets.srcDirs = ['src/main/assets', 'src/main/debug/assets']
+                }
+                //debug模式下，如果存在src/main/debug/java，则自动将其添加到java源码目录
+                if (project.file('src/main/debug/java').exists()) {
+                    java.srcDirs = ['src/main/java', 'src/main/debug/java']
+                }
+                //debug模式下，如果存在src/main/debug/res，则自动将其添加到资源目录
+                if (project.file('src/main/debug/res').exists()) {
+                    res.srcDirs = ['src/main/res', 'src/main/debug/res']
+                }
             } else {
                 manifest.srcFile 'src/main/AndroidManifest.xml'
                 //集成开发模式下则需要排除debug文件夹中的所有Java文件
@@ -60,22 +76,29 @@ android {
                 }
             }
         }
+
+//        main {
+//            manifest.srcFile 'AndroidManifest.xml'
+//            java.srcDirs = ['src']
+//            resources.srcDirs = ['src']
+//            aidl.srcDirs = ['src']
+//            renderscript.srcDirs = ['src']
+//            res.srcDirs = ['res']
+//            assets.srcDirs = ['assets']
+//            jniLibs.srcDirs = ['libs']
+//        }
     }
 
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(path: ':kit')
-
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-
-
     /**
      * lottie
      */
-    implementation rootProject.ext.dependencies.lottie_lib
+    //    implementation rootProject.ext.dependencies.lottie_lib
 }

@@ -5,11 +5,9 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 
-//本地数据,可以不上传至远程;
 Properties properties = new Properties()
 properties.load(project.rootProject.file("local.properties").newDataInputStream())
 
-//自定义信息
 def static getGitVersion() {
     def cmd = 'git rev-list HEAD --count'
     try {
@@ -62,17 +60,14 @@ android {
         }
     }
 
-    //kotlin 实验性功能;(在引用其他module中,扩展类会出现Unresolved reference:问题,使用以下解决)
     androidExtensions {
         experimental = true
     }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(path: ':kit')
-
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'

@@ -2,7 +2,7 @@
     package="com.jdev.module_welcome">
 
     <application
-        android:name="debug.MainApplication"
+        android:name="module.MainApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name_module_welcome"
@@ -11,7 +11,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".WelcomeActivity"
+            android:name="com.jdev.module_welcome.WelcomeActivity"
             android:label="@string/app_name_module_welcome"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>

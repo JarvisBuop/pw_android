@@ -67,12 +67,11 @@ fastlane/readme.md
 # other
 build/
 .idea/
-gradle.properties
 gradle/
 .gradle/
 gradlew
 gradlew.bat
 
 # private
-
+# gradle.properties
 local.properties

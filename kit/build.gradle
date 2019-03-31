@@ -49,7 +49,9 @@ dependencies {
     /**
      * android support
      */
+    api rootProject.ext.dependencies.support
     api rootProject.ext.dependencies.appcompatV7
+
     api rootProject.ext.dependencies.support_design
     api rootProject.ext.dependencies.support_recyclerview
     api rootProject.ext.dependencies.support_annotations
