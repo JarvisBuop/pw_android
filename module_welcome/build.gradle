@@ -48,6 +48,9 @@ android {
         experimental = true
     }
 
+    /**
+     * 组件化资源配置
+     */
     sourceSets {
         main {
             //组件化清单文件配置:
@@ -97,8 +100,14 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
     /**
      * lottie
+     *
+     * exclude 引用,使用`,` 分开,或者使用括号
      */
-    //    implementation rootProject.ext.dependencies.lottie_lib
+    implementation (rootProject.ext.dependencies.lottie_lib) {
+        exclude group: 'com.android.support', module: 'support-v4'
+    }
+
 }

@@ -17,7 +17,7 @@ ext {
             multidex_version     : "1.0.0",
             rxjava_version       : "2.1.9",
             rxandroid_version    : "2.0.1",
-            lottie_version       : "3.0.0",
+            lottie_version       : "2.7.0",
 
     ]
 
@@ -66,6 +66,8 @@ ext {
             /**
              * 动画
              */
-            lottie_lib          : "com.airbnb.android:lottie:$dependencyVersion.lottie_version",
+            lottie_lib          : "com.airbnb.android:lottie:${dependencyVersion.lottie_version}",
+
+
     ]
 }

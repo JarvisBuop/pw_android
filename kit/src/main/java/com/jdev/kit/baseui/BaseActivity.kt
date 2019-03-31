@@ -15,14 +15,15 @@ import com.jdev.kit.R
  */
 abstract class BaseActivity : AppCompatActivity() {
     protected var mContext: Context? = null
+    private val isDebug = true
 
     //init default view;
-    protected var toolbar:android.support.v7.widget.Toolbar? =null
-    protected var appbarLayout:View? =null
-    protected var barLeftView:TextView? =null
-    protected var barTitleView:TextView? =null
-    protected var barRightView:TextView? =null
-    protected var fabView: FloatingActionButton? =null
+    protected var toolbar: android.support.v7.widget.Toolbar? = null
+    protected var appbarLayout: View? = null
+    protected var barLeftView: TextView? = null
+    protected var barTitleView: TextView? = null
+    protected var barRightView: TextView? = null
+    protected var fabView: FloatingActionButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,6 +50,10 @@ abstract class BaseActivity : AppCompatActivity() {
         barTitleView = findViewById(R.id.bar_title)
         barRightView = findViewById(R.id.bar_right)
         fabView = findViewById(R.id.fab)
+
+        if (isDebug) {
+            barTitleView?.text = this.javaClass.name
+        }
     }
 
     override fun onStart() {
