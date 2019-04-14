@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:showIn="@layout/activity_main"
-    tools:context="com.jdev.wandroid.MainActivityFragment">
+    tools:context="com.jdev.wandroid.ui.frg.MainActivityFragment">
 
     <TextView
         android:id="@+id/sample_text"

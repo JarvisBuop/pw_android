@@ -1,12 +1,14 @@
-package com.jdev.wandroid
+package com.jdev.wandroid.ui.act
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.jarvisdong.kotlindemo.ui.BaseActivity
-import kotlinx.android.synthetic.main.fragment_main.*
+import com.jdev.wandroid.R
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : BaseActivity() {
     override fun getViewStubId(): Int {
@@ -25,7 +27,12 @@ class MainActivity : BaseActivity() {
                     .setAction("Action", null).show()
         }
 
-        sample_text.text = stringFromJNI()
+//        sample_text.text = stringFromJNI()
+
+        quickContactBadge.assignContactFromPhone("13817228124", false)
+        txt_feed.setOnClickListener { v ->
+            startActivity(Intent(this, FeedTestAct::class.java))
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

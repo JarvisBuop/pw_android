@@ -5,11 +5,28 @@
     android:layout_height="match_parent"
     android:fillViewport="false">
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <QuickContactBadge
+            android:id="@+id/quickContactBadge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_launcher" />
+
+
+        <TextView
+            android:id="@+id/txt_feed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="feed 页面测试" />
+
 
         <include layout="@layout/content_main" />
 
-    </FrameLayout>
+
+    </LinearLayout>
 </FrameLayout>
