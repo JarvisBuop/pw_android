@@ -9,8 +9,22 @@ import android.view.View
 import com.jarvisdong.kotlindemo.ui.BaseActivity
 import com.jdev.wandroid.R
 import kotlinx.android.synthetic.main.activity_main.*
+import android.graphics.drawable.Drawable
+import com.bumptech.glide.Glide
+import java.io.InputStream
+import java.nio.ByteBuffer
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
+import com.jdev.wandroid.mockdata.MockData
+import java.util.*
+
 
 class MainActivity : BaseActivity() {
+    lateinit var arr:Array<String>
+    var index:Int = 0
+
     override fun getViewStubId(): Int {
         return R.layout.activity_main
     }
@@ -33,6 +47,37 @@ class MainActivity : BaseActivity() {
         txt_feed.setOnClickListener { v ->
             startActivity(Intent(this, FeedTestAct::class.java))
         }
+
+        initWebp2()
+    }
+
+
+    private fun initWebp2() {
+        setWebpInImage("file:///android_asset/small.webp")
+        arr = MockData.ALPHA_WEBP
+
+        img_btn.setOnClickListener {
+            arr = MockData.ANIM_WEBP
+            index = 0
+            setWebpInImage(arr.get(index % arr.size))
+        }
+
+        img_webp.setOnClickListener {
+            setWebpInImage(arr.get(index % arr.size))
+            index++
+        }
+
+    }
+
+    fun setWebpInImage(webpUrl: String): RequestOptions {
+        val options = RequestOptions()
+                .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+        Glide.with(this)
+                .load(webpUrl)
+                .apply(options).transition(DrawableTransitionOptions().crossFade(200))
+                .into(img_webp)
+        return options
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -56,13 +101,13 @@ class MainActivity : BaseActivity() {
      * which is packaged with this application.
      */
 
-    external fun stringFromJNI(): String
-
-    companion object {
-
-        // Used to load the 'native-lib' library on application startup.
-        init {
-            System.loadLibrary("native-lib")
-        }
-    }
+//    external fun stringFromJNI(): String
+//
+//    companion object {
+//
+//        // Used to load the 'native-lib' library on application startup.
+//        init {
+//            System.loadLibrary("native-lib")
+//        }
+//    }
 }
