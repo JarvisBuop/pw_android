@@ -7,7 +7,7 @@ ext {
             minSdkVersion    : 17,
             targetSdkVersion : 28,
             versionName      : "1.0",
-            applicationId    : "com.jdev.wandroid"
+            applicationId    : "com.jdev.wanlottie_libdroid"
     ]
 
 //    android support version ;
@@ -66,7 +66,7 @@ ext {
             /**
              * 动画
              */
-            lottie_lib          : "com.airbnb.android:lottie:${dependencyVersion.lottie_version}",
+//            lottie_lib          : "com.airbnb.android:lottie:${dependencyVersion.lottie_version}",
 
 
     ]
