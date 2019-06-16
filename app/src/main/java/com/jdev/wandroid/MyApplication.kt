@@ -1,14 +1,11 @@
 package com.jdev.wandroid
 
-import android.app.Application
-
-import com.jarvisdong.kit.baseui.BaseApp
 import android.graphics.drawable.Drawable
-
+import com.blankj.utilcode.utils.Utils
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.ResourceDecoder
+import com.jarvisdong.kit.baseui.BaseApp
 import com.jdev.wandroid.webp.WebpBytebufferDecoder
-import com.jdev.wandroid.webp.WebpDrawable
 import com.jdev.wandroid.webp.WebpResourceDecoder
 import java.io.InputStream
 import java.nio.ByteBuffer
@@ -22,6 +19,7 @@ class MyApplication : BaseApp(){
         super.onCreate()
 
         initGlide()
+        Utils.init(this)
     }
 
     private fun initGlide() {

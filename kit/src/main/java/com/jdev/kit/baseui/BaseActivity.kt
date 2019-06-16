@@ -14,7 +14,7 @@ import com.jdev.kit.R
  * OverView:
  */
 abstract class BaseActivity : AppCompatActivity() {
-    protected var mContext: Context? = null
+    protected lateinit var mContext: Context
     private val isDebug = true
 
     //init default view;
@@ -54,6 +54,10 @@ abstract class BaseActivity : AppCompatActivity() {
         if (isDebug) {
             barTitleView?.text = this.javaClass.name
         }
+    }
+
+    fun getRootView(): View {
+        return window.decorView.findViewById(android.R.id.content)
     }
 
     override fun onStart() {

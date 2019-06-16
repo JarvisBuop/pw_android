@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    tools:background="@color/black_alpha">
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/layout_root_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/white"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp">
+
+        <ImageView
+            android:id="@+id/version_icon_1"
+            style="@style/img_version_main"
+            android:src="@drawable/menu_icon_home_selected"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/version_icon_2" />
+
+        <ImageView
+            android:id="@+id/version_icon_2"
+            style="@style/img_version_main"
+            android:src="@drawable/menu_icon_search"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/version_icon_1"
+            app:layout_constraintRight_toLeftOf="@+id/version_icon_3"
+            tools:translationX="100dp" />
+
+        <ImageView
+            android:id="@+id/version_icon_3"
+            style="@style/img_version_main"
+            android:src="@drawable/menu_icon_publish"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/version_icon_2"
+            app:layout_constraintRight_toLeftOf="@+id/version_icon_4" />
+
+        <ImageView
+            android:id="@+id/version_icon_4"
+            style="@style/img_version_main"
+            android:src="@drawable/menu_icon_mem"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/version_icon_3"
+            app:layout_constraintRight_toLeftOf="@+id/version_icon_5"
+            tools:translationY="-200dp" />
+
+        <ImageView
+            android:id="@+id/version_icon_5"
+            style="@style/img_version_main"
+            android:src="@drawable/menu_icon_user"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/version_icon_4"
+            app:layout_constraintRight_toRightOf="parent" />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <FrameLayout
+        android:id="@+id/version_icon4"
+        android:layout_width="215dp"
+        android:layout_height="90dp"
+        android:background="@drawable/bg_guidance_feed_detail"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/version_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginLeft="27dp"
+            android:layout_marginBottom="25dp"
+            android:lineSpacingExtra="6dp"
+            android:text="@string/version_main_1"
+            android:textColor="@color/text_gray_666"
+            android:textSize="14sp" />
+    </FrameLayout>
+</FrameLayout>

@@ -9,7 +9,7 @@ import android.app.Application
 open class BaseApp : Application() {
 
     companion object {
-        private var instance: BaseApp?= null
+        public var instance: BaseApp?= null
         fun getApp(): BaseApp {
             return instance!!
         }

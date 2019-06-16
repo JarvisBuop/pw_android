@@ -3,22 +3,21 @@ package com.jdev.wandroid.ui.act
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import com.jarvisdong.kotlindemo.ui.BaseActivity
-import com.jdev.wandroid.R
-import kotlinx.android.synthetic.main.activity_main.*
-import android.graphics.drawable.Drawable
 import com.bumptech.glide.Glide
-import java.io.InputStream
-import java.nio.ByteBuffer
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
+import com.jarvisdong.kotlindemo.ui.BaseActivity
+import com.jdev.wandroid.R
 import com.jdev.wandroid.mockdata.MockData
-import java.util.*
+import com.jdev.wandroid.noviceAnim.KtVersionMainPop
+import com.jdev.wandroid.utils.ViewUtils
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : BaseActivity() {
@@ -44,11 +43,24 @@ class MainActivity : BaseActivity() {
 //        sample_text.text = stringFromJNI()
 
         quickContactBadge.assignContactFromPhone("13817228124", false)
-        txt_feed.setOnClickListener { v ->
+        txt_feed.setOnClickListener {
             startActivity(Intent(this, FeedTestAct::class.java))
         }
 
         initWebp2()
+
+        btn_test.setOnClickListener{
+            initPop()
+        }
+    }
+
+    private fun initPop() {
+
+        var pop = KtVersionMainPop(mContext, ViewUtils.OnCallback<Any> {
+
+        })
+
+        pop.showAtLocation(getRootView(),Gravity.CENTER,0,0)
     }
 
 
