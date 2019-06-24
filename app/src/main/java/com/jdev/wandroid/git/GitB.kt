@@ -3,5 +3,8 @@ package com.jdev.wandroid.git
 /**
  * Created by JarvisDong on 2019/06/24.
  * @Description:
- * @see:
+ * @see:2 -- commit
  */
+class GitB{
+
+}
