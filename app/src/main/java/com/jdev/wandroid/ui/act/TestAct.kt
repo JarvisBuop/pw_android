@@ -6,7 +6,7 @@ import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.ViewGroup
-import com.jdev.kit.custom.photoview.ExtensionPhotoView
+import com.jdev.kit.custom.photoview.PhotoView
 import com.jdev.wandroid.R
 
 class TestAct : AppCompatActivity() {
@@ -33,7 +33,7 @@ class TestAct : AppCompatActivity() {
             }
 
             override fun instantiateItem(container: ViewGroup, position: Int): Any {
-                val view = ExtensionPhotoView(this@TestAct)
+                val view = PhotoView(this@TestAct)
                 val lp = ViewPager.LayoutParams()
                 view.layoutParams = lp
                 view.enable()
@@ -52,16 +52,4 @@ class TestAct : AppCompatActivity() {
 
     }
 
-
-    //    var count: Int = 0
-//    var probationMemberPop: PurchaseSuccessPop<Int>? = null
-    fun pop() {
-        //        probationMemberPop = PurchaseSuccessPop<Int>(this,null)
-        //
-        //        btn_text.setOnClickListener {
-        //            probationMemberPop!!.setCurStrategy(POP_TYPE_SUCCESS)
-        //            probationMemberPop!!.showAtLocation(getWindow().getDecorView(), Gravity.CENTER, 0, 0)
-        //            count++
-        //        }
-    }
 }
