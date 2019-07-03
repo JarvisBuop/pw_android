@@ -12,10 +12,10 @@
 
     <!--app:lottie_fileName="hello_world.json"-->
     <!--app:lottie_rawRes="@raw/hello_world"-->
-    <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/animation_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:lottie_autoPlay="true"
-        app:lottie_loop="true" />
+    <!--<com.airbnb.lottie.LottieAnimationView-->
+        <!--android:id="@+id/animation_view"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--app:lottie_autoPlay="true"-->
+        <!--app:lottie_loop="true" />-->
 </LinearLayout>

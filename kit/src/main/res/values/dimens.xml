@@ -61,6 +61,7 @@
     <dimen name="dimen_nor_45dp">45dp</dimen>
     <dimen name="dimen_nor_50dp">50dp</dimen>
     <dimen name="dimen_nor_60dp">60dp</dimen>
+    <dimen name="dimen_nor_70dp">70dp</dimen>
     <dimen name="dimen_nor_80dp">80dp</dimen>
     <dimen name="dimen_nor_100dp">100dp</dimen>
     <dimen name="dimen_nor_120dp">120dp</dimen>

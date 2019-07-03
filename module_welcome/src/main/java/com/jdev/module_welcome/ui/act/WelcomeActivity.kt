@@ -1,3 +1,5 @@
+package com.jdev.module_welcome.ui.act
+
 //package com.jdev.module_welcome
 //
 //import android.os.Bundle
