@@ -9,6 +9,7 @@
         android:id="@+id/common_tablayout"
         android:layout_width="match_parent"
         android:layout_height="40dp"
+        android:visibility="gone"
         app:tl_indicator_color="#E84653"
         app:tl_indicator_gravity="BOTTOM"
         app:tl_indicator_width="49dp"
