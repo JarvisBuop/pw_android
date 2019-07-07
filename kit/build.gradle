@@ -75,4 +75,6 @@ dependencies {
     //rxjava
     api rootProject.ext.dependencies.rxjava2_core
     api rootProject.ext.dependencies.rxandroid_core
+
+    api 'com.blankj:utilcode:1.11.1'
 }
