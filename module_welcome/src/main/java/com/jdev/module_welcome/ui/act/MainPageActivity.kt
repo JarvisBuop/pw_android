@@ -32,7 +32,7 @@ import kotlinx.android.synthetic.main.include_tab_viewpager.*
  *
  * 2. scrollview 的滑动不连贯的解决;
  *
- *
+ * 3.scrollview 滑到底,不拦截;
  */
 class MainPageActivity : AppCompatActivity() {
     val TAG: String = "MainPageActivity"

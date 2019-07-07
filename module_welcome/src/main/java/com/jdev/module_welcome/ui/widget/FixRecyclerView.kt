@@ -28,7 +28,7 @@ class FixRecyclerView : RecyclerView {
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         Log.e(TAG, "dispatchTouchEvent")
 
-//        getParentView()
+        getParentView()
 
         return super.dispatchTouchEvent(ev)
     }
