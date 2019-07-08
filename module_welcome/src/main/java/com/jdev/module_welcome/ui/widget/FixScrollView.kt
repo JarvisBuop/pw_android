@@ -55,7 +55,7 @@ class FixScrollView : NestedScrollView {
     var downY: Float = 0f
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         if (floatView == null) return super.onInterceptTouchEvent(ev)
-        var interceptor: Boolean = false
+        var interceptor: Boolean = super.onInterceptTouchEvent(ev)
         var x = ev.x
         var y = ev.y
 
@@ -94,7 +94,6 @@ class FixScrollView : NestedScrollView {
 
         mLastX = x
         mLastY = y
-        super.onInterceptTouchEvent(ev)
         return interceptor
     }
 
@@ -107,9 +106,32 @@ class FixScrollView : NestedScrollView {
 
     fun isAttachPosition(floatView: View, dx: Float, dy: Float): Boolean {
         criticalH = getCurrentScrollDistance(floatView)
-        Log.e(TAG, "h:: " + criticalH + " dy: " + dy + "  " + scaledTouchSlop)
-        // 到临界点后 或者 上滑(dy <0 ) 都不拦截,子view处理;
-        return criticalH <= 0 && dy <= 0
+        Log.e(TAG, "h:: " + criticalH + " dy: " + dy + "  " + scrollY)
+        /**
+         * logic:
+         * return true -> 不拦截;
+         * return false -> 拦截;
+         *
+         * 到上临界点:
+         *     - 上滑(dy < 0): scrollview 固定,子view获取事件; 不拦截(true)
+         *     - 下滑: scrollview 获取事件,滑动; 拦截(false)
+         *
+         * 到下临界点:
+         *     - 上滑: scrollview 获取事件,滑动; 拦截(false)
+         *     - 下滑: scrollview 固定,子view获取事件; 不拦截(true)
+         *
+         * 处于上临界点和下临界点之间 :
+         *     - 上滑: scrollview 获取事件,滑动; 拦截(false);
+         *     - 下滑: scrollview 获取事件,滑动; 拦截(false);
+         *
+         */
+        if (criticalH <= 0) {
+            return dy <= 0
+        } else if (scrollY <= 0) {
+            return dy > 0
+        } else {
+            return false
+        }
     }
 
     fun getCurrentScrollDistance(floatView: View): Int {
@@ -158,7 +180,7 @@ class FixScrollView : NestedScrollView {
             }
             MotionEvent.ACTION_UP -> {
                 //最大可滑200
-                mVelocityTracker.computeCurrentVelocity(500, 200f)
+                mVelocityTracker.computeCurrentVelocity(500, maxScrollY.toFloat())
                 var yVelocity = mVelocityTracker.yVelocity
                 isAttachPosition(floatView!!, 0f, 0f)
                 scrollToTop(yVelocity)
@@ -181,7 +203,7 @@ class FixScrollView : NestedScrollView {
             scrollDy = -criticalH
         }
 
-//        Log.e(TAG, " scrollToTop: " + criticalH + " scrollDy: [" + scrollDy + "," + dy + "] scrollY: " + scrollY)
+        Log.e(TAG, " scrollToTop: " + criticalH + " scrollDy: [" + scrollDy + "," + dy + "] scrollY: " + scrollY)
         smoothScrollBy(0, -scrollDy)
     }
 

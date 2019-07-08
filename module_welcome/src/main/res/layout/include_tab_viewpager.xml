@@ -11,6 +11,7 @@
         android:id="@+id/common_tablayout"
         android:layout_width="match_parent"
         android:layout_height="40dp"
+        android:background="@color/red"
         app:tl_indicator_color="#E84653"
         app:tl_indicator_gravity="BOTTOM"
         app:tl_indicator_width="49dp"
@@ -23,5 +24,7 @@
     <com.jdev.module_welcome.ui.widget.FixViewPager
         android:id="@+id/common_viewpager"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:background="@color/green" />
+
 </LinearLayout>

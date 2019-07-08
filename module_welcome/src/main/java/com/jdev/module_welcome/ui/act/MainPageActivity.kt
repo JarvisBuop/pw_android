@@ -28,11 +28,8 @@ import kotlinx.android.synthetic.main.include_tab_viewpager.*
  *
  *
  * --------------------
- * 1. 内嵌recyclerview 需要定义滑动到底部去设置parent的是否拦截的滑动冲突;
  *
  * 2. scrollview 的滑动不连贯的解决;
- *
- * 3.scrollview 滑到底,不拦截;
  */
 class MainPageActivity : AppCompatActivity() {
     val TAG: String = "MainPageActivity"
@@ -55,6 +52,7 @@ class MainPageActivity : AppCompatActivity() {
                     View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
             scrollView.setTargetView(common_tablayout, fake_search_item.measuredHeight)
 
+            //todo 需要与全面屏适配;
             var tabHeight = ScreenUtils.getScreenHeight() - fake_search_item.measuredHeight - BarUtils.getStatusBarHeight() - common_tablayout.measuredHeight
             common_viewpager.setFixHeight(tabHeight)
         }
