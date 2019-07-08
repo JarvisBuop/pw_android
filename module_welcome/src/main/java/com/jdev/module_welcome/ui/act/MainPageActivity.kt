@@ -13,6 +13,8 @@ import com.blankj.utilcode.util.ScreenUtils
 import com.jdev.module_welcome.R
 import com.jdev.module_welcome.adapter.BaseFragmentStatePagerAdapter
 import com.jdev.module_welcome.ui.frag.KtChildBaseFragment
+import com.scwang.smartrefresh.header.FlyRefreshHeader
+import com.scwang.smartrefresh.layout.header.BezierRadarHeader
 import kotlinx.android.synthetic.main.act_mainpage_container.*
 import kotlinx.android.synthetic.main.include_tab_viewpager.*
 
@@ -80,13 +82,17 @@ class MainPageActivity : AppCompatActivity() {
                 fake_search_item.visibility = View.GONE
             }
         })
+
+        swipeRefreshView.setOnRefreshListener {
+            it.finishRefresh(1000/*,false*/);//传入false表示刷新失败
+        }
+        swipeRefreshView.setRefreshHeader(BezierRadarHeader(this).setEnableHorizontalDrag(true))
     }
 
     private fun initialLayouts() {
         val tabs = arrayOf(/*"精选",*/ "专题", "课程", "素材", "教案", "图库")
         mBaseFragmentStatePagerAdapter = BaseFragmentStatePagerAdapter(supportFragmentManager,
                 arrayListOf(
-//                        KtChoicenessFragment() as Fragment,
                         KtChildBaseFragment() as android.support.v4.app.Fragment,
                         KtChildBaseFragment(),
                         KtChildBaseFragment(),
