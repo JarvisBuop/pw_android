@@ -47,7 +47,7 @@
         android:layout_height="30dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="@dimen/dimen_nor_16dp"
+        android:layout_marginLeft="@dimen/dimen_nor_12dp"
         android:layout_marginRight="@dimen/margin_12dp"
         android:background="?selectableItemBackgroundBorderless"
         android:gravity="center_vertical"

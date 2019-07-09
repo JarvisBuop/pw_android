@@ -3,8 +3,17 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/rect_white_corner_all_6dp"
-    android:orientation="vertical">
+    android:elevation="5dp"
+    android:orientation="vertical"
+    android:padding="@dimen/dimen_nor_5dp">
 
     <include layout="@layout/include_search_titlebar" />
-    <include layout="@layout/include_real_search_item_innerlist" />
+
+    <include
+        android:id="@+id/item_inner_four_shortcut"
+        layout="@layout/include_real_search_item_innerlist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
 </LinearLayout>

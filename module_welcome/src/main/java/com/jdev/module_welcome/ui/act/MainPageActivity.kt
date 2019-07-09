@@ -1,5 +1,7 @@
 package com.jdev.module_welcome.ui.act
 
+import android.animation.IntEvaluator
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
@@ -7,15 +9,18 @@ import android.support.graphics.drawable.ArgbEvaluator
 import android.support.v4.view.ViewPager
 import android.support.v4.widget.NestedScrollView
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import com.blankj.utilcode.util.BarUtils
+import com.blankj.utilcode.util.ConvertUtils
 import com.blankj.utilcode.util.ScreenUtils
 import com.jdev.module_welcome.R
 import com.jdev.module_welcome.adapter.BaseFragmentStatePagerAdapter
 import com.jdev.module_welcome.ui.frag.KtChildBaseFragment
-import com.scwang.smartrefresh.header.FlyRefreshHeader
 import com.scwang.smartrefresh.layout.header.BezierRadarHeader
 import kotlinx.android.synthetic.main.act_mainpage_container.*
+import kotlinx.android.synthetic.main.include_real_search_item.*
 import kotlinx.android.synthetic.main.include_tab_viewpager.*
 
 
@@ -36,6 +41,8 @@ import kotlinx.android.synthetic.main.include_tab_viewpager.*
 class MainPageActivity : AppCompatActivity() {
     val TAG: String = "MainPageActivity"
     var colorIsSetting = false
+    var maxHeight: Int = 0
+    var paddingOffset = ConvertUtils.dp2px(5f)
 
     private var mBaseFragmentStatePagerAdapter: BaseFragmentStatePagerAdapter? = null
 
@@ -47,7 +54,7 @@ class MainPageActivity : AppCompatActivity() {
         initialLayouts()
     }
 
-    @SuppressLint("RestrictedApi")
+
     private fun initViewData() {
         scrollView.post {
             fake_search_item.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
@@ -59,34 +66,81 @@ class MainPageActivity : AppCompatActivity() {
             common_viewpager.setFixHeight(tabHeight)
         }
         scrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
-            val location = IntArray(2)
-            real_search_item.getLocationInWindow(location)
-
-            var criticalH = location[1] - BarUtils.getStatusBarHeight() /*+ fake_search_item.measuredHeight*/
-            if (criticalH < 0) {
-                fake_search_item.visibility = View.VISIBLE
-
-                val maxColorHeight = 100 //最大滑动颜色改变;
-                var relativeHeight = Math.abs(criticalH)
-                var fration = relativeHeight * 1.0f / maxColorHeight
-                if (fration < 1 && !colorIsSetting) {
-                    var argbEvaluator = ArgbEvaluator.getInstance()
-                    var evaluate = argbEvaluator.evaluate(fration, Color.argb(0, 255, 255, 255), Color.argb(255, 255, 255, 255))
-                    fake_search_item.setBackgroundColor(evaluate as Int)
-                } else {
-                    colorIsSetting = true
-                    fake_search_item.setBackgroundColor(Color.argb(255, 255, 255, 255))
-                }
-            } else {
-                colorIsSetting = false
-                fake_search_item.visibility = View.GONE
-            }
+            //            animForAlphaColorBar()
+            animForFlexMarginBar()
         })
 
         swipeRefreshView.setOnRefreshListener {
             it.finishRefresh(1000/*,false*/);//传入false表示刷新失败
         }
         swipeRefreshView.setRefreshHeader(BezierRadarHeader(this).setEnableHorizontalDrag(true))
+    }
+
+    /**
+     * 动画二,设置隐藏bar无padding, realitem滑动过程中需要动态改变margin;
+     * 同时内部view的间距不改变;
+     *
+     * 目标: realItem;
+     */
+    fun animForFlexMarginBar() {
+        val location = IntArray(2)
+        real_search_item.getLocationInWindow(location)
+
+        Log.e("tagpage: ", " " + real_search_item.y + "  " + maxHeight)
+
+        var criticalH = location[1] - BarUtils.getStatusBarHeight() + paddingOffset
+        maxHeight = if (criticalH > maxHeight) criticalH else maxHeight
+
+        if (criticalH <= 0) {
+            fake_search_item.visibility = View.VISIBLE
+        } else {
+            fake_search_item.visibility = View.GONE
+
+            var fration = criticalH * 1.0f / maxHeight
+            var intEvaluator = IntEvaluator()
+            var evaluate = intEvaluator.evaluate(fration, 0, ConvertUtils.dp2px(12f))
+
+            var layoutParams = real_search_item.layoutParams as ViewGroup.MarginLayoutParams
+            layoutParams.leftMargin = evaluate
+            layoutParams.rightMargin = evaluate
+            real_search_item.layoutParams = layoutParams
+
+            var marginLayoutParams = item_inner_four_shortcut.layoutParams as ViewGroup.MarginLayoutParams
+            marginLayoutParams.leftMargin = ConvertUtils.dp2px(12f) - evaluate
+            marginLayoutParams.rightMargin = ConvertUtils.dp2px(12f) - evaluate
+            item_inner_four_shortcut.layoutParams = marginLayoutParams
+        }
+    }
+
+    /**
+     * 原需求,设置隐藏的bar有padding; fakeitem 改变背景色;
+     *
+     * 目标: fakeItem;
+     */
+    @SuppressLint("RestrictedApi")
+    fun animForAlphaColorBar() {
+        val location = IntArray(2)
+        real_search_item.getLocationInWindow(location)
+
+        var criticalH = location[1] - BarUtils.getStatusBarHeight() /*+ fake_search_item.measuredHeight*/
+        if (criticalH < 0) {
+            fake_search_item.visibility = View.VISIBLE
+
+            val maxColorHeight = 100 //最大滑动颜色改变;
+            var relativeHeight = Math.abs(criticalH)
+            var fration = relativeHeight * 1.0f / maxColorHeight
+            if (fration < 1 && !colorIsSetting) {
+                var argbEvaluator = ArgbEvaluator.getInstance()
+                var evaluate = argbEvaluator.evaluate(fration, Color.argb(0, 255, 255, 255), Color.argb(255, 255, 255, 255))
+                fake_search_item.setBackgroundColor(evaluate as Int)
+            } else {
+                colorIsSetting = true
+                fake_search_item.setBackgroundColor(Color.argb(255, 255, 255, 255))
+            }
+        } else {
+            colorIsSetting = false
+            fake_search_item.visibility = View.GONE
+        }
     }
 
     private fun initialLayouts() {
