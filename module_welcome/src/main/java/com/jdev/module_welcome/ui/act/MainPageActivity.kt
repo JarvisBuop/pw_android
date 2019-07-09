@@ -1,11 +1,11 @@
 package com.jdev.module_welcome.ui.act
 
 import android.animation.IntEvaluator
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import android.support.graphics.drawable.ArgbEvaluator
+import android.support.v4.app.Fragment
 import android.support.v4.view.ViewPager
 import android.support.v4.widget.NestedScrollView
 import android.support.v7.app.AppCompatActivity
@@ -16,10 +16,9 @@ import com.blankj.utilcode.util.BarUtils
 import com.blankj.utilcode.util.ConvertUtils
 import com.blankj.utilcode.util.ScreenUtils
 import com.jdev.module_welcome.R
-import com.jdev.module_welcome.adapter.BaseFragmentStatePagerAdapter
+import com.jdev.module_welcome.adapter.BaseFragmentV4StatePagerAdapter
 import com.jdev.module_welcome.ui.frag.KtChildBaseFragment
 import com.jdev.module_welcome.ui.widget.JdCustomHeader
-import com.scwang.smartrefresh.layout.header.BezierRadarHeader
 import kotlinx.android.synthetic.main.act_mainpage_container.*
 import kotlinx.android.synthetic.main.include_real_search_item.*
 import kotlinx.android.synthetic.main.include_tab_viewpager.*
@@ -45,7 +44,7 @@ class MainPageActivity : AppCompatActivity() {
     var maxHeight: Int = 0
     var paddingOffset = ConvertUtils.dp2px(5f)
 
-    private var mBaseFragmentStatePagerAdapter: BaseFragmentStatePagerAdapter? = null
+    private var mBaseFragmentV4StatePagerAdapter: BaseFragmentV4StatePagerAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -148,16 +147,16 @@ class MainPageActivity : AppCompatActivity() {
 
     private fun initialLayouts() {
         val tabs = arrayOf(/*"精选",*/ "专题", "课程", "素材", "教案", "图库")
-        mBaseFragmentStatePagerAdapter = BaseFragmentStatePagerAdapter(supportFragmentManager,
+        mBaseFragmentV4StatePagerAdapter = BaseFragmentV4StatePagerAdapter(supportFragmentManager,
                 arrayListOf(
-                        KtChildBaseFragment() as android.support.v4.app.Fragment,
+                        KtChildBaseFragment() as Fragment,
                         KtChildBaseFragment(),
                         KtChildBaseFragment(),
                         KtChildBaseFragment(),
                         KtChildBaseFragment()),
                 tabs)
         common_viewpager.offscreenPageLimit = tabs.size
-        common_viewpager.adapter = mBaseFragmentStatePagerAdapter
+        common_viewpager.adapter = mBaseFragmentV4StatePagerAdapter
         common_tablayout.setViewPager(common_viewpager)
         common_viewpager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
             override fun onPageSelected(position: Int) {
