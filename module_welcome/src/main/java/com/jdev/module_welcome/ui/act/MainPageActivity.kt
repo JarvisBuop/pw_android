@@ -18,6 +18,7 @@ import com.blankj.utilcode.util.ScreenUtils
 import com.jdev.module_welcome.R
 import com.jdev.module_welcome.adapter.BaseFragmentStatePagerAdapter
 import com.jdev.module_welcome.ui.frag.KtChildBaseFragment
+import com.jdev.module_welcome.ui.widget.JdCustomHeader
 import com.scwang.smartrefresh.layout.header.BezierRadarHeader
 import kotlinx.android.synthetic.main.act_mainpage_container.*
 import kotlinx.android.synthetic.main.include_real_search_item.*
@@ -73,7 +74,7 @@ class MainPageActivity : AppCompatActivity() {
         swipeRefreshView.setOnRefreshListener {
             it.finishRefresh(1000/*,false*/);//传入false表示刷新失败
         }
-        swipeRefreshView.setRefreshHeader(BezierRadarHeader(this).setEnableHorizontalDrag(true))
+        swipeRefreshView.setRefreshHeader(JdCustomHeader(this))
     }
 
     /**
@@ -90,6 +91,8 @@ class MainPageActivity : AppCompatActivity() {
 
         var criticalH = location[1] - BarUtils.getStatusBarHeight() + paddingOffset
         maxHeight = if (criticalH > maxHeight) criticalH else maxHeight
+        //兼容阴影大小;
+        var sideMargin = ConvertUtils.dp2px(6f)
 
         if (criticalH <= 0) {
             fake_search_item.visibility = View.VISIBLE
@@ -98,7 +101,7 @@ class MainPageActivity : AppCompatActivity() {
 
             var fration = criticalH * 1.0f / maxHeight
             var intEvaluator = IntEvaluator()
-            var evaluate = intEvaluator.evaluate(fration, 0, ConvertUtils.dp2px(12f))
+            var evaluate = intEvaluator.evaluate(fration, 0, sideMargin)
 
             var layoutParams = real_search_item.layoutParams as ViewGroup.MarginLayoutParams
             layoutParams.leftMargin = evaluate
@@ -106,8 +109,8 @@ class MainPageActivity : AppCompatActivity() {
             real_search_item.layoutParams = layoutParams
 
             var marginLayoutParams = item_inner_four_shortcut.layoutParams as ViewGroup.MarginLayoutParams
-            marginLayoutParams.leftMargin = ConvertUtils.dp2px(12f) - evaluate
-            marginLayoutParams.rightMargin = ConvertUtils.dp2px(12f) - evaluate
+            marginLayoutParams.leftMargin = sideMargin - evaluate
+            marginLayoutParams.rightMargin = sideMargin - evaluate
             item_inner_four_shortcut.layoutParams = marginLayoutParams
         }
     }
