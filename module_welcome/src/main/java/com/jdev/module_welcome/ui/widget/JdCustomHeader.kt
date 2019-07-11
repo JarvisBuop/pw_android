@@ -119,8 +119,13 @@ class JdCustomHeader : ConstraintLayout, RefreshHeader {
     override fun onMoving(isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) {
         Log.e(TAG, "onMoving" + isDragging + " p: " + percent + " offset: " + offset + " height: " + height + " max: " + maxDragHeight)
 
-
+        //滑动旋转
         bgView.rotation = offset.toFloat()
+
+        //滑动大小
+        var fration = offset * 1.0f / height
+        setTargetScale(fration, bgView)
+        setTargetScale(fration, bgPicView)
     }
 
     override fun isSupportHorizontalDrag(): Boolean {
@@ -154,5 +159,25 @@ class JdCustomHeader : ConstraintLayout, RefreshHeader {
         if(this::foreverAnim.isInitialized){
             foreverAnim.cancel()
         }
+    }
+
+    fun setTargetScale(fration: Float, targetView: View) {
+//        var floatEvaluator = FloatEvaluator()
+//        var bgViewWidth = ConvertUtils.dp2px(floatMaxParams)
+//        var evaluate1 = floatEvaluator.evaluate(fration, bgViewWidth * 0.2f, bgViewWidth)
+
+//        LogUtils.e(TAG,"evaluate: "+ fration)
+//        var layoutParams1 = targetView.layoutParams
+//        layoutParams1.width = evaluate1.toInt()
+//        layoutParams1.height = evaluate1.toInt()
+//        targetView.layoutParams = layoutParams1
+        var scale = fration
+        if (scale < 0.2f) {
+            scale = 0.2f
+        } else if (scale > 1f) {
+            scale = 1f
+        }
+        targetView.scaleX = scale
+        targetView.scaleY = scale
     }
 }

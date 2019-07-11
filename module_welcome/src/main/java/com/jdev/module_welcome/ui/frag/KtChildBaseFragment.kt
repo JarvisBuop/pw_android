@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.blankj.utilcode.util.ConvertUtils
 import com.jdev.module_welcome.R
+import com.jdev.module_welcome.ui.helper.HeaderScrollHelper
 import kotlinx.android.synthetic.main.item_page.*
 import kotlinx.android.synthetic.main.item_sample_view.view.*
 
@@ -17,7 +18,11 @@ import kotlinx.android.synthetic.main.item_sample_view.view.*
  * @Description:
  * @see:
  */
-class KtChildBaseFragment : Fragment() {
+class KtChildBaseFragment : Fragment() , HeaderScrollHelper.ScrollableContainer{
+    override fun getScrollableView(): View {
+        return recyclerview
+    }
+
     var mData = arrayListOf<Int>(
             R.drawable.icon1, R.drawable.icon2,
             R.drawable.icon3, R.drawable.icon4,

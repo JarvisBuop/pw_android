@@ -12,11 +12,11 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.blankj.utilcode.util.BarUtils
-import com.blankj.utilcode.util.ConvertUtils
-import com.blankj.utilcode.util.ScreenUtils
+import com.blankj.utilcode.util.*
 import com.jdev.module_welcome.R
 import com.jdev.module_welcome.adapter.BaseFragmentV4StatePagerAdapter
+import com.jdev.module_welcome.ui.helper.HeaderScrollHelper
+import com.jdev.module_welcome.ui.widget.FixScrollView
 import com.jdev.module_welcome.ui.widget.JdCustomHeader
 import kotlinx.android.synthetic.main.act_mainpage_container.*
 import kotlinx.android.synthetic.main.include_real_search_item.*
@@ -28,7 +28,7 @@ import kotlinx.android.synthetic.main.include_tab_viewpager.*
  * @description:
  *
  */
-class MainPageFragment : Fragment(){
+class MainPageFragment : Fragment() {
     val TAG: String = "MainPageFragment"
     var colorIsSetting = false
     var maxHeight: Int = 0
@@ -37,8 +37,28 @@ class MainPageFragment : Fragment(){
     private var mBaseFragmentV4StatePagerAdapter: BaseFragmentV4StatePagerAdapter? = null
 
 
+    companion object {
+
+        val KEY_BO = "BO"
+
+        fun newInstance(bottomOffset: Int): MainPageFragment {
+            var frag = MainPageFragment()
+            var bundle = Bundle()
+            frag.arguments = bundle
+            bundle.putInt(KEY_BO, bottomOffset)
+            return frag
+        }
+
+    }
+
+    var verticalListener: ScrollVerticalDistanceListener? = null
+
+    interface ScrollVerticalDistanceListener {
+        fun scrollDistance(scrollPos: Int, tabMaxHeight: Int, downScroll: Boolean, isVisiable: Boolean)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.act_mainpage_container,container,false)
+        return inflater.inflate(R.layout.act_mainpage_container, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -48,24 +68,46 @@ class MainPageFragment : Fragment(){
     }
 
     private fun initViewData() {
-        scrollView.post {
-            fake_search_item.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
-            scrollView.setTargetView(common_tablayout, fake_search_item.measuredHeight)
-
-            //todo 需要与全面屏适配;
-            var tabHeight = ScreenUtils.getScreenHeight() - fake_search_item.measuredHeight - BarUtils.getStatusBarHeight() - common_tablayout.measuredHeight
-            common_viewpager.setFixHeight(tabHeight)
+        common_tablayout.viewTreeObserver.addOnGlobalLayoutListener {
+            postInitTabView(arguments?.getInt(KEY_BO) ?: 0)
+//                scrollView.viewTreeObserver.removeOnGlobalLayoutListener(this)
         }
         scrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
             //            animForAlphaColorBar()
             animForFlexMarginBar()
+
+            LogUtils.e("OnScrollChangeListener", " x " + scrollX + " y " + scrollY + " oldx " + oldScrollX + " oldY " + oldScrollY + " scrollView.ScorllY: " + scrollView.scrollY
+                    + " scrollView.maxScrollY " + scrollView.maxScrollY)
+
+            if (verticalListener != null) {
+                verticalListener?.scrollDistance(scrollY, scrollView.maxScrollY, oldScrollY > scrollY, false)
+            }
+        })
+
+        scrollView.setOnScrollListener(object : FixScrollView.OnScrollListener {
+
+            override fun scrolldownToLeaveThreshold(criticalH: Int, dy: Float) {
+                scrollOtherListToTop(currentItem, fragments)
+            }
         })
 
         swipeRefreshView.setOnRefreshListener {
             it.finishRefresh(1000/*,false*/);//传入false表示刷新失败
         }
         swipeRefreshView.setRefreshHeader(JdCustomHeader(activity!!))
+    }
+
+    fun postInitTabView(bottomOffset: Int) {
+        fake_search_item.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+        scrollView.setTargetView(common_tablayout, fake_search_item.measuredHeight)
+
+        //todo 需要与全面屏适配;
+        var tabHeight = ScreenUtils.getScreenHeight() - fake_search_item.measuredHeight - BarUtils.getStatusBarHeight() - common_tablayout.measuredHeight
+        //再减去底部高度;
+        tabHeight -= bottomOffset
+        common_viewpager.setFixHeight(tabHeight)
+
     }
 
     /**
@@ -137,23 +179,52 @@ class MainPageFragment : Fragment(){
         }
     }
 
+
+    private lateinit var mCurrentFragment: KtChildBaseFragment
+    private lateinit var fragments: ArrayList<Fragment>
+    private var currentItem: Int = 0
     private fun initialLayouts() {
         val tabs = arrayOf(/*"精选",*/ "专题", "课程", "素材", "教案", "图库")
+        fragments = arrayListOf(
+                KtChildBaseFragment() as Fragment,
+                KtChildBaseFragment(),
+                KtChildBaseFragment(),
+                KtChildBaseFragment(),
+                KtChildBaseFragment())
         mBaseFragmentV4StatePagerAdapter = BaseFragmentV4StatePagerAdapter(childFragmentManager,
-                arrayListOf(
-                        KtChildBaseFragment() as Fragment,
-                        KtChildBaseFragment(),
-                        KtChildBaseFragment(),
-                        KtChildBaseFragment(),
-                        KtChildBaseFragment()),
+                fragments,
                 tabs)
         common_viewpager.offscreenPageLimit = tabs.size
         common_viewpager.adapter = mBaseFragmentV4StatePagerAdapter
         common_tablayout.setViewPager(common_viewpager)
+
+        setCurrentContainer(fragments, currentItem)
         common_viewpager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
             override fun onPageSelected(position: Int) {
+                currentItem = position
+                setCurrentContainer(fragments, currentItem)
             }
         })
     }
 
+    fun setCurrentContainer(fragments: ArrayList<Fragment>, position: Int) {
+        try {
+            val fragment = fragments.get(position)
+            mCurrentFragment = fragment as KtChildBaseFragment
+            scrollView.setCurrentScrollableContainer(mCurrentFragment)
+        } catch (ignore: Exception) {
+            ToastUtils.showLong("error")
+        }
+    }
+
+    fun scrollOtherListToTop(current: Int, fragments: ArrayList<Fragment>) {
+        try {
+            for (i in fragments.indices) {
+                val fragment = fragments.get(i) as KtChildBaseFragment
+                HeaderScrollHelper.scrollToTopNoAnimator(fragment.scrollableView)
+            }
+        } catch (ignore: Exception) {
+            ToastUtils.showLong("error")
+        }
+    }
 }
