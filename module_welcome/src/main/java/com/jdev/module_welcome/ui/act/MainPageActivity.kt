@@ -24,6 +24,7 @@ import kotlinx.android.synthetic.main.include_tab_viewpager.*
  *
  * 搜索框采用 隐藏fakeview 浮顶实现;
  *
+ *
  * tab 采用 处理滑动事件处理;
  *
  *
