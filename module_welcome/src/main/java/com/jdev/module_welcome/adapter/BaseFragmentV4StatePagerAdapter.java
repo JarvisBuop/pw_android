@@ -9,22 +9,22 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class BaseFragmentStatePagerAdapter extends FragmentStatePagerAdapter {
+public class BaseFragmentV4StatePagerAdapter extends FragmentStatePagerAdapter {
 
-    public BaseFragmentStatePagerAdapter(FragmentManager fm) {
+    public BaseFragmentV4StatePagerAdapter(FragmentManager fm) {
         super(fm);
     }
 
     List<Fragment> mFragments = new ArrayList<>();
     List<String> mTabs = new ArrayList<>();
 
-    public BaseFragmentStatePagerAdapter(FragmentManager fm, ArrayList<Fragment> fragments, List<String> tabs) {
+    public BaseFragmentV4StatePagerAdapter(FragmentManager fm, ArrayList<Fragment> fragments, List<String> tabs) {
         super(fm);
         mFragments = fragments;
         mTabs = tabs;
     }
 
-    public BaseFragmentStatePagerAdapter(FragmentManager fm, ArrayList<Fragment> fragments, String[] tabs) {
+    public BaseFragmentV4StatePagerAdapter(FragmentManager fm, ArrayList<Fragment> fragments, String[] tabs) {
         this(fm, fragments, Arrays.asList(tabs));
     }
 

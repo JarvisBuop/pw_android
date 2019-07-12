@@ -28,8 +28,6 @@ class FixRecyclerView : RecyclerView {
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         Log.e(TAG, "dispatchTouchEvent")
 
-        getParentView()
-
         return super.dispatchTouchEvent(ev)
     }
 
@@ -49,28 +47,4 @@ class FixRecyclerView : RecyclerView {
 
         return super.onInterceptTouchEvent(e)
     }
-
-//    var mLastX: Float = 0f
-//    var mLastY: Float = 0f
-//    override fun onTouchEvent(event: MotionEvent): Boolean {
-//        Log.e(TAG, "onTouchEvent")
-//        var x = event.x
-//        var y = event.y
-//        var action = event.getAction()
-//        when (action) {
-//            MotionEvent.ACTION_DOWN -> {
-//                getParentView()
-//            }
-//            MotionEvent.ACTION_MOVE -> {
-//                getParentView()
-////                var dx = event.x - mLastX
-////                var dy = event.y - mLastY
-////                smoothScrollBy(0, -dy.toInt())
-//            }
-//        }
-//
-//        mLastX = x
-//        mLastY = y
-//        return super.onTouchEvent(event)
-//    }
 }

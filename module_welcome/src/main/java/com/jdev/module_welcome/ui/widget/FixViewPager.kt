@@ -36,8 +36,6 @@ class FixViewPager : ViewPager {
          *
          * 因为父类已经将所有子view测量,应该可以直接获取每个子view的高度;
          */
-
-//        var currentChildViewHeight = getHeightForCurrentPosition(currentItem)
         var currentChildViewHeight = if (getHeightForOffset() != 0) getHeightForOffset() else getHeightForCurrentPosition(currentItem)
 
         setMeasuredDimension(View.getDefaultSize(0, widthMeasureSpec),
@@ -48,8 +46,10 @@ class FixViewPager : ViewPager {
         return fixHeight
     }
 
+    //todo 需要与全面屏适配;
     fun setFixHeight(fixHeight: Int) {
         this.fixHeight = fixHeight
+        requestLayout()
     }
 
     /**
@@ -69,54 +69,4 @@ class FixViewPager : ViewPager {
         }
         return 0
     }
-
-//    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-//        var interceptor: Boolean = false
-//        var x = ev.x
-//        var y = ev.y
-//
-//        val action = ev.action
-//        when (action) {
-//            MotionEvent.ACTION_DOWN -> {
-//                interceptor = false
-////                if (!mScroller.isFinished) {
-////                    mScroller.abortAnimation()
-////                    interceptor = true
-////                }
-////                downX = x
-////                downY = y
-//            }
-//            MotionEvent.ACTION_MOVE -> {
-////                var dx = x - mLastX
-////                var dy = y - mLastY
-////
-////                var totaldx = x - downX
-////                var totaldy = y - downY
-////                if (Math.abs(totaldy) < scaledTouchSlop) {
-////                    interceptor = false
-////                } else {
-////                    if (isAttachPosition(floatView!!, dx, dy)) {
-////                        interceptor = false
-////                    } else {
-////                        interceptor = true
-////                    }
-////                }
-//                Log.e(TAG, " interceptor: " + interceptor)
-//            }
-//            MotionEvent.ACTION_UP -> {
-//                interceptor = false
-//            }
-//        }
-//
-////        mLastX = x
-////        mLastY = y
-////        super.onInterceptTouchEvent(ev)
-//        return interceptor
-//    }
-
-//    override fun onTouchEvent(ev: MotionEvent?): Boolean {
-//        var evBool = super.onTouchEvent(ev)
-//        Log.e(TAG, " onTouchEvent " + evBool)
-//        return evBool
-//    }
 }

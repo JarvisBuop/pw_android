@@ -5,59 +5,73 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.jdev.module_welcome.ui.widget.FixScrollView
-        android:id="@+id/scrollView"
+    <com.scwang.smartrefresh.layout.SmartRefreshLayout
+        android:id="@+id/swipeRefreshView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/line_eee">
+        android:layout_height="match_parent">
 
-        <android.support.constraint.ConstraintLayout
+        <!--<com.scwang.smartrefresh.layout.header.ClassicsHeader-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"/>-->
+
+        <com.jdev.module_welcome.ui.widget.FixScrollView
+            android:id="@+id/scrollView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@color/white">
 
-            <!--banner-->
-            <ImageView
-                android:id="@+id/banner"
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/mypoint_banner"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_height="match_parent">
 
-            <include
-                android:id="@+id/real_search_item"
-                layout="@layout/include_real_search_item"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/margin_12dp"
-                android:layout_marginTop="138dp"
-                android:layout_marginRight="@dimen/margin_12dp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                <!--banner-->
+                <ImageView
+                    android:id="@+id/banner"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/mypoint_banner"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <include
-                layout="@layout/include_tab_viewpager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/real_search_item" />
+                <include
+                    android:id="@+id/real_search_item"
+                    layout="@layout/include_real_search_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/margin_6dp"
+                    android:layout_marginTop="132dp"
+                    android:layout_marginRight="@dimen/margin_6dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-        </android.support.constraint.ConstraintLayout>
-    </com.jdev.module_welcome.ui.widget.FixScrollView>
+                <include
+                    layout="@layout/include_tab_viewpager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="@dimen/dimen_nor_5dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/real_search_item" />
+
+            </android.support.constraint.ConstraintLayout>
+        </com.jdev.module_welcome.ui.widget.FixScrollView>
+    </com.scwang.smartrefresh.layout.SmartRefreshLayout>
 
     <FrameLayout
         android:id="@+id/fake_search_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        android:paddingLeft="@dimen/margin_12dp"
-        android:paddingRight="@dimen/margin_12dp"
+        android:paddingLeft="@dimen/dimen_nor_5dp"
+        android:paddingRight="@dimen/dimen_nor_5dp"
         android:visibility="gone"
         tools:visibility="visible">
+
+        <!--android:paddingLeft="@dimen/margin_12dp"-->
+        <!--android:paddingRight="@dimen/margin_12dp"-->
 
         <include
             layout="@layout/include_search_titlebar"

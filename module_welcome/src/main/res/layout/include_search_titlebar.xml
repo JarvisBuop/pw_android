@@ -3,8 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/rect_white_corner_all_6dp">
+    android:layout_height="wrap_content">
+
+    <!--android:background="@drawable/rect_white_corner_all_6dp"-->
 
     <LinearLayout
         android:id="@+id/fake_search_main_title"
@@ -47,7 +48,7 @@
         android:layout_height="30dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="@dimen/dimen_nor_16dp"
+        android:layout_marginLeft="@dimen/dimen_nor_12dp"
         android:layout_marginRight="@dimen/margin_12dp"
         android:background="?selectableItemBackgroundBorderless"
         android:gravity="center_vertical"
