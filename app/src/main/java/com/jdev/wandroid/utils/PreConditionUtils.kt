@@ -4,7 +4,7 @@ import android.support.annotation.ColorRes
 import android.support.annotation.StringRes
 import android.view.View
 import android.widget.TextView
-import com.blankj.utilcode.utils.StringUtils
+import com.blankj.utilcode.util.StringUtils
 import com.jarvisdong.kit.baseui.BaseApp
 import java.math.BigDecimal
 import java.text.DecimalFormat

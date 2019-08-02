@@ -16,6 +16,7 @@ import com.jdev.kit.R
 abstract class BaseActivity : AppCompatActivity() {
     protected lateinit var mContext: Context
     private val isDebug = true
+    protected val TAG :String = this::class.java.name
 
     //init default view;
     protected var toolbar: android.support.v7.widget.Toolbar? = null

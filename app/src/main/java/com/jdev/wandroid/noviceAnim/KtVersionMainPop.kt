@@ -13,9 +13,9 @@ import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import android.widget.TextView
-import com.blankj.utilcode.utils.BarUtils
-import com.blankj.utilcode.utils.ConvertUtils
-import com.blankj.utilcode.utils.ScreenUtils
+import com.blankj.utilcode.util.BarUtils
+import com.blankj.utilcode.util.ConvertUtils
+import com.blankj.utilcode.util.ScreenUtils
 import com.jdev.wandroid.utils.PreConditionUtils
 import com.jdev.wandroid.utils.ViewUtils
 
@@ -155,7 +155,7 @@ class KtVersionMainPop(context: Context, var callback: ViewUtils.OnCallback<*>) 
     }
 
     private fun getHeightForAnim(targetView: View) =
-            (ScreenUtils.getScreenHeight() - BarUtils.getStatusBarHeight(mContext) - Math.abs(targetView.y) - layoutMenu.measuredHeight - markHeight - offsetMargin).toInt()
+            (ScreenUtils.getScreenHeight() - BarUtils.getStatusBarHeight() - Math.abs(targetView.y) - layoutMenu.measuredHeight - markHeight - offsetMargin).toInt()
 
     fun revertImage(view: View) {
         view.translationX = 0F
@@ -175,7 +175,7 @@ class KtVersionMainPop(context: Context, var callback: ViewUtils.OnCallback<*>) 
                 ViewUtils.setMsgIntoView(PreConditionUtils.getStringByRes(com.jdev.wandroid.R.string.version_main_2), tipsTxt)
                 var layoutParams = tipsView.layoutParams as ViewGroup.MarginLayoutParams
                 layoutParams.leftMargin = ScreenUtils.getScreenWidth() - markWidth
-                layoutParams.topMargin = (ScreenUtils.getScreenHeight() - BarUtils.getStatusBarHeight(mContext) - (layoutMenu.measuredHeight + markHeight) - offsetMargin).toInt()
+                layoutParams.topMargin = (ScreenUtils.getScreenHeight() - BarUtils.getStatusBarHeight() - (layoutMenu.measuredHeight + markHeight) - offsetMargin).toInt()
                 tipsView.layoutParams = layoutParams
             }
         })
