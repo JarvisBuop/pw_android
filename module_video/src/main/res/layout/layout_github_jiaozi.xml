@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!--<fragment-->
+    <!--android:id="@+id/fragment_jiaozi"-->
+    <!--android:name="com.example.module_video.ui.frag.JiaoziVideoFragment"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent" />-->
+
+    <!--<include layout="@layout/frag_layout_jiaozi"/>-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp">
+
+        <!--<com.example.module_video.jiaozi.MyJzvdStdPlayer-->
+        <!--android:id="@+id/jzplayer"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent" />-->
+
+        <com.example.module_video.jiaozi.MyJzvdStd
+            android:id="@+id/jzplayer"
+            android:layout_width="match_parent"
+            android:layout_height="200dp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_replay"
+        android:text="next"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <VideoView
+        android:id="@+id/video_view_test"
+        android:layout_width="match_parent"
+        android:layout_height="200dp" />
+
+</LinearLayout>

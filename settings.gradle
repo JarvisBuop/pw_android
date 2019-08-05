@@ -1,1 +1,1 @@
-include ':app', ':kit', ':module_welcome'
+include ':app', ':kit', ':module_welcome', ':module_video'
