@@ -1,1 +1,1 @@
-include ':app', ':kit', ':module_welcome', ':module_video'
+include ':app', ':kit', ':module_welcome', ':module_video', ':jiaozivideoplayer'
