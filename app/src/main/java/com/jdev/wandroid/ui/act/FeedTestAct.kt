@@ -1,6 +1,7 @@
 package com.jdev.wandroid.ui.act
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -44,12 +45,13 @@ class FeedTestAct : BaseActivity() {
         if(second_list_view==null) return
         mData2 = ArrayList()
         mAdapter2 = MyAdapter(mContext, mData2)
+        mAdapter2.b = true
         second_list_view.layoutManager = LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false)
         second_list_view.adapter = mAdapter2
     }
 
     private fun initData() {
-        for (i in 0..20) {
+        for (i in 0..30) {
             mData.add("test: "+i)
             mData2.add("test: "+i)
         }
@@ -67,6 +69,10 @@ class FeedTestAct : BaseActivity() {
 
 
     class MyAdapter(var mContext: Context?, var mData: ArrayList<Any>) : RecyclerView.Adapter<MyHolder>() {
+        var b:Boolean = false
+        fun setBg(){
+            b = true
+        }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyHolder {
             var view = LayoutInflater.from(mContext).inflate(R.layout.activity_feed_detail_include_centerdrag, parent, false)
@@ -78,6 +84,11 @@ class FeedTestAct : BaseActivity() {
         }
 
         override fun onBindViewHolder(holder: MyHolder, position: Int) {
+            if(b){
+                holder.itemView.setBackgroundColor(Color.GREEN)
+            }else {
+                holder.itemView.setBackgroundColor(Color.CYAN)
+            }
             holder.itemView.scroll_tip.setText(mData.get(position).toString())
         }
 
