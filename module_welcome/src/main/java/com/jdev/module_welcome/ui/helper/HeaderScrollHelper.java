@@ -77,7 +77,7 @@ public class HeaderScrollHelper {
         return false;
     }
 
-    private boolean isRecyclerViewTop(RecyclerView recyclerView) {
+    public static boolean isRecyclerViewTop(RecyclerView recyclerView) {
         if (recyclerView != null) {
             RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
             if (layoutManager instanceof LinearLayoutManager) {
@@ -86,11 +86,11 @@ public class HeaderScrollHelper {
                 if (childAt == null || (firstVisibleItemPosition == 0 && childAt.getTop() == 0)) {
                     return true;
                 }
-            }else if(layoutManager instanceof StaggeredGridLayoutManager){
+            } else if (layoutManager instanceof StaggeredGridLayoutManager) {
                 int[] mFirstVisibleItems = null;
                 int[] firstVisibleItemPositions = ((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(mFirstVisibleItems);
-                View childAt =  recyclerView.getChildAt(0);
-                if(childAt == null || firstVisibleItemPositions[0] == 0 && childAt.getTop() == 0){
+                View childAt = recyclerView.getChildAt(0);
+                if (childAt == null || firstVisibleItemPositions[0] == 0 && childAt.getTop() == 0) {
                     return true;
                 }
             }
@@ -98,7 +98,30 @@ public class HeaderScrollHelper {
         return false;
     }
 
-    private boolean isAdapterViewTop(AdapterView adapterView) {
+    public static boolean isRecyclerViewBottom(RecyclerView recyclerView) {
+        if (recyclerView != null) {
+            RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+            if (layoutManager instanceof LinearLayoutManager) {
+                int firstLastItemPosition = ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition();
+                int visibleItemCount = layoutManager.getChildCount();
+                int totalItemCount = layoutManager.getItemCount();
+                if (firstLastItemPosition == totalItemCount - 1 && visibleItemCount > 0) {
+                    return true;
+                }
+            } else if (layoutManager instanceof StaggeredGridLayoutManager) {
+                int[] mFirstVisibleItems = null;
+                int[] firstLastItemPositions = ((StaggeredGridLayoutManager) layoutManager).findLastVisibleItemPositions(mFirstVisibleItems);
+                int visibleItemCount = layoutManager.getChildCount();
+                int totalItemCount = layoutManager.getItemCount();
+                if (firstLastItemPositions[0] == totalItemCount - 1 && visibleItemCount > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean isAdapterViewTop(AdapterView adapterView) {
         if (adapterView != null) {
             int firstVisiblePosition = adapterView.getFirstVisiblePosition();
             View childAt = adapterView.getChildAt(0);
@@ -109,7 +132,19 @@ public class HeaderScrollHelper {
         return false;
     }
 
-    private boolean isScrollViewTop(ScrollView scrollView) {
+    public static boolean isAdapterViewBottom(AdapterView adapterView) {
+        if (adapterView != null) {
+            int lastVisiblePosition = adapterView.getLastVisiblePosition();
+            int count = adapterView.getCount();
+            int visibleCount = adapterView.getChildCount();
+            if ((lastVisiblePosition == count - 1 && visibleCount > 0)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isScrollViewTop(ScrollView scrollView) {
         if (scrollView != null) {
             int scrollViewY = scrollView.getScrollY();
             return scrollViewY <= 0;
@@ -117,10 +152,32 @@ public class HeaderScrollHelper {
         return false;
     }
 
-    private boolean isWebViewTop(WebView scrollView) {
+    public static boolean isScrollViewBottom(ScrollView scrollView) {
+        if (scrollView != null) {
+            View childAt = scrollView.getChildAt(0);
+            int scrollViewY = scrollView.getScrollY();
+            int childViewH = childAt.getMeasuredHeight();
+            int parentViewH = scrollView.getMeasuredHeight();
+            if (scrollViewY == childViewH - parentViewH) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isWebViewTop(WebView scrollView) {
         if (scrollView != null) {
             int scrollViewY = scrollView.getScrollY();
             return scrollViewY <= 0;
+        }
+        return false;
+    }
+
+    public static boolean isWebViewBottom(WebView webView) {
+        if (webView != null) {
+            if (webView.getContentHeight() * webView.getScale() - (webView.getHeight() + webView.getScrollY()) == 0) {
+                return true;
+            }
         }
         return false;
     }
@@ -154,29 +211,29 @@ public class HeaderScrollHelper {
     /**
      * 将特定的view滑动到顶部;
      */
-    public static void scrollToTop(View scrollableView){
+    public static void scrollToTop(View scrollableView) {
         if (scrollableView instanceof AbsListView) {
             AbsListView absListView = (AbsListView) scrollableView;
             absListView.smoothScrollToPosition(0);
         } else if (scrollableView instanceof ScrollView) {
-            ((ScrollView) scrollableView).smoothScrollTo(0,0);
+            ((ScrollView) scrollableView).smoothScrollTo(0, 0);
         } else if (scrollableView instanceof RecyclerView) {
             ((RecyclerView) scrollableView).smoothScrollToPosition(0);
         } else if (scrollableView instanceof WebView) {
-            ((WebView) scrollableView).scrollTo(0,0);
+            ((WebView) scrollableView).scrollTo(0, 0);
         }
     }
 
-    public static void scrollToTopNoAnimator(View scrollableView){
+    public static void scrollToTopNoAnimator(View scrollableView) {
         if (scrollableView instanceof AbsListView) {
             AbsListView absListView = (AbsListView) scrollableView;
-            absListView.scrollTo(0,0);
+            absListView.scrollTo(0, 0);
         } else if (scrollableView instanceof ScrollView) {
-            ((ScrollView) scrollableView).scrollTo(0,0);
+            ((ScrollView) scrollableView).scrollTo(0, 0);
         } else if (scrollableView instanceof RecyclerView) {
             ((RecyclerView) scrollableView).scrollToPosition(0);
         } else if (scrollableView instanceof WebView) {
-            ((WebView) scrollableView).scrollTo(0,0);
+            ((WebView) scrollableView).scrollTo(0, 0);
         }
     }
 }
