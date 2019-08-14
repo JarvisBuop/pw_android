@@ -8,6 +8,7 @@ import android.widget.MediaController
 import android.widget.VideoView
 import cn.jzvd.Jzvd
 import cn.jzvd.JzvdStd
+import com.example.module_video.R
 import com.example.module_video.jiaozi.CustomMedia.JZMediaExo
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource

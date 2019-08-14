@@ -38,6 +38,7 @@ class FeedTestAct : BaseActivity() {
         initRecyclerList()
         initSecondRecyclerList()
 
+        container.setDisableDoubleScroll(false)
         initData()
     }
 

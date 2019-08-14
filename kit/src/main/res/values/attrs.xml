@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ShadowViewWrapper">
+        <attr name="shadow_color" format="color" />
+        <attr name="shadow_radius" format="dimension" />
+        <attr name="shadow_deltaLength" format="dimension" />
+        <attr name="shadow_offsetX" format="dimension" />
+        <attr name="shadow_offsetY" format="dimension" />
+
+        <attr name="shadow_container_corner" format="dimension" />
+    </declare-styleable>
+
+</resources>
