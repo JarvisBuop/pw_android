@@ -3,6 +3,7 @@ package com.jdev.kit.widget
 import android.content.Context
 import android.graphics.*
 import android.os.Build
+import android.support.annotation.ColorRes
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
@@ -14,7 +15,7 @@ import com.jdev.kit.R
 /**
  * info: create by jd in 2019/8/12
  * @see:
- * @description:
+ * @description: 用于阴影view;
  *
  */
 class ShadowViewWrapper : FrameLayout {
@@ -37,6 +38,13 @@ class ShadowViewWrapper : FrameLayout {
     private var shadowOffsetX: Float = 0f
     private var shadowOffsetY: Float = 2f
 
+    private var shadowMode = SHADOW_MODE_NORMAL
+    private var shadowRoundExtraHeight = 0
+
+    companion object {
+        public val SHADOW_MODE_NORMAL = 0
+        public val SHADOW_MODE_BOTTOMROUND = 1
+    }
 
     private fun initDefaultByAttrs(context: Context, attrs: AttributeSet?) {
         var ta = context.obtainStyledAttributes(attrs, R.styleable.ShadowViewWrapper)
@@ -54,6 +62,10 @@ class ShadowViewWrapper : FrameLayout {
                 shadowOffsetX = ta.getDimension(ta.getIndex(i), shadowOffsetX)
             } else if (ta.getIndex(i) == R.styleable.ShadowViewWrapper_shadow_offsetY) {
                 shadowOffsetY = ta.getDimension(ta.getIndex(i), shadowOffsetY)
+            } else if (ta.getIndex(i) == R.styleable.ShadowViewWrapper_shadow_mode) {
+                shadowMode = ta.getInt(ta.getIndex(i), SHADOW_MODE_NORMAL)
+            } else if (ta.getIndex(i) == R.styleable.ShadowViewWrapper_shadow_extra_height) {
+                shadowRoundExtraHeight = ta.getInt(ta.getIndex(i), shadowRoundExtraHeight)
             }
         }
         ta.recycle()
@@ -75,13 +87,29 @@ class ShadowViewWrapper : FrameLayout {
 
     override fun dispatchDraw(canvas: Canvas?) {
         if (drawShadow && childView != null) {
-            if (getLayerType() != LAYER_TYPE_SOFTWARE) {
-                setLayerType(LAYER_TYPE_SOFTWARE, null)
-            }
             var left = childView!!.getLeft().toFloat()
             var top = childView!!.getTop().toFloat()
             var right = childView!!.getRight().toFloat()
             var bottom = childView!!.getBottom().toFloat()
+
+            when (shadowMode) {
+                SHADOW_MODE_NORMAL -> {
+                    if (getLayerType() != LAYER_TYPE_SOFTWARE) {
+                        setLayerType(LAYER_TYPE_SOFTWARE, null)
+                    }
+                }
+                SHADOW_MODE_BOTTOMROUND -> {
+                    if (layerType != LAYER_TYPE_NONE) {
+                        setLayerType(LAYER_TYPE_NONE, null)
+                    }
+                    left += deltaLength
+                    right -= deltaLength
+                    bottom += deltaLength
+                }
+                else -> {
+                }
+            }
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 canvas?.drawRoundRect(left, top, right, bottom, cornerRadius, cornerRadius, mShadowPaint)
             } else {
@@ -108,6 +136,15 @@ class ShadowViewWrapper : FrameLayout {
         }
         this.drawShadow = drawShadow
         postInvalidate()
+    }
+
+    fun setShadowMode(shadowMode: Int) {
+        this.shadowMode = shadowMode
+        postInvalidate()
+    }
+
+    fun setShadowColor(@ColorRes color: Int) {
+        this.shadowColor = context.resources.getColor(color)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -185,6 +222,10 @@ class ShadowViewWrapper : FrameLayout {
             newHeight = (childHeight + 2 * deltaLength).toInt()
         }
         if (newHeight != measuredHeight || newWidth != measuredWidth) {
+            if (shadowMode == SHADOW_MODE_BOTTOMROUND) {
+                setMeasuredDimension(newWidth, newHeight + shadowRoundExtraHeight)
+                return
+            }
             setMeasuredDimension(newWidth, newHeight)
         }
     }
@@ -192,9 +233,16 @@ class ShadowViewWrapper : FrameLayout {
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         val child = getChildAt(0)
         val measuredWidth = measuredWidth
-        val measuredHeight = measuredHeight
+        var measuredHeight = measuredHeight
         val childMeasureWidth = child.measuredWidth
         val childMeasureHeight = child.measuredHeight
-        child.layout((measuredWidth - childMeasureWidth) / 2, (measuredHeight - childMeasureHeight) / 2, (measuredWidth + childMeasureWidth) / 2, (measuredHeight + childMeasureHeight) / 2)
+        if (shadowMode == SHADOW_MODE_BOTTOMROUND) {
+            measuredHeight -= shadowRoundExtraHeight
+            child.layout((measuredWidth - childMeasureWidth) / 2, (measuredHeight - childMeasureHeight) / 2,
+                    (measuredWidth + childMeasureWidth) / 2, (measuredHeight + childMeasureHeight) / 2)
+            return
+        }
+        child.layout((measuredWidth - childMeasureWidth) / 2, (measuredHeight - childMeasureHeight) / 2,
+                (measuredWidth + childMeasureWidth) / 2, (measuredHeight + childMeasureHeight) / 2)
     }
 }

@@ -8,6 +8,15 @@
         <attr name="shadow_offsetY" format="dimension" />
 
         <attr name="shadow_container_corner" format="dimension" />
+
+        <!--阴影模式-->
+        <attr name="shadow_mode">
+            <enum name="SHADOW_MODE_NORMAL" value="0"/>
+            <enum name="SHADOW_MODE_BOTTOMROUND" value="1"/>
+        </attr>
+
+        <attr name="shadow_extra_height" format="dimension"/>
+
     </declare-styleable>
 
 </resources>
