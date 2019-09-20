@@ -6,3 +6,6 @@ package com.jdev.wandroid.func
  * @description:
  *
  */
+class SpeechUtils{
+
+}

@@ -14,6 +14,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import com.jarvisdong.kotlindemo.ui.BaseActivity
 import com.jdev.wandroid.R
+import com.jdev.wandroid.R.id.*
 import com.jdev.wandroid.mockdata.MockData
 import com.jdev.wandroid.noviceAnim.KtVersionMainPop
 import com.jdev.wandroid.utils.ViewUtils
