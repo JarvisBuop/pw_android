@@ -150,7 +150,7 @@
 	- 将可用内存划分为容量大小相等的两块,每次只使用其中一块,当着一块用完之后,就将还存活的对象复制到另一块内存上面,然后把已使用的内存空间一次清理掉;
 	- 每次都是对整个半区进行回收,运行高效,内存缩小一半代价高;
 	- 具体比例分配不需要1:1分配,内存可分为一块较大的Eden空间和两块较小的Survivor空间,每次使用Eden和一块Survivor空间;当回收时,将Eden和Survivor中还存活的对象一次性的复制到另外一块Survivor空间上,最后清理掉Eden和刚才使用的Survivor空间;
-	- HotSpot默认Eden和Survivor的比例为8:1,只有10%的内存会被'浪费',当Survivor空间不够用时,需要依赖其他(老年代)内存进行`分配担保`;
+	- HotSpot默认Eden和Survivor的比例为8:1,只有10%的内存会被'浪费',当Survivor空间不够用时,需要依赖其他(老年代)内存进行`分配担保` Handle Promotion;
 		- 内存的分配担保,如果另外一块Survivor空间没有足够的空间存放上一次新生代收集下来的存活对象,这些对象直接通过分配担保进入老年代;
 
 - 标记-整理算法 Mark-Compact
@@ -160,3 +160,177 @@
 	- 根据对象存活周期的不同将内存划分为几块,一般是将java堆分为新生代和老年代,根据各个年代的特点采用最适当的收集算法;
 		- 在新生代,每次垃圾回收只有少量存活,选用复制算法;
 		- 在老年代,因为对象存活率高,没有额外空间对它进行分配担保,必须使用'标记-清理'或'标记-整理'算法;
+
+> HotSpot的算法实现
+
+- 枚举根节点
+	- gc时需要进行可达性分析,可作为GCRoots的节点主要是全局性的引用(例如常量或类静态属性)与执行上下文(例如栈帧中的本地变量表)中,这项工作必须在一个能确保`一致性`的快照中进行
+		- 一致性 指在整个分析期间整个执行系统看起来就像是冻结在某个时间点上,不可以出现分析过程中对象引用关系还在不断变化的情况,该点不满足的话分析结果准确性就无法得到保证;  导致GC进行时必须停顿所有的java执行线程 (Stop The World) ,即时在号称不会停顿的CMS 收集器中,枚举根节点也是需要停顿的;
+
+	- jvm 通过一组称为`OopMap`的数据结构得知哪些地方存放着对象引用;
+		- 在类加载完成的时候,hotspot把对象内什么偏移量上是什么类型的数据计算出来,在jit编译过程中,也会在特定的位置记录下栈和寄存器中哪些位置是引用; GC在扫描时就可以直接得知这些信息;
+
+- 安全点 SafePoint
+	- 在oopmap的协助下,hotspot可以快速完成GcRoots的枚举,但是oopmap内容变化的指令非常多,可能导致引用关系变化;
+	- hotspot并没有为每条指令都生成OopMap,只会在特定的位置记录这些信息,这些位置称为`安全点`; 即程序在执行时并非在所有的地方都能停顿下来GC,只有到达安全点时才能暂停;
+	- 安全点的选定 是以程序'是否具有让程序长时间执行的特征'为标准;'长时间'的最明显特征是`指令序列复用`,例如 方法调用,循环调用,异常跳转等;具有这些功能的指令才会产生SafePoint;
+	- 在GC发生时,让所有线程(不包括执行jni调用的线程)都跑到最近的安全点在停顿下来,两种类型:
+		- 抢先式中断 deprecated
+			- Gc时,首先把所有的线程全部中断,如果发现有线程中断的地方不在安全点上,就恢复线程,跑到安全点上;
+		- 主动式中断
+			- Gc时需要中断线程时,不直接对线程操作,仅仅简单的设置一个标志(可读,不可读),各个线程执行时主动去轮询这个标志,发现中断标志为真时就自己中断挂起;轮询标志的地方和安全点是重合的,另外再加上创建对象需要分配内存的地方;
+
+- 安全区域 SafeRegion
+	- safepoint 机制保证了程序执行时,在不太长的时间内就会遇到可进入GC的safepoint; 但是线程处于sleep或者blocked状态,线程无法响应jvm的中断请求,到安全地地方去中断挂起;
+	- `安全区域`指在一段代码片段之中,引用关系不会发生变化;在这个区域中的任意地方开始GC都是安全的;
+	- 在线程执行到SafeRegion中的代码时,首先标志进入到safeRegion,当jvm发起GC时,不用管标识自己为safeRegion状态的线程了; 在线程要离开safeRegion时,要检查系统是否已经完成了根节点枚举(或者Full GC),如果完成了,线程就继续执行;否则它就必须等待直到收到可以安全离开safeRegion的信号为止;
+
+> 垃圾收集器
+
+![可组合的垃圾收集器](https://img-blog.csdnimg.cn/20191023145050501.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+- Serial 收集器
+	- 单线程收集器,进行垃圾回收时必须暂停其他的工作线程;
+	- 新生代采用复制算法,老年代采用标记整理算法,都是暂停所有用户线程;
+	- Serial / Serial Old 收集器
+
+- ParNew 收集器
+	- serial的多线程的版本;
+	- 只能它能与CMS收集器(收集老年代,新生代只能选择PaNew或者Serial中一个)配合工作;
+
+```
+
+	并行(Parallel): 多条垃圾收集线程并行工作,此时用户线程仍然处于等待状态;
+
+	并发(Coucurrent): 用户线程与垃圾收集线程同时执行(但不一定是并行的,可能会交替执行),用户程序在继续运行,而垃圾收集程序运行在另一个cpu上;
+
+```
+
+- Parallel Scavenge 收集器
+	- 是一个新生代收集器,复制算法的收集器,并行多线程收集器;
+	- 吞吐量优先; 关注点不同;CMS关注点是尽可能的缩短垃圾收集时用户线程的停顿时间;Parallel Scavenge收集器的目标则是达到一个可控制的吞吐量;
+		- 吞吐量(Throughput): cpu用于运行用户代码的时间与cpu总消耗时间得比值; </br>吞吐量 = 运行用户代码时间 / (运行用户代码时间 +垃圾收集时间)
+		- 高吞吐量可高效率利用cpu时间,尽快完成运算任务,主要适合在后台运行而不需要太多交互的任务; 停顿时间越短越适合需要与用户交互的程序,提高用户体验;
+
+- Serial Old 收集器
+	- Serial收集器的老年代版本,单线程收集器;
+	- jdk1.5前可与Parallel Scavenge收集器搭配使用;可作为CMS收集器的后背预案,并发收集发生ConcurrentModeFailure时使用;
+
+- Parallel Old 收集器
+	- Parallel Scavenge 收集器的老年代版本;多线程并行收集器;
+	
+- CMS 收集器
+	- 多线程并发收集器
+	- Concurrent Mark Sweep 获取最短回收停顿时间为目标的收集器;
+	- 使用标记-清除算法,上述收集器大多是标记-整理算法;
+
+- G1收集器
+	- 并行与并发;
+	- 分代收集;
+	- 空间整合;(标记-整理 + 复制)
+	- 可预测的停顿,垃圾收集上的时间不得超过N毫秒;
+		- java堆的内存布局与其他收集器有很大区别,G1将整个java堆划分为多个大小相等的独立区域(region)
+		- Remembered Set 限定堆GC根节点枚举范围,可以不对全堆扫描;
+
+>内存分配与回收策略 
+
+- java的自动内存管理归结为: `给对象分配内存`以及`回收分配给对象的内存`;
+- 给对象分配内存,大方向上说,就是在堆上分配(也可能经过JIT编译后被拆散为标量类型并间接的栈上分配),对象主要分配在新生代的Eden区,如果启动了本地线程分配缓冲,将按线程优先在TLAB(Thread Local Allocation Buffer)上分配;少数情况也可能会直接分配在老年代中,分配的规则并不是一定是固定的,细节取决于当前使用的是哪一种垃圾收集器组合,还有jvm中与内存有关的参数设置;
+- 对象优先在Eden区中分配,当Eden区没有足够空间进行分配时,虚拟机将发起一次Minor GC;
+	- 新生代GC (Minor Gc): 指发生在新生代的垃圾收集动作,因新生代java对象大多都是朝生夕死的特性,所以Minor GC非常频繁,回收速度也快;
+	- 老年代GC (Major GC/Full GC): 发生在老年代的GC,Major GC的速度一般会比Minor GC慢10倍以上;(通常 Major GC 会随后发生Minor GC,与收集器的实现有关)
+
+- 大对象直接进入老年代
+	- 需要大量连续内存空间的java对象,如很长的字符串以及数组;
+	- jvm参数可设置大于某个阈值直接在老年代分配,避免在新生代Eden区和两个Survivor区之间发生大量的内存复制;
+
+- 长期存活的对象将进入老年代
+	- jvm给每个对象定义了一个对象年龄(Age)计数器;
+	- 如果对象在Eden出生并经过第一次的Minor GC后仍然存活,并且能被Survivor容纳的话,将被移动到Survivor空间中,并且对象年龄设为1;对象在Survivor每熬过Minor GC,年龄就增加一岁;
+	- 年龄默认阈值为15岁,对象就会被晋升到老年代中;
+
+- Survivor空间中相同年龄所有对象大小的总和大于Survivor空间的一半,年龄大于等于该年龄的对象就可以直接进入老年代;
+
+- 空间分配担保
+	- 在发生minor GC之前,jvm会检查老年代最大可用的连续空间是否大于新生代所有对象总空间;
+		- 如果大于,minor GC可以确保是安全地;
+		- 如果不成立,检查HandlerPromotionFailure设置是否允许担保失败;
+			- 允许,继续检查老年代可用的连续空间是否大于历次晋升到老年代对象的平均大小;如果大于,则尝试一次minor GC,尽管这次minor GC是有风险的;
+			- 如果小于或者设置不允许冒险,这时进行一次Major GC;
+			- 允许担保失败的冒险: 
+				- 新生代使用复制算法,为了内存利用率,只用其中一个Survivor空间作为轮换备份,在minorGC后仍然存活的情况下,需要老年代进行分配担保;但是有多少对象会活下来在实际完成内存回收之前是无法明确知道的,只好取之前每一次回收晋升到老年代对象容量的平均大小值作为经验值,与老年代的剩余空间进行比较,决定是否进行fullGC让老年代腾出更多空间;  如果出现HandlerPromotioinFailure 失败,那就只好在失败后重新发起一次FullGc,虽然担保失败绕的圈子是最大的,大部分还是会打开开关,避免fullGc过于频繁;
+			- jdk 6后,规则变为只要老年代的连续空间大于新生代对象总大小或者历次晋升的平均大小就会进行minorGC,否则进行FullGC;
+
+-------
+
+## jvm 执行子系统
+
+语言无关性: Jvm + 字节码存储格式;
+
+![语言无关性](https://img-blog.csdnimg.cn/20191028112857840.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+> class 类文件结构
+
+![class文件格式](https://img-blog.csdnimg.cn/20191028162438531.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+- 概述 
+	- 任何一个class文件都对应着唯一一个类或接口的定义信息; class文件是一组以8位字节为基础单位的二进制流;
+
+	- 根据jvm规范,class文件格式采用一种类似于C语言结构体的伪结构来存储数据,各个项目严格按照顺序紧凑地排列在Class文件之中,中间没有添加任何分隔符,只有两种数据类型: `无符号数`和`表`;
+	
+		- 无符号数: 属于基本的数据类型,以u1,u2,u4,u8来代表1个字节,2个字节,4个字节,8个字节的无符号数,可用来描述数字,索引引用,数量值,或者按照UTF-8编码构成字符串值;
+		- 表: 多个无符号数或者其他表作为数据项构成的复合数据类型,所有表都习惯性的以`_info`结尾;用于描述有层次关系的复合结构的数据,整个class文件本质上就是一张表;
+
+- 魔数 `Magic Number` 身份识别
+	- 每个Class文件的头4个字节称为魔数,作用是确定这个文件是否为一个能被虚拟机接受的class文件; class文件魔数为: oxCAFEBABY (流弊大气!)
+	- 第5,6字节代表次版本号 `minor version`;
+	- 第7,8字节代表主版本号 `major version`;
+	- 主版本号之后的是常量池入口;
+- 常量池 `constant_pool_count` | `constant_pool`
+	- Class文件中的资源仓库,每一项常量都是一个表,
+	- 由于常量池中常量数量不固定,在常量池的入口需要放置一项u2类型的数据,表示有多少常量,索引从1开始;
+	- 常量池主要存放两大类:
+		- 字面量 Literal
+			- 文本字符串,声明为final的常量值;
+		- 符号引用 Symbolic References
+			- 类和接口的全限定名 Fully Qualified Name;
+			- 字段的名称和描述符 Descriptor;
+			- 方法的名称和描述符;
+	- 常量池中每一个常量(表)开始的第一位是一个u1类型的标志位,代表当前这个常量属于哪种常量类型;
+		- 如,`Constant_Utf8_info` 代表Utf-8编码的字符串,`CONSTANT_Integer_info` 代表整形字面量,`CONSTANT_Methodref_info` 代表类中方法的符号引用;`CONSTANT_Class_info` 类或接口的符号引用;
+
+	- javap 输出常量表 (-verbose)
+		- 自动生成常量,会用于后面的字段表(`field_info`),方法表(`method_info`),属性表(`attribute_info`)引用到,用来描述一些不方便使用"固定字段"进行表述的内容;
+			- 因java的类是无穷无尽的,无法通过简单的无符号字节来描述一个方法用到了什么类,描述方法的这些信息时,需要引用常量表中的符号引用进行表述;
+
+- 访问标志 `access_flags`
+
+	- 常量池结束后,后面两个字节代表访问标志(access_flags),用于识别一些类或者接口层次的访问信息;
+	- 如: 这个class是类还是接口;是否定义为public类型;是否定义为Abstract类型;如果是类,是否被声明为final等;
+	- access_flags 一共有16个标志位可以使用,当前只定义了其中8个,没有使用到的标志位一律为0;
+
+![访问标志](https://img-blog.csdnimg.cn/20191028175823238.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+- 类索引,父类索引,接口索引集合; `this_class,super_class,interface_class,interfaces`
+
+	- `this_class`,`super_class` 都是u2类型的数据,`interfaces`是一组u2类型的数据的集合,class文件中由这三项确定这个累的继承关系;
+	- 类索引用于确定这个类的全限定名,父索引用于确定这个类的父类的全限定名(因此,java并不支持多继承),除java.lang.Object外,所有的java 的父类索引都不为0;各自指向一个类型为`CONSTANT_Class_info`的类描述符常量,在通过`CONSTANT_Class_info`类型的常量中的索引值找到定义在`CONSTANT_Utf8_info`类型的常量中的全限定名字符串;
+	- 接口索引集合用来描述这个类实现了哪些接口,都是按照顺序排列在访问标志之后;
+
+- 字段表集合 `field_info`
+	- 用于描述接口或类中声明的变量,字段(field)包括类级变量和实例级变量,不包括在方法内部声明的局部变量;
+	- 字段的名称,字段的数据类型都是无法固定的,需要引用常量池中的常量来描述; 通过字段表结构field_info 对常量池引用;
+	- `前限定名` : `org/xxx/xxx/TestClass;`;
+	- `简单名称` : 指没有类型和参数修饰的方法或者字段名称;
+	- 方法和字段的`描述符`: 描述字段的数据类型,方法的参数列表(数量,类型以及顺序)和返回值; 
+		- 根据描述符规则,基本数据类型和代表无返回值的void类型都用一个大写字符来表示,而对象则用字符L加对象的全限定名来表示;
+		- 对于数组类型的描述符,每一维度使用一个前置的`[`字符描述
+			- 如二维字符串数组 -> `[[Ljava/lang/String;`一维Int数组 -> `[I`;
+		- 用描述符来描述方法时,先参数列表,后返回值的顺序描述;参数列表按照参数的严格顺序放在一组小括号中;
+			- 如tostring 方法 -> `()Ljava/lang/String;`
+			- int indexOf(char[]source,int sourceOffset,int sourceCount,char[] target,int targetOffset,int targetCount,int fromIndex) -> `([CII[CIII)I`
+		-  
+
+![字段访问标志](https://img-blog.csdnimg.cn/20191028182003121.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+![描述符](https://img-blog.csdnimg.cn/20191028183134384.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
