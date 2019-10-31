@@ -1,12 +1,12 @@
-#jvm
+# Jvm 内存管理,GC,类文件架构
 
 关键字:  
 `HotSpot VM`,`两级即时编译器`, `编译器和解释器混合工作模式`,`模块化`,
-`混合语言`,`多核并行``函数式编程`,
+`混合语言`,`多核并行`,`函数式编程`,
 
 -----
 
-##自动内存管理
+## 自动内存管理
 
 >jvm 运行时数据区 (JVM栈,本地方法栈,程序计数器,堆,方法区)
 
@@ -263,7 +263,7 @@
 
 -------
 
-## jvm 执行子系统
+## 类文件结构
 
 语言无关性: Jvm + 字节码存储格式;
 
@@ -303,6 +303,8 @@
 		- 自动生成常量,会用于后面的字段表(`field_info`),方法表(`method_info`),属性表(`attribute_info`)引用到,用来描述一些不方便使用"固定字段"进行表述的内容;
 			- 因java的类是无穷无尽的,无法通过简单的无符号字节来描述一个方法用到了什么类,描述方法的这些信息时,需要引用常量表中的符号引用进行表述;
 
+![常量池](https://img-blog.csdnimg.cn/20191031182937537.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
 - 访问标志 `access_flags`
 
 	- 常量池结束后,后面两个字节代表访问标志(access_flags),用于识别一些类或者接口层次的访问信息;
@@ -318,19 +320,215 @@
 	- 接口索引集合用来描述这个类实现了哪些接口,都是按照顺序排列在访问标志之后;
 
 - 字段表集合 `field_info`
+	- 字段表包含u2类型的`access_flags`,u2类型`name_index`,u2类型`descriptor_index`,u2类型的`attributes_count`, 表类型的`attribute_info`;
+		- access_flags 用于获取字段访问标志,表示字段的修饰符或者是什么类型;
+		- `name_index , descriptor_index` 用于对常量池的引用,分别代表字段的简单名称以及字段和方法的描述符;
 	- 用于描述接口或类中声明的变量,字段(field)包括类级变量和实例级变量,不包括在方法内部声明的局部变量;
-	- 字段的名称,字段的数据类型都是无法固定的,需要引用常量池中的常量来描述; 通过字段表结构field_info 对常量池引用;
-	- `前限定名` : `org/xxx/xxx/TestClass;`;
+	- `全限定名` : `org/xxx/xxx/TestClass;`;
 	- `简单名称` : 指没有类型和参数修饰的方法或者字段名称;
-	- 方法和字段的`描述符`: 描述字段的数据类型,方法的参数列表(数量,类型以及顺序)和返回值; 
-		- 根据描述符规则,基本数据类型和代表无返回值的void类型都用一个大写字符来表示,而对象则用字符L加对象的全限定名来表示;
+	- 常量池记录着描述符,方法和字段的`描述符`作用: 描述字段的数据类型,方法的参数列表(数量,类型以及顺序)和返回值; 
+		- 基本数据类型和代表无返回值的void类型都用一个大写字符来表示,而对象则用字符L加对象的全限定名来表示;
 		- 对于数组类型的描述符,每一维度使用一个前置的`[`字符描述
 			- 如二维字符串数组 -> `[[Ljava/lang/String;`一维Int数组 -> `[I`;
 		- 用描述符来描述方法时,先参数列表,后返回值的顺序描述;参数列表按照参数的严格顺序放在一组小括号中;
 			- 如tostring 方法 -> `()Ljava/lang/String;`
 			- int indexOf(char[]source,int sourceOffset,int sourceCount,char[] target,int targetOffset,int targetCount,int fromIndex) -> `([CII[CIII)I`
-		-  
+	- 字段表中之后跟随一个属性表集合用于存储一些额外的信息,字段都可以在属性表中描述零至多项的额外信息; 可以描述字段的默认值;
+	- 字段表集合不会列出从超类或者父接口中继承的字段,但可能列出原java代码中不存在的字段,如在内部类中为了保持对外部类的引用,自动添加指向外部类实例的字段(联想反射内部类时,第一参数默认是外部实例)
+	- 在字节码中,如果字段的描述符不一致,字段重名就是合法的;
 
 ![字段访问标志](https://img-blog.csdnimg.cn/20191028182003121.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
 
 ![描述符](https://img-blog.csdnimg.cn/20191028183134384.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+- 方法表集合 `method_info`
+	- 方法表集合 包括u2类型 `access_flags`,u2 `name_index`,u2 `descriptor_index`, u2 `attributes_count`, attribute_info 表类型 `attributes`;
+	- 方法中的代码经过编译器编译成字节码指令后,存放在方法属性表集合中一个名为`Code`的属性里,属性表作为class文件格式中最具扩展性的一种数据项目;
+	- 父类方法在子类中没有被Override,方法表集合中就不会出现来自父类的方法信息;但有可能出现编译器自动添加的方法,如 类构造器 `<clinit>`,和实例构造器`<init>`方法;
+	- 在字节码中,方法如果返回值不同也是可以重载的;
+
+![方法访问标志](https://img-blog.csdnimg.cn/20191030172252215.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+- 属性表集合 `attribute_info`
+	- 每个属性的名称需要从常量池中引用一个`CONSTANT_Utf8_info`类型的常量来表示;属性表集合的结构完全是自定义的,只需要通过一个u4的长度属性去说明属性值所占用的位数;
+	- Code属性  [重要] java代码编译成的字节码指令
+		- java程序方法中的代码经过javac编译器处理后,变成字节码指令存储在Code属性内;但接口和抽象类中的方法不存在code属性;
+		- `max_stack` 代表操作数栈(Operand Stacks)深度的最大值,在方法执行的任意时刻,操作数栈都不会超过这个深度,jvm 运行的时候需要根据这个值来分配栈帧(Stack Frame)中的操作栈深度;
+		- `max_locals` 代表局部变量表所需的存储空间;单位是`Slot`,Slot是jvm为局部变量分配内存所使用的最小单位;其中byte,char,float,int,short,boolean,returnAddres等长度不超过32位的数据类型占用一个Slot,double,long64位的数据类型需要两个Slot存放;局部变量所占的Slot可以被重用;
+		- `code`和`code_length` 用来存储java源程序编译后生成的字节码指令;  分别代表存储字节码指令的一系列字节流和字节码长度; `code_length` 因jvm限制一个方法不允许超过65536条字节码指令,理论上u4类型的长度值,实际上只有u2的长度; 
+			- 实例方法的局部变量表中至少会存在一个指向当前对象实例的局部变量,局部变量表中也会预留出第一个Slot为来存放对象实例的引用;
+		- `exception_info` 异常表
+	- Exceptions 属性 方法抛出的异常
+		- 列举出方法中可能抛出的受查异常(Checked Exceptions),也就是方法描述时在`throws` 关键字后面列举的异常;
+	- LineNumberTable 属性  Java源码的行号与字节码行号(字节码的偏移量)之间的对应关系;
+	- LocalVariableTable 属性 栈帧中局部变量表中的变量与java源码中定义的变量之间的关系;
+	- SourceFile 属性 记录生成这个Class文件的源码文件名称;
+	- ConstantValue 属性 通知jvm 自动为静态变量赋值;只有static修饰的变量可以使用这项属性;
+		- int x = 123; 实例变量的赋值是在实例构造器`<init>`方法中进行的;
+		- static int x = 123; 对于类变量有两种方式可以选择;sun javac选择是: 如果同时使用final和static修饰一个变量且此变量的数据类型是基本类型或者java.lang.String,就使用ConstantValue属性来初始化;  否则使用`<clinit>`方法中进行初始化;
+			- 使用类构造器`<clinit>`方法
+			- 使用ConstantValue属性,字面量;
+	- InnerClasses 属性 记录内部类和宿主类之间的关联
+		- 如果一个类定义了内部类,编译器会为它及它的内部类生成InnerClasses; 
+	- Deprecated 及 Synthetic属性 属于标志类型的布尔属性 
+		- Deprecated : 用于表示某个类,字段或者方法,定为不再推荐使用;
+		- Synthetic : 代表字段或者方法并不是由java源码直接产生的,而是由编译器自行添加的;
+	- StackMapTable 属性 jvm类加载的字节码验证阶段被新类型检查验证器(Type Checker)使用,代替以前比较消耗性能的基于数据流分析的类型推导验证器;
+	- Signature 属性 任何类,接口,初始化方法或成员的泛型签名如果包含了类型变量(Type Variables)或参数化类型(Parameterized Types),则Signature属性会为他记录泛型签名信息; 
+		- java 使用的泛型是擦除法实现的伪泛型,在字节码(Code属性)中,泛型信息编译(类型变量,参数化类型)之后都统统被擦除掉; 
+		- 好处是实现简单,节省内存; 坏处是无法将泛型类型和用户定义的普通类型同等对待,运行期间做反射时无法获得到泛型信息;Signature就是弥补此缺陷;
+	- BootstrapMethods 属性 用于保存invokedynamic	指令引用的引导方法限定符;
+
+![Code属性表的结构](https://img-blog.csdnimg.cn/20191030181611660.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+![异常表运作](https://img-blog.csdnimg.cn/20191031100159558.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+
+> 指令码指令简介
+
+- jvm 的指令由一个字节长度的,代表着某种特定操作含义的数字(称为操作码Opcode)以及跟随其后的零至多个代表此操作所需参数(称为操作数Operands)构成;
+
+- 字节码与数据类型
+	- 大多数的指令都包含了其操作所对应的数据类型信息;
+		- iload指令用于从局部变量表中加载int型的数据到操作数栈中;fload指令加载的则是float类型,l-long,s-short,b-byte,c-char,f-float,d-double,a-reference;
+
+- 加载和存储指令
+	- 加载和存储指令用于将栈帧中的局部变量表和操作数栈之间来回传输;
+		- 将一个局部变量加载到操作栈: `Tload`,`Tload_<n>` T表示i,l,f,d,a; n->slot
+		- 将一个数值从操作数栈存储到局部变量表: `Tstore`,`Tstore_<n>` T表示i,l,f,d,a;
+		- 将一个常量加载到操作数栈 : `bipush,sipush,ldc,ldc_w,ldc2_w,aconst_null,iconst_m1,iconst_<i>,lconst_<l>,fconst_<f>,dconst_<d>`
+		- 扩充局部变量表的访问索引的指令: wide;
+
+- 运算指令
+	- 用于对两个操作数栈上的值进行某种特定运算,并把结果重新存入到操作栈顶;
+		- 加法: Tadd
+		- 减法: Tsub
+		- 乘法: Tmul
+		- 除法: Tdiv
+		- 取余: Trem
+		- 取反: Tneg
+		- 位移: Tshl,Tshr,Tushr
+		- 按位或: Tor
+		- 按位与: Tand
+		- 按位异或: Txor
+		- 局部变量自增: Tinc
+		- 比较:Tcmpg
+
+- 类型转换指令
+	- 可以将两种不同的数值类型进行相互转换,jvm支持以下数值类型的宽化类型转换(小范围向大范围类型的安全转换)
+		- int类型到long,float或者double类型;
+		- long类型到float,double类型;
+		- float类型到double类型;
+	- 处理窄化类型转换,显示试用转换指令完成 T2T
+		- i2b,i2c,i2s..
+	- 将浮点型转换为整数类型(int,long)
+		- 如果浮点数是NaN,转换结果为int或long类型的0;
+		- 如果浮点型不是无穷大,试用IEEE 754向0舍入模式取整,获得整数v,如果v在目标类型T的表示范围内,则为V;
+		- 否则根据v的符号,转换为T所能表示的最大或者最小正数;
+	- 数值类型的窄化类型不会导致jvm抛出运行时异常
+
+- 对象创建和访问指令
+	- jvm对类实例和数组的创建操作使用不同的字节码指令
+		- 创建类实例的指令 new
+		- 创建数组的指令: newarray,anewarray,multianewarray
+		- 访问类字段(static)和实例字段的指令: getfield,putfield,getstatic,putstatic;
+		- 将一个数组元素加载到操作数栈的指令: Taload;
+		- 将一个操作数栈的值存储到数组 Tastore
+		- 取数组长度指令 arraylength
+		- 检查类实例类型指令 instanceof,checkcast;
+
+- 操作数栈管理指令
+	- 直接操作操作数栈指令
+		- 将操作数栈的栈顶一个或两个元素出栈: pop,pop2;
+		- 复制栈顶一个或两个数值并将复制值或双份的复制值重新压入栈顶: `dup,dup2,dup_x1,dup2_x1,dup2_x2`;
+		- 将栈最顶端的两个数值互换 : swap;
+		
+- 控制转移指令
+	- 让jvm从指定的位置指令而不是控制转移指令的下一条指令继续执行程序;
+		- 条件分支: `ifeq,iflt,ifle,ifne,ifgt,ifnull,ifnonnull,if_icmpeq,if_icmpne,if_icmplt,if_icmpgt,if_cmple,if_icmpge,if_acmpeq,if_acmpne`;
+		- 复合条件分支: tableswitch,lookupswitch
+		- 无条件分支: `goto,goto_w,jsr,jsr_w,ret`;
+	- boolean,byte,char,short 都是使用int类型的指令完成,对于long,float,double先执行对应类型的指令,再返回整型值到操作数栈,再执行int指令;各种类型的比较都会转化为int类型的比较操作;
+
+- 方法调用和返回指令
+	- 方法调用
+		- invokevirtual 调用对象的实例方法,根据对象的实际类型进行分派(虚方法分派);
+		- invokeinterface 调用接口的方法;
+		- invokespecial 调用一些需要特殊处理的实例方法,包括实例初始化方法,私有方法和父类方法;
+		- invokestatic 调用类方法;
+		- invokedynamic 用于在运行时动态解析出调用点限定符所引用的方法;
+	- 返回指令 Treturn
+
+- 异常处理指令
+	- 显示抛出异常的操作 (throw) 由`athrow`指令实现,在jvm中,处理异常由异常表完成;
+
+- 同步指令
+	- 管程(Monitor) 支持同步;
+	- 方法级的同步实现在方法调用和返回操作中,jvm可从方法常量池方法表结构中的同步访问标志得知一个方法是否是同步方法;  
+		- 方法调用时,执行线程先成功持有管程,然后才能执行方法,方法完成时释放管程;
+	- 同步一段指令集序列通常是由java语言中的synchronized块表示;jvm指令集中有 monitorenter和monitorexit支持synchronized关键字的语义;
+
+![同步字节码指令](https://img-blog.csdnimg.cn/20191031151939748.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+-----
+
+## Jvm类加载机制
+
+代码编译的结果是从本地机器码转变为字节码,jvm把描述类的数据从Class文件(二进制字节流)加载到内存,并对数据进行校验,解析和初始化,最终可以被jvm直接使用的java类型; 
+
+>类加载的时机
+
+![类的生命周期](https://img-blog.csdnimg.cn/20191031160441427.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+加载(Loading) -> [验证(Verification) -> 准备(Preparation) -> 解析(Resolution)] -> 初始化 (Initialization) -> 使用(Using) -> 卸载(Unloading)
+
+- 加载,验证,准备,初始化,卸载的顺序确定的;解析阶段不一定,为了支持java的运行时绑定(动态绑定,晚期绑定); 这些阶段通常都是相互交叉混合式的进行的;
+- 有且只有以下情况,没有类初始化需要进行类的初始化,简称对一个`类的主动引用`:
+	- 遇到 new,getstatic,putstatic或invokestatic 字节码指令;分别对应 实例化对象,读取设置一个类的静态字段(被final修饰,已在编译器吧结果放入常量池的静态字段除外,因为使用的是ConstantValue初始化而不是<clinit>方法),以及调用类的静态方法;
+	- 使用java.lang.reflect 包的方法对类进行反射调用的时候
+	- 当初始化一个类时,发现其父类还没有进行过初始化,需要先触发器父类的初始化;
+	- 当jvm启动时,用户需要指定一个要执行的主类(包含main方法的类),jvm会先初始化这个主类;
+	- 使用jdk 1.7动态语言支持时,一个java.lang.invoke.MethodHandle实例最后的解析结果`REF_getStatic,REF_putStatic,REF_invokeStatic`的方法句柄;
+
+- 被动引用不会导致类初始化;
+	- 子类引用父类的静态字段,不会导致子类初始化;
+	- 通过数组定义来引用类,不会触发此类的初始化;
+		- 不过jvm会生成一个直接继承于java.lang.Object的子类,创建动作由字节码指令newarray触发;
+	-  常量(final , ConstantValue属性)在编译阶段会存入调用类的常量池中,本质上并没有直接引用到定义常量的类,不会触发定义常量类的初始化;
+
+- 接口的加载过程与类加载过程稍有不同
+	- 接口在初始化时,并不要求父接口全部都完成了初始化,只有在真正使用到父接口(引用接口中定义的常量)采用初始化;
+
+>类加载的过程
+
+- 加载
+	- 通过一个类的全限定名获取定义此类的二进制字节流;
+	- 将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构;
+	- 在内存中生成一个代表这个类的java.lang.Class对象,作为方法区这个类的各种数据的访问入口;
+
+加载阶段完成后,jvm外部的二进制字节流就按照jvm所需格式存储在方法区之中,然后在内存中实例化一个Class类对象,作为程序访问方法区中的这些类型数据的外部接口;
+
+- 验证   链接阶段的第一步,确保Class文件的字节流中包含的信息符合jvm的要求;
+
+	- 文件格式验证
+		- 验证`字节流`是否符合Class文件格式的规范,并且能被jvm处理;通过此阶段后,字节流才会进入内存的方法区中进行存储;
+	- 元数据验证
+		- 对字节码描述信息进行语义分析,符合java语言规范;
+	- 字节码验证
+		- 确定程序语义是合法的,符合逻辑的,jdk1.6后Code属性添加`StackMapTable`节省时间;
+	- 符号引用验证
+		- 验证jvm将符号引用转换为直接引用的时候,动作在解析阶段中发生;对类自身以外(常量池中的各种符号引用)的信息进行匹配性校验;
+		- 无法通过,会抛出`IncompatibleClassChangeError`异常的子类,如IllegalAccessError,NoSuchFieldError,NoSuchMethodError;
+
+- 准备
+	- 正式为类变量分配内存并设置类变量初始值的阶段,这些变量所使用的内存都将在方法区中进行分配;
+		- 内存分配的仅包括类变量,不包括实例变量;
+		- 通常情况下赋初值指的是java的默认初始值,但是类字段的字段属性表中存在ConstantValue(final标记)属性,准备阶段的变量会被初始化ConstantValue属性所指定的值;
+
+- 解析
+	- jvm 将常量池内的符号引用替换为直接引用的过程;
+	- 引用区分:
+		- 符号引用 (Symbolic References): 以一组符号来描述所引用的目标;
+		- 直接引用 (Direct References): 直接引用可以是直接指向目标的指针,相对偏移量或者一个能间接定位到目标的句柄; 
+	- jvm规范中并未规定解析发生的具体时间,要求在执行`anewarray,checkcast,getfield,getstatic,instanceof,invokedynamic,invokeinterface,invokespecial,invokestatic,invokevirtual,ldc,ldc_w,multianewarray,new,putfield,putstatic`16个用于操作符号引用的字节码指令之前,先对他们所使用的符号引用进行解析;
+	- invokedynamic 指令必须等到程序实际运行到这条指令的时候,解析动作才能进行,且不缓存;其余符号指令可以在完成加载阶段,还没开始执行就进行解析,也可对第一次解析结果进行缓存;
