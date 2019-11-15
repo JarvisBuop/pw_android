@@ -73,7 +73,7 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(path: ':kit')
 
-//    api project(path: ':module_welcome')
+    api project(path: ':module_welcome')
 
 
 

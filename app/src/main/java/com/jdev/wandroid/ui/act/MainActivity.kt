@@ -17,13 +17,14 @@ import com.jdev.wandroid.R
 import com.jdev.wandroid.R.id.*
 import com.jdev.wandroid.mockdata.MockData
 import com.jdev.wandroid.noviceAnim.KtVersionMainPop
+import com.jdev.wandroid.utils.TestMath
 import com.jdev.wandroid.utils.ViewUtils
 import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : BaseActivity() {
-    lateinit var arr:Array<String>
-    var index:Int = 0
+    lateinit var arr: Array<String>
+    var index: Int = 0
 
     override fun getViewStubId(): Int {
         return R.layout.activity_main
@@ -50,8 +51,11 @@ class MainActivity : BaseActivity() {
 
         initWebp2()
 
-        btn_test.setOnClickListener{
+        btn_test.setOnClickListener {
             initPop()
+        }
+        wrapper_shadow.setOnClickListener {
+            TestMath.testInteger()
         }
     }
 
@@ -61,7 +65,7 @@ class MainActivity : BaseActivity() {
 
         })
 
-        pop.showAtLocation(getRootView(),Gravity.CENTER,0,0)
+        pop.showAtLocation(getRootView(), Gravity.CENTER, 0, 0)
     }
 
 
