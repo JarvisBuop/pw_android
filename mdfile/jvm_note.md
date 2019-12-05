@@ -796,4 +796,228 @@ Open Service Gateway Initiative 基于java语言的动态模块化规范; 运行
 	- 注解处理器除了process()方法及其参数之外,还有两个可以配合使用的Annotations 
 		- @SupportedAnnotationTypes 注解处理器对哪些注解感兴趣,可以使用星号*通配对所有注解都感兴趣;
 		- @SupportSourceVersion 指出这个注解处理器可以处理哪些版本的java代码;
-	- 每一个注解处理器在运行时都是单例的,如果不需要改变或生成语法树的内容,process()方法就可以返回一个值为false的布尔值,通知编译器这个round中的代码未发生变化,无需构造新的javaCompiler实例,无需改变语法树的内容;
+	- 每一个注解处理器在运行时都是单例的,如果不需要改变或生成语法树的内容,process()方法就可以返回一个值为false的布尔值,通知编译器这个round中的代码未发生变化,无需构造新的javaCompiler实例;
+
+- 晚期(运行时)优化
+
+ - java最初是通过解释器进行解释执行的,当jvm发现某个方法或者代码块执行频繁,就会把这些代码认定为'热点代码(HotSpot)',提高热点代码的效率,运行时,jvm将会把这些代码编译成与本地平台相关的机器码,并进行层次的优化,完成这个任务的编译器为即时编译器(Jit)
+ - java hotspot jvm是解释器与编译器并存的架构, 当程序需要快速启动和执行时,解释器可以首先发挥作用,省去编译的`时间`,立即执行;当程序运行后,随着时间得推移,编译器逐渐发挥作用,把越来越多的代码编译成本地代码之后,可以获取较高的执行`效率`;
+ - hotspot jvm内置两个即时编译器,分别称为 Client Compiler,Server Compiler 简称 C1编译器,C2编译器; 分别分为 `混合模式`,`编译模式`,`解释模式`;
+ - 编译优化技术 (太复杂,选几点记录一下)
+	 - 方法内联 (Method Inlining) 去除方法调用的成本(如建立栈帧);为其他优化建立良好的基础;非虚方法可以直接内联;
+	 - 冗余访问消除 ,公共子表达式消除;
+	 - 复写传播
+	 - 无用代码消除;
+	 - 逃逸分析(如果一个对象不会逃逸到方法或线程之外,也就是别的方法或线程无法通过任何途径访问到这个对象,可能进行一些高效的优化(是否说明少用形式参数?))
+
+这块挺复杂的,只是粗浅的看了下,有兴趣的可以看原书;
+
+-------
+
+
+## 高效并发
+
+由于计算机的存储设备和处理器的运算速度有几个数量级的差距,所以加入一层读写速度竟可能能接近处理器运算速度的`高速缓存(Cache)`来作为内存和处理器之间的缓冲: 将运算需要使用的数据复制到缓存中,让运算能快速进行;当运算结束后再从缓存同步到内存中,这样处理器 就无须等待缓慢的内存读写了;
+
+同是带来一个问题 : `缓存一致性(Cache Coherence)`: 每个处理器都有自己的高速缓存,而他们又共享同一主内存(Main Memory);
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191118174726700.png)
+
+所以各个处理器访问缓存时都要遵循一些协议,如MSI,MESI等; `内存模型`:可以理解为在特定的操作协议下,对特定的内存或高速缓存进行读写访问的过程抽象; 不同架构的物理机器拥有不同的内存模式; 
+
+>java 内存模型 java memory model JMM
+
+- 主内存与工作内存
+	- 主要目标: 定义程序中各个变量的访问规则,即在jvm中将变量存储在内存和从内存中取出变量的底层细节; 此处的变量包括 实例字段,静态字段和构成数组对象的元素等存在竞争关系的,不包括局部变量和方法参数,因为后者是线程私有的;
+	- jmm规定所有变量都存储在主内存(Main Memory)中,每条线程还有自己的工作内存(Working Memory),线程的工作内存保存了被该线程使用到的变量的主内存副本拷贝,线程对变量的所有操作(读取,赋值)都必须在工作内存中进行,而不能直接读写主内存的变量;不同的线程间也不能直接访问对方工作内存中的变量,线程间变量值得传递都需要通过主内存来完成;
+	![在这里插入图片描述](https://img-blog.csdnimg.cn/20191118180611298.png)
+
+- 内存间交互操作
+	- jmm定义8中操作完成,保证每一种操作都是原子的,不可在分的(对于double,long类型的变量,load,store,read,write操作在某些平台允许有例外)
+		- lock 锁定,作用于主内存的变量,把一个变量标识为一条线程独占的状态;
+		- unlock 解锁,作用于主内存的变量,把一个处于锁定状态的变量释放出来,释放后的变量才可以被其他线程锁定;
+		- read 读取, 作用于主内存的变量,把一个变量的值从主内存传输到线程的工作内存中,以便随后的load动作使用;
+		- load 载入,作用于工作内存的变量,把read操作从主内存中得到的变量值放入工作内存的变量副本中;
+		- use 使用,作用于工作内存的变量,把工作内存中一个变量的值传递给执行引擎,每当jvm遇到一个需要使用到变量的值的字节码指令时将会执行这个操作;
+		- assign 赋值,作用于工作内存的变量,把一个从执行引擎接受到的值赋给工作内存的变量,每当jvm遇到一个给变量赋值的字节码指令时执行这个操作;
+		- store 存储,作用于工作内存的变量,把工作内存中一个变量的值传送到主内存中,以便随后的write操作使用;
+		- write 写入,作用于主内存的变量,把store操作从工作内存中得到的变量的值放入主内存的变量中;
+	- 其中必须要满足的规则: 
+		- 其中,read load ,store write 必须顺序成对执行;
+		- 不允许一个线程丢弃它的最近的assgin操作,变量在工作内存改变了之后必须把改变化同步会主内存;
+		- 没有发生assgin操作,不允许一个线程无原因的把数据同步回主内存;
+		- 一个新的变量只能在主内存中诞生,即对一个变量实施use,store操作之前,必须先执行过assgin和load操作;
+		- 一个变量在同一时刻只允许一条线程对其进行lock操作,但lock操作可以被同一线程重复执行多次,并执行同样多的unlock才能解锁;
+		- 如果对一个变量执行lock操作,那将会清空工作内存中此变量的值,在执行引擎使用这个变量前,需要重新执行load或assgin操作初始化变量的值;
+		- 如果一个变量事先没有被lock操作锁定,那就不允许对它执行unlock操作,不允许去unlock一个别其他线程锁定住的变量;
+		- 对一个变量执行unlock操作之前,必须先把此变量同步会主内存中(执行store,write操作)
+
+- volatile 
+	- jvm提供的最轻量级的同步机制;一个变量被定义为volatile后,保证此变量对所有线程的`可见性`,指当一条线程修改了这个变量的值,新值对于其他线程来说是可以立即得知的;保证有序性,内存屏障禁止重排序;
+	- volatile变量的第一个语义为`可见性`,volatile变量值保证可见性,在不符合下列两种规则的运算场景中,仍然要通过加锁(synchronized 或java.util.concurrent中的原子类)来保证原子性;
+		- 运算结果并不依赖变量的当前值,或者能够确保只有单一的线程修改变量的值;
+		- 变量不需要与其他的状态变量共同参与不变约束;
+	- 使用volatile变量的第二个语义是禁止`指令重排序`优化,即保证有序性;
+		- 字节码指令中多了一个`lock`,lock作用: 提供一个内存屏障(Memory Barrier 或Memory Fence,指令重排序时不能把后面的指令重排序到内存屏障之前的位置;) lock 使得本cpu的cache写入内存,该写入动作也会引起别的cpu或者别的内核无效化(Invalidate)其Cache,相当于对Cache中的变量做了一个jmm中的store和write操作;
+	- i++的分析 并发混乱分析
+		- getstatic 取字段值; iconst_1 将一个int型常量加载到操作数栈; iadd 加; putstatic 回值; return 记录返回值;  操作不是原子性,getstatic 取得值可能是其他线程改变后的值,操作数栈的值就是过期的数据;
+	- 对于long和double型变量的特殊规则
+		- JMM 对于lock,unlock,read,load,use,assign,store,write 8个操作都具有原子性,对于64位的数据类型,定义一条相对宽松的规定:
+			- 允许jvm将没有被volatile修饰的64位数据的读写操作划分为两次32位的操作进行;即允许jvm实现选择可以不保证64位数据类型的load,store,read,write者4个操作,这就是long和double的非原子性协定;
+			- 现象就是如果多个线程共享一个并未声明为volatile的long或double的变量,并且同时对它进行读取和修改,可能某些线程会读到一个既非原值,也不是其他线程修改的半个变量;
+	- 并发三大特性: 原子性,可见性,有序性
+		- 原子性 (Atomicity) : 基本数据类型的访问读写是具备原子性的;jmm还提供了lock和unlock操作保证原子性,对应更高层次的字节码指令monitorenter和monitorexit,这两个字节码指令反映到java代码中就是同步块(synchronize关键字),因此在synchronize块中的操作也具有原子性;
+		- 可见性 (Visibility) : 一个线程修改了共享变量的值,其他线程能够立即得知这个修改; jmm是通过在变量修改后将新值同步回主内存,在变量读取前从主内存刷新变量值这种依赖主内存作为传递媒介的方式来实现可见性的; 无论是普通变量还是volatile变量都是如此,区别就是volatile的特殊规则保证了新值能`立即`同步到主内存,以及每次使用前`立即`从主内存刷新; 因此,可以说volatile保证了多线程操作时变量的可见性,而普通变量则不能保证这点;
+			- 除volatile之外,java还有两个关键字能实现可见性,即synchronized 和 final; 
+			- 同步块的可见性是对一个变量执行unlock操作之前,必须先把此变量同步会主内存中(执行store,write操作)
+			- final关键字可见性是被final修饰的字段在构造器中一旦初始化完成,并且构造器没有把this的引用传递出去(this引用逃逸是一件很危险的事情,其他线程可能通过这个引用访问到初始化了一半的对象),那在其他线程中就能看见final字段的值;
+		- 有序性 (Ordering) : 
+			- java程序天然的有序性可总结为 如果在本线程内观察,所以的操作都是有序的;如果在一个线程中观察另一个线程,所以的操作都是无序的; 对应于'线程内表现为串行的语义'和'指令重排序,工作内存和主内存同步延迟'
+			- java 语言提供了volatile 和synchronized 保证线程之间的操作的有序性; volatile本身通过内存屏障禁止指令重排序,sychronized由一个变量在同一时刻只允许一条线程对其进行lock操作;决定了持有同一个锁的两个同步块只能串行的进入;
+	- 先行发生原则 happens-before
+		- 判断数据是否存在竞争,线程是否安全的主要依据; jmm中定义的两项操作之间的偏序关系;
+		- 默认先行发生关系 (无任何同步手段保障的先行发生规则下):
+			- 程序次序规则 Program Order Rule: 在一个线程内,按照程序代码顺序(控制流顺序),书写在前面的操作先行发生于书写在后面的操作;
+			- 管程锁定规则 Monitor Lock Rule: 一个unlock操作先行发生于后面对同一个锁的lock操作;
+			- Volatile变量规则 : 一个volatile变量的写操作先行发生于后面对这个变量的读操作;
+			- 线程启动规则 Thread Start Rule : Thread对象的start方法先行发生于此线程的每一个动作;
+			- 线程终止规则 Thread Termination Rule : 线程中的所有操作都先行发生于对此线程的终止检测,可使用Thread.join()方法结束(阻塞当前线程,等待join的线程执行完毕),Thread.isAlive()的返回值等手段检测线程已经终止执行;
+			- 线程中断规则 Thread Interuption Rule : 对线程interrupt的方法调用先行发生于被中断线程的代码检测到中断事件的发生;可使用Thread.interrupted()方法检测到是否有中断发生;
+			- 对象终结规则 Finalizer Rule : 一个对象的初始化完成(构造函数执行结束)先行发生于它的finalize方法的开始;
+			- 传递性 Transitivity ;
+
+> java与线程
+
+线程的实现:  线程是最小的调度执行单位;每个已经执行start()且还未结束的java.lang.Thread类的实例就是代表了一个线程;
+
+- 使用内核线程实现
+	- 内核线程(Kernel-level Thread KLT)直接由操作系统内核支持的线程,这种线程由内核来完成线程切换,内核通过操作调度器(Scheduler)对线程进行调度,并负责将线程的任务映射到各个处理器上; 
+	- 程序一般不会直接使用内核线程,而是使用内核线程的一种高级接口-轻量级进程(Light Weight Process,LWP),轻量级进程就是通常意义上的线程,每个轻量级进程都由一个内核线程支持;
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191204181459720.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+- 使用用户线程实现
+	
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191204182558278.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+- 使用用户线程加轻量级进程混合实现
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191204182751697.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+- java线程的实现
+
+目前的jdk版本中,操作系统支持怎样的线程模型,很大程度上决定了jvm的线程是怎样映射的;
+
+> java线程调度
+
+线程调度是指系统为线程分配处理器使用权的过程; 主要调度方法分为: 协同式线程调度(Cooperative Threads-Scheduling) 和抢占式线程调度 (Preemptive Threads-Scheduling);
+
+- 协同式的多线程系统 :线程的执行时间由线程本身来控制,线程把自己的工作执行完了后,主动通知系统切换到另外一个线程上; 
+- 抢占式的多线程系统 :每个线程将由系统来分配执行时间,线程的切换不由线程本身来决定;线程的执行时间可控,不会被一个线程导致整个进程阻塞;java使用的线程调度方式就是抢占式调度;(Thread 10个线程优先级可给某些进程多分配一点时间)
+
+>状态转换
+
+java定义5中线程状态,在任意一个时间点,一个线程只能有且只有其中一种状态;
+
+- 新建 New : 创建后尚未启动的线程处于这种状态;
+- 运行 Runnable : 包括了操作系统状态中的Running和Ready,也就是处于此状态的线程有可能正在执行,也有可能正在等待CPU为他分配时间;
+- 无限期等待 Waiting : 处于这种状态的线程不会被分配CPU执行时间,他们要等待被其他线程显示的唤醒; 可将线程进入等待状态方法:
+	- 没有设置Timeout参数的Object.wait()方法;
+	- 没有设置Timeout参数的Thread.join()方法;
+	- LockSupport.park()方法;
+- 限期等待 Timed Waiting : 处于这种状态的线程也不会被分配CPU执行时间,不过无需等待被其他线程显示的唤醒,在一定的时间后它们会由系统自动唤醒; 可将线程进入限期等待方法: 
+	- Thread.sleep()方法;
+	- 设置Timeout参数的Object.wait()方法;
+	- 设置Timeout参数的Thread.join()方法;
+	- LockSupport.parkNanos()方法;
+	- LockSupport.parkUntil()方法;
+- 阻塞 Blocked : 线程被阻塞了,与等待状态的区别为: 阻塞状态在等待着获取到一个排他锁,这个事件将在另外一个线程放弃这个锁的时候发生; 而等待状态则是等待一段时间,或者唤醒动作的发生; 在程序等待进入同步区域的时候,线程将进入这种状态;
+- 终结 Terminated : 已终止线程的线程状态,线程已经结束执行;
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191205115808823.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+----
+
+## 线程安全和锁优化
+
+- 线程安全 : 当多个线程访问同一个对象时,如果不用考虑这些线程在运行时环境下的调度和交替执行,也不需要进行额外的同步,或者在调用方进行任何其他的协调操作,调用这个对象的行为都可以获得正确的结果,那这个对象是线程安全的; 即代码封装了所有必要的正确性保障手段(互斥同步)
+	- java操作共享数据分类:
+		- 不可变 Immutable : 不可变对象一定是线程安全的; java中如果共享数据是一个基本数据类型,只要在定义时使用final关键字修饰可保证它是不可变的; 如果共享数据是一个对象,需要保证对象的行为不会对其状态产生影响才行; 如java.lang.String类 AtomicLong等;
+		- 绝对线程安全
+		- 相对线程安全 : 通常意义上的线程安全;
+		- 线程兼容 
+		- 线程对立 无论调用端是否采取同步措施,都无法在多线程环境中并发使用的代码;
+
+- 线程安全的实现方法
+	- 互斥同步 Mutual Exclusion & Synchronization (阻塞同步): 同步是指在多个线程并发访问共享数据时,保证共享数据在同一个时刻只被一个线程使用(或者是一些,使用信号量的时候);互斥是实现同步的一种手段 ,临界区(Critical Section),互斥量(Mutex),信号量(Semaphore)都是主要的互斥实现方式;
+		- java中 最基本的互斥同步手段就是`sychronized` 关键字, sychronized经过编译后,会在同步块的前后分别形成monitorenter和monitorexit这两个字节码指令,这两个字节码都需要一个reference类型的参数来指明要锁定和解锁的对象;
+		- 如果sychronized明确指定了对象参数,那就是这个对象的reference,如果没有明确指令,那就是根据sychronized修饰的是实例方法还是类方法,取对应的对象实例或者Class对象作为锁对象;
+		- jvm规范 sychronized同步块对同一条线程来说是可重入的,不会出现自己把自己锁死的问题; 同步块在已进入的线程执行完之前,会阻塞后面的其他线程的进入; 而java的线程是映射在操作系统的原生线程之上的,如果要阻塞或者唤醒一个线程,都需要操作系统来帮忙完成,需要从用户态转换到内核态中,因此状态转换需要耗费很多的处理器时间; 所以 sychronized 是java中的一个重量级的操作;
+		- 除了sychronized之外,还可以使用java.util.concurrent(JUC)包中的重入锁(ReentrantLock)来实现同步; 增加一些高级功能: 等待可中断,可实现公平锁,锁可绑定多个条件;
+			- 等待可中断, 当持有锁的线程长期不释放锁的时候,正在等待的线程可以选择放弃等待,改为处理其他事情;
+			- 公平锁, 多个线程在等待同一个锁时必须按照申请锁的时间顺序来依次获得锁; 非公平锁不保证这一点,在锁释放时,任何一个等待锁的线程都有机会获得锁;
+			- 锁绑定多个条件,ReentrantLock可以同时绑定多个Condition对象,而在Sychronized中,锁对象的wait()和notify()或notifyAll()方法可以实现一个隐含的条件,如果要和多于一个的条件关联的时候,就不得不得额外的添加一个锁,而ReentrantLock无需这样做;
+	- 非阻塞同步 Non-Blocking Synchronization : 互斥同步的主要问题是进行线程阻塞和唤醒锁带来的性能问题,也被成为阻塞同步;互斥同步属于一种`悲观`的并发策略;随着硬件指令集的发展,还有另外一个选择: 基于冲突检测的`乐观`并发策略;
+		- 冲突检测需要靠硬件实现,常用的指令有:
+			- 测试并设置 Test and Set
+			- 获取并增加 Fetch and Increment
+			- 交换 Swap
+			- 比较并交换 Compare and Swap (CAS)
+			- 加载链接/条件存储 Load Linked /Store Conditional (LL/SC)
+		- CAS 指令 有3个操作数,分别为内存位置(Java中可理解为变量的内存地址,用V表示),旧的预期值(用A表示),和新值(用B表示); CAS指令执行时,当且仅当V符合旧预期值A时,处理器用新值B更新V的值,否则它就不执行更新,但是无论是否更新了V的值,都会返回V的旧值,上述的处理过程是一个原子操作;
+			- sun.misc.Unsafe类里的compareAndSwapInt()和compareAndSwapLong()等几个方法包装提供,Unsafe类不是提供给用户程序调用的类(Unsafe.getUnsafe()的代码中限制了只有启动类加载器(Bootstrap Classloader)加载的Class才能访问它),因此,不采用反射手段,只能通过其他的api去使用它,如JUC的整数原子类的compareAndSet()使用Unsafe类的CAS操作;
+			- CAS存在ABA问题,就是A先改为B,在改为A,CAS操作认为它没有被改变过;可使用传统的互斥同步;
+	- 无同步方法 不可变保证线程安全
+		- 可重入代码 Reentrant Code : 纯代码Pure Code,可以在代码执行的任何时刻中断它,转而执行另外一段代码(包括递归调用它本身),而在控制权返回后,原来的程序不会出现任何错误; 如果一个方法,它的返回结果是可以预测的,只要输入了相同的数据,就都能返回相同的结果,那它就满足可重入性的要求,当然也是线程安全的;
+		- 线程本地存储 Thread Local Storage : 如果一段代码中所需要的数据必须与其他代码共享,如果能保证这些共享数据的代码在同一个线程中执行,就可以把共享数据的可见范围限制在同一个线程之内,这样无需同步也能保证线程间不出现数据争用的问题;
+			- 可使用java.lang.ThreadLocal类来实现线程本地存储的功能,代表为某个线程独享,每个Thread对象中都有一个ThreadLocalMap对象,这个对象存储了一组以ThreadLocal.threadLocalHashCode为键,以本地线程变量为值的K-V值对; 
+
+```
+
+	ReentrantLock 的用法
+
+ 	public ArrayBlockingQueue(int capacity, boolean fair) {
+        if (capacity <= 0)
+            throw new IllegalArgumentException();
+        this.items = new Object[capacity];
+        lock = new ReentrantLock(fair);
+        notEmpty = lock.newCondition();
+        notFull =  lock.newCondition();
+    }
+	...
+	public boolean offer(E e) {
+        Objects.requireNonNull(e);
+        final ReentrantLock lock = this.lock;
+        lock.lock();
+        try {
+            if (count == items.length)
+                return false;
+            else {
+                enqueue(e);
+                return true;
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+```
+
+> 锁优化
+
+- 自旋锁和自适应自旋
+	- 因为互斥同步需要阻塞,挂起线程和恢复线程都需要转入内核态完成,而某些共享数据的锁定状态只会持续很短的一段时间;如果物理机器有一个以上的处理器,能让两个或以上的线程同时并行执行,让后面请求锁的线程不放弃处理器的执行时间,让线程执行一个忙循环(自旋),这就是自旋锁;
+	- 默认的自旋次数为10次(循环),自适应的自旋时间不在固定,由上一次在同一个锁上的自旋时间及锁的拥有者的状态来决定;
+
+- 锁消除 : jvm 在运行时,对一些代码上要求同步,但是被检测到不可能存在共享数据竞争的锁进行消除;
+- 锁粗化 : 循环体反复加锁,加锁同步的范围扩展到整个操作序列的外部;
+- 轻量级锁 : 为了没有多线程竞争的前提下,减少传统的重量级锁使用操作系统互斥量产生的性能消耗;
+	- hotspot jvm 的对象头(Object Header)分为两部分信息,第一部分存储对象自身的运行时数据,如hashcode,GC age等mark word; 这部分是实现轻量级锁和偏向锁的关键;另外一部分存储的是指向方法区对象类型数据的指针,如果是数组对象还有用于存储数组长度; 如果有两条以上的线程争用同一个锁,轻量级锁要膨胀为重量级锁;
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191205161408402.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+- 偏向锁 : 消除数据在无竞争情况下的同步原语,提高程序的运行性能;如果轻量级锁时无竞争的情况下使用CAS去消除同步使用的互斥量;偏向锁就是无竞争情况下把整个同步都消除掉CAS都不做了;
+	- 锁会偏向于第一个获得它的线程,如果在接下来的执行过程中,该锁没有被其他的线程获取,则持有偏向锁的线程将永远不需要在进行同步;如果有其他线程尝试获取这个锁,偏向模式宣告结束;
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191205162408496.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+-----
