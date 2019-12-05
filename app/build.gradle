@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
-
+//kotlin relation
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 
 Properties properties = new Properties()
@@ -37,6 +37,9 @@ android {
         versionCode getGitVersion()
         versionName rootProject.ext.androidVersion.versionName
 
+        vectorDrawables.useSupportLibrary = true
+
+        multiDexEnabled true
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -45,15 +48,70 @@ android {
 //                cppFlags ""
 //            }
 //        }
+
+        buildConfigField "String", "GIT_HEAD", "\"${getGitVersion()}\""
+        buildConfigField "String", "BUILD_TIME", "\"${getBuildTime()}\""
+
+        flavorDimensions "pwflavor"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file(properties.getProperty("jdrobot.signing.keyfile"))
+            storePassword properties.getProperty("jdrobot.signing.password")
+            keyAlias properties.getProperty("jdrobot.signing.key.alias")
+            keyPassword properties.getProperty("jdrobot.signing.key.password")
+        }
     }
 
     buildTypes {
-        release {
+        debug {
             minifyEnabled false
+            useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            debuggable false
+            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+
+        //todo 3.0之后;each , outputFile -> all,outputFileName
+        android.applicationVariants.all { variant ->    //批量修改Apk名字
+            variant.outputs.all { output ->
+                def outputFile = output.outputFile
+                def outDirectory = outputFile.parent
+
+                if ("true".equals(IS_JENKINS)) {
+                    //配合jenkins的打包路径;
+                    outDirectory = properties.getProperty("app.output.dir")
+                }
+                if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                    def fileName = "pw-"
+                    fileName += getBuildTime() + "-"
+                    if (!(variant.flavorName != null && variant.flavorName.equals(""))) {
+                        fileName += variant.flavorName
+                    }
+                    if (!"release".equals(variant.buildType.name)) {
+                        fileName += variant.buildType.name + "-"
+                    }
+                    if (!(variant.versionName != null && variant.versionName.equals(""))) {
+                        fileName += variant.versionName
+                    }
+                    fileName += ".apk"
+                    outputFileName = fileName
+                }
+            }
+        }
     }
+
+
     compileOptions {
+        incremental true //增量模型,可能对注解进程有影响;
+        encoding "UTF-8"
         sourceCompatibility = '1.8'
         targetCompatibility = '1.8'
     }
@@ -67,6 +125,27 @@ android {
     androidExtensions {
         experimental = true
     }
+
+    productFlavors {
+        //可提高编译速度;
+        dev {
+            //测试的版本;
+            minSdkVersion 21
+        }
+        yingyongbao {
+            //实际的版本;
+            minSdkVersion rootProject.ext.androidVersion.minSdkVersion
+        }
+        yingyonghui {
+            //实际的版本;
+            minSdkVersion rootProject.ext.androidVersion.minSdkVersion
+        }
+    }
+
+    dexOptions {
+        preDexLibraries = false
+        javaMaxHeapSize "8g"
+    }
 }
 
 dependencies {
@@ -75,7 +154,8 @@ dependencies {
 
     api project(path: ':module_welcome')
 
-
+    //分包;
+    implementation  rootProject.ext.dependencies.multidex
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
@@ -83,7 +163,7 @@ dependencies {
 
     //用于webp的支持
     implementation "com.facebook.fresco:animated-webp:1.9.0"
-    implementation ("com.github.bumptech.glide:glide:4.7.1")
+    implementation("com.github.bumptech.glide:glide:4.7.1")
     implementation "com.github.bumptech.glide:okhttp3-integration:4.6.1"
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
 

@@ -5,8 +5,8 @@ if (isModule.toBoolean()) {
 }
 
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 def static getGitVersion() {
     def cmd = 'git rev-list HEAD --count'
