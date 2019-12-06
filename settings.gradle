@@ -1,1 +1,6 @@
-include ':app', ':kit', ':module_welcome', ':module_video', ':jiaozivideoplayer'
+include ':app',
+        ':kit',
+        ':module_welcome',
+        ':jiaozivideoplayer',
+        ':adapter-library',
+        ':module_video'

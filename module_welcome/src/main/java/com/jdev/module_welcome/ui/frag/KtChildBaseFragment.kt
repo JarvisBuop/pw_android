@@ -9,7 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.blankj.utilcode.util.ConvertUtils
 import com.jdev.module_welcome.R
-import com.jdev.module_welcome.ui.helper.HeaderScrollHelper
+import com.jdev.kit.helper.HeaderScrollHelper
 import kotlinx.android.synthetic.main.item_page.*
 import kotlinx.android.synthetic.main.item_sample_view.view.*
 

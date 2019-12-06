@@ -10,7 +10,7 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.widget.Scroller
 import com.blankj.utilcode.util.BarUtils
-import com.jdev.module_welcome.ui.helper.HeaderScrollHelper
+import com.jdev.kit.helper.HeaderScrollHelper
 
 
 /**

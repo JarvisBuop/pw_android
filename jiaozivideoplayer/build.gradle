@@ -1,11 +1,12 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion rootProject.ext.androidVersion.compileSdkVersion
+    buildToolsVersion rootProject.ext.androidVersion.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 28
+        minSdkVersion rootProject.ext.androidVersion.minSdkVersion
+        targetSdkVersion rootProject.ext.androidVersion.targetSdkVersion
         versionCode 93
         versionName "7.0.5"
     }
@@ -14,6 +15,7 @@ android {
         sourceCompatibility 1.8
         targetCompatibility 1.8
     }
+
     lintOptions {
         abortOnError false
     }
@@ -22,6 +24,6 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     testImplementation 'junit:junit:4.12'
-    compileOnly 'com.android.support:appcompat-v7:28.0.0'
+    compileOnly rootProject.ext.dependencies.appcompatV7
 }
 

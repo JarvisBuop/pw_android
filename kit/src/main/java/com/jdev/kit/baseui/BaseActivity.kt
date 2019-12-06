@@ -41,6 +41,8 @@ abstract class BaseActivity : AppCompatActivity() {
 
         if (initIntentData()) {
             customOperate(savedInstanceState)
+        }else {
+            noDataOperate()
         }
     }
 
@@ -84,6 +86,13 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onRestart() {
         super.onRestart()
+    }
+
+    /**
+     * open func
+     */
+    open fun noDataOperate(){
+        finish()
     }
 
     /**

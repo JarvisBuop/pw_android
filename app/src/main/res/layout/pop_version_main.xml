@@ -7,14 +7,14 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false"
-    tools:background="@color/black_alpha">
+    tools:background="@color/text_gray">
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/layout_root_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/white"
+        android:background="#FFFFFF"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:paddingTop="4dp"

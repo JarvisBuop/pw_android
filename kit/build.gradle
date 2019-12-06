@@ -2,6 +2,7 @@ apply plugin: 'com.android.library'
 
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+//apply plugin: 'kotlin-kapt'
 
 def static getGitVersion() {
     def cmd = 'git rev-list HEAD --count'
@@ -26,6 +27,12 @@ android {
 
     }
 
+    compileOptions {
+        encoding "UTF-8"
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -46,10 +53,12 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
+    api project(path: ':adapter-library')
+
     /**
      * android support
      */
-    api rootProject.ext.dependencies.support
+    api rootProject.ext.dependencies.supportV4
     api rootProject.ext.dependencies.appcompatV7
 
     api rootProject.ext.dependencies.support_design
@@ -72,9 +81,21 @@ dependencies {
     /**
      * third lib
      */
-    //rxjava
     api rootProject.ext.dependencies.rxjava2_core
     api rootProject.ext.dependencies.rxandroid_core
 
-    api 'com.blankj:utilcode:1.11.1'
+    /**
+     * utils
+     */
+    api (rootProject.ext.dependencies.blackj_util) {
+        exclude group: 'org.jetbrains.kotlin'
+    }
+
+    /**
+     * webp support
+     */
+    api rootProject.ext.dependencies.glide_lib
+    api rootProject.ext.dependencies.facebook_webp
+    api rootProject.ext.dependencies.okhttp3_core
+    api rootProject.ext.dependencies.okhttp3_integration
 }

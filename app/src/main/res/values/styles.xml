@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="adv_popwin_anim_style">
-        <item name="android:windowEnterAnimation">@anim/adv_popup_in</item>
-        <item name="android:windowExitAnimation">@anim/adv_popup_out</item>
-    </style>
-
     <style name="img_version_main">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">40dp</item>
         <item name="android:adjustViewBounds">true</item>
-        <item name="android:background">@color/white</item>
+        <item name="android:background">#ffffff</item>
         <item name="android:scaleType">fitCenter</item>
         <item name="android:layout_weight">1</item>
     </style>

@@ -15,7 +15,7 @@ import android.view.ViewGroup
 import com.blankj.utilcode.util.*
 import com.jdev.module_welcome.R
 import com.jdev.module_welcome.adapter.BaseFragmentV4StatePagerAdapter
-import com.jdev.module_welcome.ui.helper.HeaderScrollHelper
+import com.jdev.kit.helper.HeaderScrollHelper
 import com.jdev.module_welcome.ui.widget.FixScrollView
 import com.jdev.module_welcome.ui.widget.JdCustomHeader
 import kotlinx.android.synthetic.main.act_mainpage_container.*
@@ -28,6 +28,7 @@ import kotlinx.android.synthetic.main.include_tab_viewpager.*
  * @description:
  *
  */
+@Deprecated("not best solution")
 class MainPageFragment : Fragment() {
     val TAG: String = "MainPageFragment"
     var colorIsSetting = false

@@ -35,6 +35,12 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="adv_popwin_anim_style">
+        <item name="android:windowEnterAnimation">@anim/adv_popup_in</item>
+        <item name="android:windowExitAnimation">@anim/adv_popup_out</item>
+    </style>
+
+
     <!--线-->
     <style name="horizontal_line_px">
         <item name="android:layout_width">match_parent</item>

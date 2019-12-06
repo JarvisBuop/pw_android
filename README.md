@@ -34,7 +34,10 @@ pwd , programming world , android knowledge summary;
 
 dev_android 目录: 
 
-- 组件化项目;
+- 组件化项目 (可在application和library之间动态切换)
+	- app 
+	- module_video
+	- module_welcome
 
 
 

@@ -11,7 +11,7 @@ import android.view.ViewGroup
 import com.jarvisdong.kotlindemo.ui.BaseActivity
 import com.jdev.wandroid.R
 import kotlinx.android.synthetic.main.act_feed_container.*
-import kotlinx.android.synthetic.main.activity_feed_detail_include_centerdrag.view.*
+import kotlinx.android.synthetic.main.test_centerdrag.view.*
 import java.util.*
 
 /**
@@ -76,7 +76,7 @@ class FeedTestAct : BaseActivity() {
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyHolder {
-            var view = LayoutInflater.from(mContext).inflate(R.layout.activity_feed_detail_include_centerdrag, parent, false)
+            var view = LayoutInflater.from(mContext).inflate(R.layout.test_centerdrag, parent, false)
             return MyHolder(view)
         }
 
