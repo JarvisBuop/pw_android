@@ -25,6 +25,9 @@ class GestureTestFrag : BaseFragment() {
 
     override fun initIntentData(): Boolean = true
 
+    override fun initDefaultView() {
+    }
+
     override fun customOperate(savedInstanceState: Bundle?) {
         btn_save.isEnabled = false
 

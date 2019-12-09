@@ -28,8 +28,10 @@ class ContainerActivity : BaseActivity() {
         val KEY_WEBP = 3
 
         fun launch(mContext: Context, code: Int) {
-            mContext.startActivity(Intent(mContext, ContainerActivity.javaClass::class.java)
-                    .putExtra(EXTRA_KEY, code))
+            mContext.startActivity(
+                    Intent(mContext, ContainerActivity::class.java)
+                            .putExtra(EXTRA_KEY, code)
+            )
         }
 
         fun getFragmentByKey(code: Int): BaseFragment? {
@@ -69,7 +71,7 @@ class ContainerActivity : BaseActivity() {
             supportFragmentManager.beginTransaction()
                     .replace(R.id.layout_fragment_container, fragmentByKey)
                     .commitAllowingStateLoss()
-        }else {
+        } else {
             noDataOperate()
         }
     }

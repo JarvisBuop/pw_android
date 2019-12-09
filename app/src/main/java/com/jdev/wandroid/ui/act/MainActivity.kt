@@ -56,10 +56,10 @@ class MainActivity : BaseActivity() {
 
     //secretcode other datas (not important)
     var mSecretString = mapOf<Int, OrientVo>(
-            Pair(ContainerActivity.KEY_GESTURE, OrientVo("gesture_test")),
-            Pair(ContainerActivity.KEY_PHOTOVIEW, OrientVo("photoview_test")),
-            Pair(ContainerActivity.KEY_SHADOW, OrientVo("shadow_test")),
-            Pair(ContainerActivity.KEY_WEBP, OrientVo("webp_test"))
+            Pair(ContainerActivity.KEY_GESTURE, OrientVo("${ContainerActivity.KEY_GESTURE} : gesture_test")),
+            Pair(ContainerActivity.KEY_PHOTOVIEW, OrientVo("${ContainerActivity.KEY_PHOTOVIEW} : photoview_test")),
+            Pair(ContainerActivity.KEY_SHADOW, OrientVo("${ContainerActivity.KEY_SHADOW} : shadow_test")),
+            Pair(ContainerActivity.KEY_WEBP, OrientVo("${ContainerActivity.KEY_WEBP} : webp_test"))
     )
 
     var mSecretCodes: SparseArray<OrientVo> by CodeDelegate(mSecretString)

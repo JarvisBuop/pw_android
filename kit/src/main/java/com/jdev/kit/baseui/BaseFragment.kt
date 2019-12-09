@@ -39,7 +39,7 @@ abstract class BaseFragment : Fragment() {
         return  mRootView
     }
 
-    protected fun initDefaultView() {
+    open fun initDefaultView() {
 
     }
 
