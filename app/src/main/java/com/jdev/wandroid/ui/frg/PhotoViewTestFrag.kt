@@ -1,28 +1,34 @@
-package com.jdev.wandroid.ui.act
+package com.jdev.wandroid.ui.frg
 
 import android.os.Bundle
 import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
-import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.ViewGroup
+import com.jdev.kit.baseui.BaseFragment
 import com.jdev.kit.custom.photoview.PhotoView
 import com.jdev.wandroid.R
 
-class TestAct : AppCompatActivity() {
-    lateinit var mRoot:View
+/**
+ * info: create by jd in 2019/12/9
+ * @see:
+ * @description: photoview 自定义view测试和改造
+ *
+ */
+class PhotoViewTestFrag : BaseFragment() {
+    override fun getViewStubId(): Int {
+        return R.layout.app_frag_test
+    }
 
+    override fun initIntentData(): Boolean = true
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.app_act_test)
-        mRoot = findViewById(R.id.layout_root)
+    override fun customOperate(savedInstanceState: Bundle?) {
         initScrollImg()
     }
 
-    lateinit var mPager:ViewPager
+    lateinit var mPager: ViewPager
     private fun initScrollImg() {
-        mPager = findViewById<ViewPager>(R.id.pager)
+        mPager = mRootView.findViewById<ViewPager>(R.id.pager)
         val mPagerAdapter = object : PagerAdapter() {
             override fun getCount(): Int {
                 return 3
@@ -33,7 +39,7 @@ class TestAct : AppCompatActivity() {
             }
 
             override fun instantiateItem(container: ViewGroup, position: Int): Any {
-                val view = PhotoView(this@TestAct)
+                val view = PhotoView(mContext)
                 val lp = ViewPager.LayoutParams()
                 view.layoutParams = lp
                 view.enable()
@@ -51,5 +57,4 @@ class TestAct : AppCompatActivity() {
         mPager.setAdapter(mPagerAdapter)
 
     }
-
 }

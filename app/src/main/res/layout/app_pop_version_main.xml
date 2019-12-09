@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false"
-    tools:background="@color/text_gray">
+    tools:background="@color/app_text_gray">
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/layout_root_menu"
@@ -22,7 +22,7 @@
 
         <ImageView
             android:id="@+id/version_icon_1"
-            style="@style/img_version_main"
+            style="@style/app_img_version_main"
             android:src="@drawable/menu_icon_home_selected"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_chainStyle="spread_inside"
@@ -31,7 +31,7 @@
 
         <ImageView
             android:id="@+id/version_icon_2"
-            style="@style/img_version_main"
+            style="@style/app_img_version_main"
             android:src="@drawable/menu_icon_search"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@id/version_icon_1"
@@ -40,7 +40,7 @@
 
         <ImageView
             android:id="@+id/version_icon_3"
-            style="@style/img_version_main"
+            style="@style/app_img_version_main"
             android:src="@drawable/menu_icon_publish"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@id/version_icon_2"
@@ -48,7 +48,7 @@
 
         <ImageView
             android:id="@+id/version_icon_4"
-            style="@style/img_version_main"
+            style="@style/app_img_version_main"
             android:src="@drawable/menu_icon_mem"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@id/version_icon_3"
@@ -57,7 +57,7 @@
 
         <ImageView
             android:id="@+id/version_icon_5"
-            style="@style/img_version_main"
+            style="@style/app_img_version_main"
             android:src="@drawable/menu_icon_user"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@id/version_icon_4"
@@ -82,7 +82,7 @@
             android:layout_marginBottom="25dp"
             android:lineSpacingExtra="6dp"
             android:text="@string/app_version_main_1"
-            android:textColor="@color/text_gray_666"
+            android:textColor="@color/app_text_gray_666"
             android:textSize="14sp" />
     </FrameLayout>
 </FrameLayout>

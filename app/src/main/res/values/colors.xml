@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="text_black">#FF333333</color>
-    <color name="text_gray">#999999</color>
-    <color name="text_gray_666">#666666</color>
+    <color name="app_text_black">#FF333333</color>
+    <color name="app_text_gray">#999999</color>
+    <color name="app_text_gray_666">#666666</color>
 </resources>

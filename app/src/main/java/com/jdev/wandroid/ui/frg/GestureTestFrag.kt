@@ -1,34 +1,33 @@
-package com.jdev.wandroid.ui.act
+package com.jdev.wandroid.ui.frg
 
 import android.gesture.GestureLibraries
 import android.graphics.Color
 import android.os.Bundle
 import com.blankj.utilcode.util.LogUtils
-import com.jarvisdong.kotlindemo.ui.BaseActivity
+import com.jdev.kit.baseui.BaseFragment
 import com.jdev.wandroid.R
-import kotlinx.android.synthetic.main.app_act_gesture.*
+import kotlinx.android.synthetic.main.app_frag_gesture.*
 
 /**
- * Created by JarvisDong on 2019/07/20.
- *
- * @Description:  从手势库中保存当前手势;
+ * info: create by jd in 2019/12/9
  * @see:
+ * @description: 从手势库中保存当前手势;
  *
  */
-class GestureTestAct : BaseActivity() {
+class GestureTestFrag : BaseFragment() {
     val path: String = "/mnt/sdcard/mygestures"
     val gestureName: String = "mygestures_"
     var count: Int = 0
+
     override fun getViewStubId(): Int {
-        return R.layout.app_act_gesture
+        return R.layout.app_frag_gesture
     }
 
-    override fun initIntentData(): Boolean {
-        btn_save.isEnabled = false
-        return true
-    }
+    override fun initIntentData(): Boolean = true
 
     override fun customOperate(savedInstanceState: Bundle?) {
+        btn_save.isEnabled = false
+
         gesture_view.gestureColor = Color.RED
         gesture_view.gestureStrokeWidth = 5f
         gesture_view.addOnGesturePerformedListener { overlay, gesture ->

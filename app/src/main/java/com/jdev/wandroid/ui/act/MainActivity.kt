@@ -5,13 +5,10 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.renderscript.ScriptGroup
+import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
-import android.util.ArrayMap
 import android.util.SparseArray
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.BaseAdapter
 import android.widget.TextView
@@ -24,7 +21,6 @@ import com.jdev.wandroid.R
 import kotlinx.android.synthetic.main.app_activity_main.*
 import kotlinx.android.synthetic.main.app_include_main_top.*
 import java.lang.Exception
-import kotlin.properties.Delegates
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -59,12 +55,11 @@ class MainActivity : BaseActivity() {
     )
 
     //secretcode other datas (not important)
-    var mSecretString = arrayListOf<OrientVo>(
-            OrientVo("test"),
-            OrientVo("test"),
-            OrientVo("test"),
-            OrientVo("test"),
-            OrientVo("test")
+    var mSecretString = mapOf<Int, OrientVo>(
+            Pair(ContainerActivity.KEY_GESTURE, OrientVo("gesture_test")),
+            Pair(ContainerActivity.KEY_PHOTOVIEW, OrientVo("photoview_test")),
+            Pair(ContainerActivity.KEY_SHADOW, OrientVo("shadow_test")),
+            Pair(ContainerActivity.KEY_WEBP, OrientVo("webp_test"))
     )
 
     var mSecretCodes: SparseArray<OrientVo> by CodeDelegate(mSecretString)
@@ -77,14 +72,59 @@ class MainActivity : BaseActivity() {
         return R.layout.app_activity_main
     }
 
-    override fun initIntentData(): Boolean = true
+    override fun initIntentData(): Boolean {
+        setSupportActionBar(toolbar)
+        return true
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.app_menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        return when (item.itemId) {
+            R.id.action_settings -> true
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
     override fun customOperate(savedInstanceState: Bundle?) {
+        initToolBar()
+
         initRecyclerViews()
         initTopView()
         initFootView()
         fetchDatas()
     }
+
+    private fun initToolBar() {
+        fabView?.visibility = View.VISIBLE
+        fabView?.setOnClickListener { view ->
+            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
+        }
+        //sample_text.text = stringFromJNI()
+    }
+
+    /**
+     * A native method that is implemented by the 'native-lib' native library,
+     * which is packaged with this application.
+     */
+
+//    external fun stringFromJNI(): String
+//
+//    companion object {
+//
+//        // Used to load the 'native-lib' library on application startup.
+//        init {
+//            System.loadLibrary("native-lib")
+//        }
+//    }
 
     private fun initTopView() {
         edt_input.setOnEditorActionListener { v, actionId, event ->
@@ -106,7 +146,7 @@ class MainActivity : BaseActivity() {
                     .setAdapter(object : BaseAdapter() {
                         @SuppressLint("ViewHolder")
                         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-                            var view = LayoutInflater.from(mContext).inflate(R.layout.app_test_centerdrag, null)
+                            var view = LayoutInflater.from(mContext).inflate(R.layout.app_item_centerdrag, parent, false)
                             var txtTips = view.findViewById<TextView>(R.id.scroll_tip)
                             var item = codeDatas.get(position)
                             txtTips.text = item.title
@@ -128,7 +168,7 @@ class MainActivity : BaseActivity() {
                     }) { dialog, which ->
 
                     }.setIcon(R.drawable.icon1)
-                    .setTitle("magic code")
+                    .setTitle("secret code table")
                     .show()
         }
     }
@@ -136,14 +176,14 @@ class MainActivity : BaseActivity() {
     private fun initRecyclerViews() {
         main_container.setDisableDoubleScroll(false)
 
-        mAdapterTop = MyAdapter(R.layout.app_test_normalitem)
-        mAdapterBottom = MyAdapter(R.layout.app_test_normalitem_reverse)
+        mAdapterTop = MyAdapter(R.layout.app_item_normalitem)
+        mAdapterBottom = MyAdapter(R.layout.app_item_normalitem_reverse)
         mAdapterTop.setOnItemClickListener { adapter, view, position ->
-            clickItem(mAdapterTop.getItem(position), position)
+            clickItemByClazz(mAdapterTop.getItem(position), position)
         }
 
         mAdapterBottom.setOnItemClickListener { adapter, view, position ->
-            clickItem(mAdapterBottom.getItem(position), position)
+            clickItemByClazz(mAdapterBottom.getItem(position), position)
         }
 
         first_recyclerview.layoutManager = LinearLayoutManager(mContext)
@@ -152,12 +192,16 @@ class MainActivity : BaseActivity() {
         second_recyclerview.adapter = mAdapterBottom
     }
 
-    private fun clickItem(item: OrientVo?, position: Int = -1) {
+    private fun clickItemByClazz(item: OrientVo?, position: Int = -1) {
         item?.also {
             if (it.clazz != null) {
                 mContext.startActivity(Intent(mContext, it.clazz))
             }
         }
+    }
+
+    private fun clickItemByCode(indexOfKey: Int) {
+        ContainerActivity.launch(mContext, indexOfKey)
     }
 
     private fun searchItem(codeStr: String) {
@@ -166,7 +210,7 @@ class MainActivity : BaseActivity() {
                 var code = java.lang.Integer.parseInt(codeStr)
                 var indexOfKey = mSecretCodes.indexOfKey(code)
                 if (indexOfKey >= 0) {
-                    clickItem(mSecretCodes.get(indexOfKey))
+                    clickItemByCode(indexOfKey)
                 }
             } catch (e: Exception) {
 
@@ -232,10 +276,10 @@ class MainActivity : BaseActivity() {
     }
 
     //
-    class CodeDelegate(val al: ArrayList<OrientVo>) : ReadWriteProperty<Context, SparseArray<OrientVo>> {
+    class CodeDelegate(val al: Map<Int, OrientVo>) : ReadWriteProperty<Context, SparseArray<OrientVo>> {
         override fun getValue(thisRef: Context, property: KProperty<*>): SparseArray<OrientVo> {
             var sa = SparseArray<OrientVo>()
-            for ((key, value) in al.withIndex()) {
+            for ((key, value) in al.entries) {
                 sa.put(key, value)
             }
             return sa
