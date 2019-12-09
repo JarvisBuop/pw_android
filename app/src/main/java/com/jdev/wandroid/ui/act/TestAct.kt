@@ -15,7 +15,7 @@ class TestAct : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.act_test)
+        setContentView(R.layout.app_act_test)
         mRoot = findViewById(R.id.layout_root)
         initScrollImg()
     }

@@ -18,7 +18,7 @@ import com.jdev.wandroid.mockdata.MockData
 import com.jdev.wandroid.popwindow.impl.KtVersionMainPop
 import com.jdev.wandroid.test.TestMath
 import com.jdev.wandroid.utils.ViewUtils
-import kotlinx.android.synthetic.main.act_show_customview.*
+import kotlinx.android.synthetic.main.app_act_show_customview.*
 
 /**
  * info: create by jd in 2019/12/6
@@ -32,7 +32,7 @@ class ShowCustomViewAct : BaseActivity() {
 
 
     override fun getViewStubId(): Int {
-        return R.layout.act_show_customview
+        return R.layout.app_act_show_customview
     }
 
     override fun initIntentData(): Boolean {
@@ -50,9 +50,6 @@ class ShowCustomViewAct : BaseActivity() {
 //        sample_text.text = stringFromJNI()
 
         quickContactBadge.assignContactFromPhone("13817228124", false)
-        txt_feed.setOnClickListener {
-            startActivity(Intent(this, FeedTestAct::class.java))
-        }
 
         initWebp2()
 

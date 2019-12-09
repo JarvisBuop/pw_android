@@ -48,7 +48,7 @@ class KtVersionMainPop(context: Context, var callback: ViewUtils.OnCallback<*>) 
 
     var offsetMargin: Int = ConvertUtils.dp2px(10f)
 
-    override fun getLayoutId(): Int = R.layout.pop_version_main
+    override fun getLayoutId(): Int = R.layout.app_pop_version_main
 
     override fun isSupportBGDismiss(): Boolean {
         return true

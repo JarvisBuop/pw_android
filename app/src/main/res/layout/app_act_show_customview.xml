@@ -124,14 +124,6 @@
 
         </android.support.constraint.ConstraintLayout>
 
-
-        <TextView
-            android:id="@+id/txt_feed"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:text="feed 页面测试" />
-
         <ImageView
             android:id="@+id/img_webp"
             android:layout_width="wrap_content"
@@ -148,7 +140,7 @@
             android:layout_height="wrap_content"
             android:text="test_anim" />
 
-        <include layout="@layout/frag_content_main" />
+        <include layout="@layout/app_frag_content_main" />
 
 
     </LinearLayout>

@@ -6,7 +6,7 @@ import android.os.Bundle
 import com.blankj.utilcode.util.LogUtils
 import com.jarvisdong.kotlindemo.ui.BaseActivity
 import com.jdev.wandroid.R
-import kotlinx.android.synthetic.main.act_gesture.*
+import kotlinx.android.synthetic.main.app_act_gesture.*
 
 /**
  * Created by JarvisDong on 2019/07/20.
@@ -20,7 +20,7 @@ class GestureTestAct : BaseActivity() {
     val gestureName: String = "mygestures_"
     var count: Int = 0
     override fun getViewStubId(): Int {
-        return R.layout.act_gesture
+        return R.layout.app_act_gesture
     }
 
     override fun initIntentData(): Boolean {
