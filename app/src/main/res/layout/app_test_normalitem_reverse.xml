@@ -68,6 +68,7 @@
         style="@style/txt_nor_detail_content"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:text="desc"
         app:layout_constraintLeft_toRightOf="@id/guide_line_middle"
         app:layout_constraintRight_toLeftOf="@id/guide_line_vertical2"

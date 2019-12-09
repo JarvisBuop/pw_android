@@ -160,7 +160,7 @@ class ExhanceScrollViewContainer : FrameLayout {
                 var dy = ev.y - mLastY
                 if (canPullUp && mCurrentViewIndex == 0 /*&& mEvents == 0*/) {
                     mMoveDistanceY += dy
-                    Log.e(TAG, "dy:  " + dy + " / " + mMoveDistanceY + " " + canPullUp)
+//                    Log.e(TAG, "dy:  " + dy + " / " + mMoveDistanceY + " " + canPullUp)
                     illegalDistance()
                     if (mMoveDistanceY < -mTouchSlop) {
                         // 防止事件冲突
@@ -168,7 +168,7 @@ class ExhanceScrollViewContainer : FrameLayout {
                     }
                 } else if (canPullDown && mCurrentViewIndex == 1 /*&& mEvents == 0*/) {
                     mMoveDistanceY += dy
-                    Log.e(TAG, "dy:  " + dy + " / " + mMoveDistanceY + " " + canPullDown)
+//                    Log.e(TAG, "dy:  " + dy + " / " + mMoveDistanceY + " " + canPullDown)
                     illegalDistance()
                     if (mMoveDistanceY > mTouchSlop - mViewHeight) {
                         // 防止事件冲突
