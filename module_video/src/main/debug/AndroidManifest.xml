@@ -19,7 +19,7 @@
 
 
         <activity
-            android:name="com.example.module_video.ui.act.GithubJiaoziVideoAct"
+            android:name="com.jdev.module_video.ui.act.GithubJiaoziVideoAct"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait">
             <intent-filter>

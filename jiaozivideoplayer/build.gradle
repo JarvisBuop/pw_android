@@ -16,9 +16,6 @@ android {
         targetCompatibility 1.8
     }
 
-    lintOptions {
-        abortOnError false
-    }
 }
 
 dependencies {

@@ -43,6 +43,26 @@ allprojects {
     }
 }
 
+subprojects {
+    //设置统一的配置
+    afterEvaluate { Project project ->
+        ext.pluginContainer = project.getPlugins()
+        def hasAppPlugin = ext.pluginContainer.hasPlugin("com.android.application")
+        def hasLibPlugin = ext.pluginContainer.hasPlugin("com.android.library")
+
+        if (hasAppPlugin || hasLibPlugin) {
+            android {
+                lintOptions {
+                    //关闭MissingTranslation
+                    abortOnError false
+                    // 防止在发布的时候出现因MissingTranslation导致Build Failed!
+                    disable 'MissingTranslation'
+                }
+            }
+        }
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }

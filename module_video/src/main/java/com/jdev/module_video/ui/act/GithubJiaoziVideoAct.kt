@@ -1,4 +1,4 @@
-package com.example.module_video.ui.act
+package com.jdev.module_video.ui.act
 
 import android.net.Uri
 import android.os.Bundle
@@ -8,7 +8,6 @@ import android.widget.MediaController
 import android.widget.VideoView
 import cn.jzvd.Jzvd
 import cn.jzvd.JzvdStd
-import com.example.module_video.jiaozi.CustomMedia.JZMediaExo
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.ui.PlayerView
@@ -16,7 +15,6 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.jarvisdong.kotlindemo.ui.BaseActivity
 import com.jdev.module_video.R
-
 
 /**
  * info: create by jd in 2019/8/5
@@ -36,7 +34,8 @@ class GithubJiaoziVideoAct : BaseActivity() {
 //                "http://jzvd.nathen.cn/342a5f7ef6124a4a8faf00e738b8bee4/cf6d9db0bd4d41f59d09ea0a81e918fd-5287d2089db37e62345123a1be272f8b.mp4"
 
     override fun getViewStubId(): Int {
-        return R.layout.layout_github_jiaozi
+        return R.layout.mv_layout_github_jiaozi
+//        return 0
     }
 
     override fun initIntentData(): Boolean {

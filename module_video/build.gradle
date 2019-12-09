@@ -6,7 +6,7 @@ if (isModule.toBoolean()) {
 
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-//apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-kapt'
 
 def static getGitVersion() {
     def cmd = 'git rev-list HEAD --count'
@@ -20,6 +20,7 @@ def static getGitVersion() {
 android {
     compileSdkVersion rootProject.ext.androidVersion.compileSdkVersion
     buildToolsVersion rootProject.ext.androidVersion.buildToolsVersion
+    resourcePrefix "mv_"
 
     defaultConfig {
         minSdkVersion rootProject.ext.androidVersion.minSdkVersion

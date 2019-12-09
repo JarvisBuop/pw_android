@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="200dp">
 
-        <com.example.module_video.jiaozi.MyJzvdStdPlayer
+        <com.jdev.module_video.jiaozi.MyJzvdStdPlayer
             android:id="@+id/jzplayer"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

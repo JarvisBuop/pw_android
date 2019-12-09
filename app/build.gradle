@@ -2,8 +2,7 @@ apply plugin: 'com.android.application'
 //kotlin relation
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-//apply plugin: 'kotlin-kapt'
-
+apply plugin: 'kotlin-kapt'
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file("local.properties").newDataInputStream())
@@ -28,6 +27,7 @@ def static getBuildTime() {
 android {
     compileSdkVersion rootProject.ext.androidVersion.compileSdkVersion
     buildToolsVersion rootProject.ext.androidVersion.buildToolsVersion
+    resourcePrefix "app_"
 
     defaultConfig {
 
@@ -57,10 +57,10 @@ android {
 
     signingConfigs {
         release {
-            storeFile file(properties.getProperty("jdrobot.signing.keyfile"))
-            storePassword properties.getProperty("jdrobot.signing.password")
-            keyAlias properties.getProperty("jdrobot.signing.key.alias")
-            keyPassword properties.getProperty("jdrobot.signing.key.password")
+//            storeFile file(properties.getProperty("jdrobot.signing.keyfile"))
+//            storePassword properties.getProperty("jdrobot.signing.password")
+//            keyAlias properties.getProperty("jdrobot.signing.key.alias")
+//            keyPassword properties.getProperty("jdrobot.signing.key.password")
         }
     }
 
@@ -146,13 +146,16 @@ android {
         preDexLibraries = false
         javaMaxHeapSize "8g"
     }
+
+
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     api project(path: ':kit')
-//    api project(path: ':module_welcome')
+    api project(path: ':module_welcome')
+    api project(path: ':module_video')
 
 
     testImplementation 'junit:junit:4.12'

@@ -22,7 +22,7 @@
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="match_parent" />-->
 
-        <com.example.module_video.jiaozi.MyJzvdStd
+        <com.jdev.module_video.jiaozi.MyJzvdStd
             android:id="@+id/jzplayer"
             android:layout_width="match_parent"
             android:layout_height="200dp" />
@@ -46,7 +46,7 @@
         android:id="@+id/exo_playview"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        app:controller_layout_id="@layout/custom_controls"
+        app:controller_layout_id="@layout/mv_custom_controls"
         app:show_shuffle_button="true"
         app:show_buffering="when_playing"/>
 

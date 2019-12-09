@@ -6,5 +6,7 @@
         <activity
             android:name=".WelcomeActivity"
             android:screenOrientation="portrait" />
+
+        <activity android:name=".ui.act.MainPageActivity" />
     </application>
 </manifest>

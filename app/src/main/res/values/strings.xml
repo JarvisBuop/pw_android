@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="version_main_1">旧的会员页已迁移</string>
-    <string name="version_main_2">商城页移到这里哟</string>
-    <string name="version_main_3">新的资源库全新上线</string>
+    <string name="app_version_main_1">旧的会员页已迁移</string>
+    <string name="app_version_main_2">商城页移到这里哟</string>
+    <string name="app_version_main_3">新的资源库全新上线</string>
 
-    <string name="action_settings">Settings</string>
+    <string name="app_action_settings">Settings</string>
 </resources>

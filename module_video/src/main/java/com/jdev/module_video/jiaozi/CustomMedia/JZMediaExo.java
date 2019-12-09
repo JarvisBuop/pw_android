@@ -1,4 +1,4 @@
-package com.example.module_video.jiaozi.CustomMedia;
+package com.jdev.module_video.jiaozi.CustomMedia;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;

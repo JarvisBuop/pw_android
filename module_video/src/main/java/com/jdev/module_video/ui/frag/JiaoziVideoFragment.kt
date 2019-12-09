@@ -1,4 +1,4 @@
-package com.example.module_video.ui.frag
+package com.jdev.module_video.ui.frag
 
 import android.os.Bundle
 import com.jdev.kit.baseui.BaseFragment
@@ -13,7 +13,8 @@ import com.jdev.module_video.R
 class JiaoziVideoFragment : BaseFragment() {
 
     override fun getViewStubId(): Int {
-        return R.layout.frag_layout_jiaozi
+        return R.layout.mv_frag_layout_jiaozi
+//        return 0
     }
 
     override fun initIntentData(): Boolean {

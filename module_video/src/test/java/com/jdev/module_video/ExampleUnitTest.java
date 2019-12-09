@@ -1,4 +1,4 @@
-package com.example.module_video;
+package com.jdev.module_video;
 
 import org.junit.Test;
 

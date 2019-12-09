@@ -81,7 +81,7 @@
             android:layout_marginLeft="27dp"
             android:layout_marginBottom="25dp"
             android:lineSpacingExtra="6dp"
-            android:text="@string/version_main_1"
+            android:text="@string/app_version_main_1"
             android:textColor="@color/text_gray_666"
             android:textSize="14sp" />
     </FrameLayout>

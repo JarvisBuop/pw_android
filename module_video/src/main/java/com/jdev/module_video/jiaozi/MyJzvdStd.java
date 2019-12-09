@@ -1,4 +1,4 @@
-package com.example.module_video.jiaozi;
+package com.jdev.module_video.jiaozi;
 
 import android.content.Context;
 import android.util.AttributeSet;
