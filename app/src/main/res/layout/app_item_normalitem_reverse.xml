@@ -33,7 +33,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="content"
-        android:textStyle="italic"
+        android:textStyle="italic|bold"
         app:layout_constraintLeft_toRightOf="@id/guide_line_vertical"
         app:layout_constraintRight_toLeftOf="@id/guide_line_vertical2"
         app:layout_constraintTop_toBottomOf="@id/guide_line_horizental" />

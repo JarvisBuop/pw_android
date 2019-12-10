@@ -34,7 +34,9 @@ import kotlin.reflect.KProperty
 class MainActivity : BaseActivity() {
     //top recyclerview datas
     var mTopDatas = arrayListOf<OrientVo>(
-            OrientVo("test", "desc"),
+            OrientVo("opengl 处理图像/视频滤镜",
+                    "https://github.com/cats-oss/android-gpuimage (Android filters based on OpenGL (idea from GPUImage for iOS))",
+                    LEVEL.LEVEL_HIGH, ContainerActivity::class.java, ContainerActivity.KEY_ANDROID_GPUIMAGE),
             OrientVo("test", "desc"),
             OrientVo("test", "desc"),
             OrientVo("test", "desc"),
@@ -58,7 +60,7 @@ class MainActivity : BaseActivity() {
     )
 
     //secretcode other datas (not important)
-    var mSecretString = mapOf<Int, OrientVo>(
+    var mSecretString = mutableMapOf<Int, OrientVo>(
             Pair(ContainerActivity.KEY_GESTURE, OrientVo("${ContainerActivity.KEY_GESTURE} : gesture_test")),
             Pair(ContainerActivity.KEY_PHOTOVIEW, OrientVo("${ContainerActivity.KEY_PHOTOVIEW} : photoview_test")),
             Pair(ContainerActivity.KEY_SHADOW, OrientVo("${ContainerActivity.KEY_SHADOW} : shadow_test")),
@@ -182,11 +184,11 @@ class MainActivity : BaseActivity() {
         mAdapterTop = MyAdapter(R.layout.app_item_normalitem)
         mAdapterBottom = MyAdapter(R.layout.app_item_normalitem_reverse)
         mAdapterTop.setOnItemClickListener { adapter, view, position ->
-            clickItemByClazz(mAdapterTop.getItem(position), position)
+            clickItemByClazz(mAdapterTop.getItem(position), mAdapterTop.getItem(position)?.clazzCode)
         }
 
         mAdapterBottom.setOnItemClickListener { adapter, view, position ->
-            clickItemByClazz(mAdapterBottom.getItem(position), position)
+            clickItemByClazz(mAdapterBottom.getItem(position), mAdapterTop.getItem(position)?.clazzCode)
         }
 
         first_recyclerview.layoutManager = LinearLayoutManager(mContext)
@@ -195,10 +197,15 @@ class MainActivity : BaseActivity() {
         second_recyclerview.adapter = mAdapterBottom
     }
 
-    private fun clickItemByClazz(item: OrientVo?, position: Int = -1) {
+    private fun clickItemByClazz(item: OrientVo?, clazzCode: Int? = -1) {
         item?.also {
             if (it.clazz != null) {
-                mContext.startActivity(Intent(mContext, it.clazz))
+                if (it.clazz == ContainerActivity::class.java && clazzCode != null && clazzCode != -1) {
+                    mSecretString.put(clazzCode, OrientVo("$clazzCode -> add"))
+                    clickItemByCode(clazzCode)
+                } else {
+                    mContext.startActivity(Intent(mContext, it.clazz))
+                }
             }
         }
     }
@@ -243,10 +250,10 @@ class MainActivity : BaseActivity() {
                             setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.red))
                         }
                         LEVEL.LEVEL_HIGH -> {
-                            setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.color_violet))
+                            setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.color_orange))
                         }
                         LEVEL.LEVEL_MIDDLE -> {
-                            setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.color_orange))
+                            setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.color_violet))
                         }
                         LEVEL.LEVEL_LOW -> {
                             setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.color_blue))
@@ -267,7 +274,8 @@ class MainActivity : BaseActivity() {
             var title: String,
             var desc: String = "",
             var level: LEVEL = LEVEL.LEVEL_NOPE,
-            var clazz: Class<*>? = null
+            var clazz: Class<*>? = null,
+            var clazzCode: Int = -1
     )
 
     enum class LEVEL {

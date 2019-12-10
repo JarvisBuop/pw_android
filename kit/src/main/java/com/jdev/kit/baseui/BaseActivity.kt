@@ -5,9 +5,12 @@ import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewStub
 import android.widget.TextView
+import com.blankj.utilcode.util.ConvertUtils
 import com.jdev.kit.R
+import java.lang.Exception
 
 /**
  * Created by JarvisDong on 2018/12/6.
@@ -16,7 +19,7 @@ import com.jdev.kit.R
 abstract class BaseActivity : AppCompatActivity() {
     private val isDebug = true
     protected lateinit var mContext: Context
-    protected val TAG :String = this::class.java.name
+    protected val TAG: String = this::class.java.name
 
     //init default view;
     protected var toolbar: android.support.v7.widget.Toolbar? = null
@@ -25,6 +28,10 @@ abstract class BaseActivity : AppCompatActivity() {
     protected var barTitleView: TextView? = null
     protected var barRightView: TextView? = null
     protected var fabView: FloatingActionButton? = null
+
+    protected var textMarkTipView: TextView? = null
+
+    private var isFirstFocus = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,11 +46,49 @@ abstract class BaseActivity : AppCompatActivity() {
             initDefaultView()
         }
 
+        addTextMarkTips()
+
         if (initIntentData()) {
             customOperate(savedInstanceState)
-        }else {
+        } else {
             noDataOperate()
         }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+
+        if (hasFocus) {
+            addTextMarkTips()
+        }
+    }
+
+    private fun addTextMarkTips() {
+        if (isFirstFocus) {
+            isFirstFocus = false
+            try {
+                val decorView = window.decorView
+                if (isDebug && decorView is ViewGroup) {
+                    val container = decorView.findViewById<ViewGroup>(android.R.id.content)
+                    textMarkTipView = TextView(mContext)
+                    textMarkTipView?.setPadding(ConvertUtils.dp2px(15f), ConvertUtils.dp2px(15f), 0, 0)
+                    textMarkTipView?.setTextColor(mContext.resources.getColor(R.color.red))
+                    val sb = StringBuilder()
+                    sb.append("\ninfo: ${javaClass.simpleName}")
+                    textMarkTipView?.text = sb.toString()
+                    container.addView(textMarkTipView)
+                }
+            } catch (e: Exception) {
+
+            }
+        }
+    }
+
+    protected fun setTextMarkTips(content: String) {
+        val sb = StringBuilder()
+        sb.append("\ninfo: ${javaClass.simpleName}")
+                .append(" - $content")
+        textMarkTipView?.text = sb.toString()
     }
 
     private fun initDefaultView() {
@@ -91,7 +136,7 @@ abstract class BaseActivity : AppCompatActivity() {
     /**
      * open func
      */
-    open fun noDataOperate(){
+    open fun noDataOperate() {
         finish()
     }
 
