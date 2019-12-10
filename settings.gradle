@@ -3,4 +3,4 @@ include ':app',
         ':module_welcome',
         ':jiaozivideoplayer',
         ':adapter-library',
-        ':module_video'
+        ':module_video', ':gpuimage'
