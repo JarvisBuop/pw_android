@@ -155,8 +155,8 @@ dependencies {
 
     api project(path: ':kit')
     //module import
-//    api project(path: ':module_welcome')
-//    api project(path: ':module_video')
+    api project(path: ':module_welcome')
+    api project(path: ':module_video')
 
 
     testImplementation 'junit:junit:4.12'
