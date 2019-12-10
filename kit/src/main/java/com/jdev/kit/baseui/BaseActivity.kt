@@ -27,7 +27,6 @@ abstract class BaseActivity : AppCompatActivity() {
     protected var fabView: FloatingActionButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.component_layout_coor_design)
         mContext = this

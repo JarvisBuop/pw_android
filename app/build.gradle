@@ -39,7 +39,7 @@ android {
 
 //        vectorDrawables.useSupportLibrary = true
 
-//        multiDexEnabled true
+        multiDexEnabled true
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -154,14 +154,13 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     api project(path: ':kit')
-    api project(path: ':module_welcome')
-    api project(path: ':module_video')
+    //module import
+//    api project(path: ':module_welcome')
+//    api project(path: ':module_video')
 
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-
-//    implementation  rootProject.ext.dependencies.android_multidex
 
 }

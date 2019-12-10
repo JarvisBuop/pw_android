@@ -50,7 +50,7 @@ ext {
             kotlin_stdlib_common   : "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version",
 
             //multidex support
-//            android_multidex       : "com.android.support:multidex:${dependencyVersion.multidex_version}",
+            android_multidex       : "com.android.support:multidex:${dependencyVersion.multidex_version}",
 
             //rxjava support
             rxjava2_core           : "io.reactivex.rxjava2:rxjava:${dependencyVersion.rxjava_version}",

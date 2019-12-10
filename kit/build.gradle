@@ -98,4 +98,9 @@ dependencies {
     api rootProject.ext.dependencies.facebook_webp
     api rootProject.ext.dependencies.okhttp3_core
     api rootProject.ext.dependencies.okhttp3_integration
+
+    /**
+     * multidex support
+     */
+    api  rootProject.ext.dependencies.android_multidex
 }

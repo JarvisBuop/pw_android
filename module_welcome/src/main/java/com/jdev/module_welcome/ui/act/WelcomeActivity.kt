@@ -1,7 +1,9 @@
 package com.jdev.module_welcome.ui.act
 
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import com.airbnb.lottie.LottieAnimationView
 import com.jarvisdong.kotlindemo.ui.BaseActivity
 import com.jdev.module_welcome.R
@@ -23,6 +25,9 @@ class WelcomeActivity : BaseActivity() {
         mAnimationView = findViewById<LottieAnimationView>(R.id.animation_view)
         mAnimationView.setAnimation(R.raw.logosmall)
 
+        findViewById<View>(R.id.layout_go).setOnClickListener {
+            startActivity(Intent(this,FullscreenActivity::class.java))
+        }
     }
 
     override fun getViewStubId(): Int {
