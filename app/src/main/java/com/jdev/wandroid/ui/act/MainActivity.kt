@@ -17,6 +17,9 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.jarvisdong.kit.utils.ResourceIdUtils
 import com.jarvisdong.kotlindemo.ui.BaseActivity
+import com.jdev.module_video.ui.act.GithubJiaoziVideoAct
+import com.jdev.module_welcome.ui.act.FullscreenActivity
+import com.jdev.module_welcome.ui.act.WelcomeActivity
 import com.jdev.wandroid.R
 import kotlinx.android.synthetic.main.app_activity_main.*
 import kotlinx.android.synthetic.main.app_include_main_top.*
@@ -44,9 +47,9 @@ class MainActivity : BaseActivity() {
 
     //bottom recyclerview datas
     var mBottomDatas = arrayListOf<OrientVo>(
-            OrientVo("test", "desc"),
-            OrientVo("test", "desc"),
-            OrientVo("test", "desc"),
+            OrientVo("组件module_welcome", "显示welcome页面", clazz = WelcomeActivity::class.java),
+            OrientVo("组件module_video", "测试视频及三方", clazz = GithubJiaoziVideoAct::class.java),
+            OrientVo("处理滑动冲突首页效果", "两个三方处理滑动冲突", clazz = FullscreenActivity::class.java),
             OrientVo("test", "desc"),
             OrientVo("test", "desc"),
             OrientVo("test", "desc"),

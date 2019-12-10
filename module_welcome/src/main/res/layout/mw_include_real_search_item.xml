@@ -7,12 +7,11 @@
     android:padding="@dimen/dimen_nor_5dp">
     <!--android:background="@drawable/rect_white_corner_all_6dp"-->
 
-    <include layout="@layout/include_search_titlebar" />
+    <include layout="@layout/mw_include_search_titlebar" />
 
     <include
         android:id="@+id/item_inner_four_shortcut"
-        layout="@layout/include_real_search_item_innerlist"
-
+        layout="@layout/mw_include_real_search_item_innerlist"
         android:layout_marginBottom="@dimen/dimen_nor_12dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

@@ -35,7 +35,6 @@ class GithubJiaoziVideoAct : BaseActivity() {
 
     override fun getViewStubId(): Int {
         return R.layout.mv_layout_github_jiaozi
-//        return 0
     }
 
     override fun initIntentData(): Boolean {
@@ -48,7 +47,7 @@ class GithubJiaoziVideoAct : BaseActivity() {
         exoplayview = findViewById<PlayerView>(R.id.exo_playview)
         findViewById<Button>(R.id.btn_replay).setOnClickListener {
             initVideoPlayer()
-//            initexoPlayer()
+//            initExoPlayer()
         }
 
         jzPlayer.setUp(videoUrl, "饺子眼睛", JzvdStd.SCREEN_NORMAL)
@@ -56,7 +55,7 @@ class GithubJiaoziVideoAct : BaseActivity() {
         jzPlayer.thumbImageView.setImageResource(R.drawable.ic_launcher_background)
     }
 
-    private fun initexoPlayer() {
+    private fun initExoPlayer() {
         var player = ExoPlayerFactory.newSimpleInstance(mContext)
         exoplayview.player = player
 

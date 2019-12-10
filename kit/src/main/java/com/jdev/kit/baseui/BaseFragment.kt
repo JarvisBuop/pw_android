@@ -7,8 +7,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewStub
-import com.jdev.kit.R
+import com.blankj.utilcode.util.ToastUtils
 
 /**
  * info: create by jd in 2019/8/5
@@ -17,26 +16,39 @@ import com.jdev.kit.R
  *
  */
 abstract class BaseFragment : Fragment() {
-    protected var mContext: Context? = null
     private val isDebug = true
+    protected var mContext: Context? = null
     protected val TAG: String = this::class.java.name
 
     protected lateinit var mRootView: View
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mRootView = inflater.inflate(R.layout.component_layout_coor_design_frag, container, false)
-        var viewStubId = getViewStubId()
-        if (viewStubId != 0) {
-            var stubView = findView(R.id.content_layout) as ViewStub
-            stubView.layoutResource = viewStubId
-            stubView.inflate()
-            initDefaultView()
+        var layoutId = getLayoutId()
+        if (layoutId != 0) {
+            mRootView = inflater.inflate(layoutId, container, false)
         }
+
+        initDefaultView()
+        return mRootView
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         if (initIntentData()) {
             customOperate(savedInstanceState)
+        } else {
+            noDataOperate()
         }
-        return  mRootView
+    }
+
+    /**
+     * open func
+     */
+    open fun noDataOperate() {
+        if (isDebug) {
+            ToastUtils.showShort("data initial error in $TAG")
+        }
     }
 
     open fun initDefaultView() {
@@ -81,7 +93,7 @@ abstract class BaseFragment : Fragment() {
     /**
      * abstract class;
      */
-    protected abstract fun getViewStubId(): Int
+    protected abstract fun getLayoutId(): Int
 
     protected abstract fun initIntentData(): Boolean
 

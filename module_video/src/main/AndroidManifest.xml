@@ -1,7 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jdev.module_video">
 
-    <application>
+    <application
+        android:networkSecurityConfig="@xml/jz_network_security_config">
 
         <activity
             android:name="com.jdev.module_video.ui.act.GithubJiaoziVideoAct"

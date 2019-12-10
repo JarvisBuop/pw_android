@@ -13,7 +13,6 @@ class MainApplication :  BaseApp(){
     override fun onCreate() {
         super.onCreate()
 
-        Utils.init(this)
         //ARouter配置
         //        if (Utils.isDebug()) {           // 这两行必须写在init之前，否则这些配置在init过程中将无效
         //            ARouter.openLog();     // 打印日志

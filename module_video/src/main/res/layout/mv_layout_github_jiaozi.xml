@@ -33,7 +33,7 @@
         android:id="@+id/btn_replay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="next" />
+        android:text="next engine" />
 
     <VideoView
         android:id="@+id/video_view_test"

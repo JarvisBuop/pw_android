@@ -108,8 +108,9 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     api project(path: ':kit')
-    api project(path: ':jiaozivideoplayer')
 
+
+    api project(path: ':jiaozivideoplayer')
     implementation rootProject.ext.dependencies.ijkplayer_java
     implementation rootProject.ext.dependencies.ijkplayer_armv7a
     implementation rootProject.ext.dependencies.videocache_core

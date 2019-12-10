@@ -8,6 +8,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import com.jdev.kit.baseui.BaseFragment
+import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
 import com.jdev.wandroid.mockdata.MockData
 import com.jdev.wandroid.popwindow.impl.KtVersionMainPop
@@ -20,7 +21,7 @@ import kotlinx.android.synthetic.main.app_frag_webp.*
  * @description:
  *
  */
-class WebPTestFrag : BaseFragment() {
+class WebPTestFrag : BaseViewStubFragment() {
     lateinit var arr: Array<String>
     var index: Int = 0
 
@@ -44,12 +45,14 @@ class WebPTestFrag : BaseFragment() {
         arr = MockData.ALPHA_WEBP
 
         img_btn.setOnClickListener {
+            //clear
             arr = MockData.ANIM_WEBP
             index = 0
             setWebpInImage(arr.get(index % arr.size))
         }
 
         img_webp.setOnClickListener {
+            //next
             setWebpInImage(arr.get(index % arr.size))
             index++
         }
@@ -63,6 +66,7 @@ class WebPTestFrag : BaseFragment() {
         pop.showAtLocation(mRootView, Gravity.CENTER, 0, 0)
     }
 
+    //某些机型so包不兼容,是freco的so问题,可根据log查相关资料;
     fun setWebpInImage(webpUrl: String): RequestOptions {
         val options = RequestOptions()
                 .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)

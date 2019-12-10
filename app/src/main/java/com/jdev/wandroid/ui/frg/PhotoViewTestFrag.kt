@@ -5,7 +5,7 @@ import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
 import android.view.View
 import android.view.ViewGroup
-import com.jdev.kit.baseui.BaseFragment
+import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.kit.custom.photoview.PhotoView
 import com.jdev.wandroid.R
 
@@ -15,7 +15,7 @@ import com.jdev.wandroid.R
  * @description: photoview 自定义view测试和改造
  *
  */
-class PhotoViewTestFrag : BaseFragment() {
+class PhotoViewTestFrag : BaseViewStubFragment() {
     override fun getViewStubId(): Int {
         return R.layout.app_frag_test
     }

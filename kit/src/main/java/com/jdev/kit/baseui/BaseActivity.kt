@@ -14,8 +14,8 @@ import com.jdev.kit.R
  * OverView:
  */
 abstract class BaseActivity : AppCompatActivity() {
-    protected lateinit var mContext: Context
     private val isDebug = true
+    protected lateinit var mContext: Context
     protected val TAG :String = this::class.java.name
 
     //init default view;

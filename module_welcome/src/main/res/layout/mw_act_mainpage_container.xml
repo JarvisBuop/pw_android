@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.jdev.module_welcome.ui.widget.MySmartRefreshLayout
+        android:id="@+id/swipeRefreshView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.jdev.kit.widget.home.HeaderViewPager
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:hvp_topOffset="0dp">
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white">
+
+                <!--banner-->
+                <ImageView
+                    android:id="@+id/banner"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/mypoint_banner"
+                    app:layout_constraintDimensionRatio="w,150:375"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <include
+                    android:id="@+id/real_search_item"
+                    layout="@layout/mw_include_real_search_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="155dp"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginTop="132dp"
+                    android:layout_marginRight="6dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.jdev.kit.widget.tablayout.SlidingTabLayout
+                    android:id="@+id/common_tablayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="25dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="12dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/real_search_item"
+                    app:tl_indicator_end_color="#80FF5F8F"
+                    app:tl_indicator_gravity="BOTTOM"
+                    app:tl_indicator_height="4dp"
+                    app:tl_indicator_is_colors="true"
+                    app:tl_indicator_margin_bottom="3dp"
+                    app:tl_indicator_start_color="#E84653"
+                    app:tl_indicator_width_equal_title="true"
+                    app:tl_select_textsize="17sp"
+                    app:tl_tab_padding="15dp"
+                    app:tl_tab_space_equal="false"
+                    app:tl_textBold="SELECT"
+                    app:tl_textSelectColor="@color/black_alpha"
+                    app:tl_textUnselectColor="@color/gray7"
+                    app:tl_textsize="15sp"
+                    app:tl_underline_height="1dp" />
+
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/common_viewpager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white" />
+        </com.jdev.kit.widget.home.HeaderViewPager>
+    </com.jdev.module_welcome.ui.widget.MySmartRefreshLayout>
+
+    <com.jdev.kit.widget.home.KtStatusBarHeightView
+        android:id="@+id/fake_search_item_compat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <FrameLayout
+            android:id="@+id/fake_search_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            tools:visibility="visible">
+
+            <include layout="@layout/mw_include_search_titlebar" />
+        </FrameLayout>
+
+    </com.jdev.kit.widget.home.KtStatusBarHeightView>
+
+</FrameLayout>

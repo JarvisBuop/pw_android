@@ -70,7 +70,7 @@ ext {
 //            compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'//对Call对象的转化为Observe对象
 
             //animation
-//            lottie_lib          : "com.airbnb.android:lottie:${dependencyVersion.lottie_version}",
+            lottie_lib          : "com.airbnb.android:lottie:${dependencyVersion.lottie_version}",
 
             //commonutil
             blackj_util            : "com.blankj:utilcode:${dependencyVersion.blackjutil_version}",

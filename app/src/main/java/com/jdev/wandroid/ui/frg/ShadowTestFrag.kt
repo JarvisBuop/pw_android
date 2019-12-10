@@ -2,6 +2,7 @@ package com.jdev.wandroid.ui.frg
 
 import android.os.Bundle
 import com.jdev.kit.baseui.BaseFragment
+import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
 import com.jdev.wandroid.test.TestMath
 import kotlinx.android.synthetic.main.app_frag_show_customview.*
@@ -12,7 +13,7 @@ import kotlinx.android.synthetic.main.app_frag_show_customview.*
  * @description:
  *
  */
-class ShadowTestFrag : BaseFragment() {
+class ShadowTestFrag : BaseViewStubFragment() {
     override fun getViewStubId(): Int {
         return R.layout.app_frag_show_customview
     }

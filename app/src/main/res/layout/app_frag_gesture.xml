@@ -16,6 +16,7 @@
         android:id="@+id/gesture_view"
         android:layout_width="match_parent"
         android:layout_height="300dp"
+        android:background="@color/gray_e1"
         android:gestureStrokeType="multiple"
         app:layout_constraintTop_toBottomOf="@id/btn_save" />
 
@@ -23,6 +24,7 @@
         android:id="@+id/image_show"
         android:layout_width="match_parent"
         android:layout_height="300dp"
+        android:background="@color/goo_green"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/gesture_view" />
 
