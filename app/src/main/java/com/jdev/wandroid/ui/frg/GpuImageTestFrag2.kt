@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.view.View
 import android.widget.Toast
 import com.blankj.utilcode.util.ToastUtils
 import com.jdev.kit.baseui.BaseViewStubFragment
@@ -35,7 +36,7 @@ class GpuImageTestFrag2 : BaseViewStubFragment() {
     }
 
     var progress: Int = 50
-    lateinit var filterAdjuster: GPUImageFilterTools.FilterAdjuster
+    var filterAdjuster: GPUImageFilterTools.FilterAdjuster? = null
     override fun getViewStubId(): Int {
         return R.layout.app_item_gpuimage
     }
@@ -43,7 +44,9 @@ class GpuImageTestFrag2 : BaseViewStubFragment() {
     override fun initIntentData(): Boolean = true
 
     override fun customOperate(savedInstanceState: Bundle?) {
-        var filterType = FilterType.CONTRAST
+        layout_controller.visibility = View.VISIBLE
+
+        var filterType = FilterType.CUSTOM_丑颜
         var filterName = filterType.name
         var filter: GPUImageFilter = GPUImageFilterTools.createFilterForType(mContext!!, filterType)
         filterAdjuster = GPUImageFilterTools.FilterAdjuster(filter)
@@ -61,15 +64,15 @@ class GpuImageTestFrag2 : BaseViewStubFragment() {
         }
 
         txt_style_action.setOnClickListener {
-            if (filterAdjuster.canAdjust()) {
+            if (filterAdjuster?.canAdjust()?:false) {
                 progress += 10
                 if (progress > 100) {
                     progress = 0
                 }
-                txt_style_action.text = "++ ${filterAdjuster.canAdjust()} " + if (filterAdjuster.canAdjust()) "$progress" else ""
+                txt_style_action.text = "++ ${filterAdjuster?.canAdjust()} " + if (filterAdjuster?.canAdjust()?:false) "$progress" else ""
 
                 //更新gpuimage;
-                filterAdjuster.adjust(progress)
+                filterAdjuster?.adjust(progress)
                 gpuImageView.requestRender()
             }
         }
@@ -90,20 +93,28 @@ class GpuImageTestFrag2 : BaseViewStubFragment() {
             startPhotoPicker()
         }
 
+        txt_style_custom.setOnClickListener {
+            GPUImageFilterTools.showCustomFilterDialog(mContext!!, txt_style_name.text.toString()) { filter, name ->
+                //设置filteradjuster , 切换filter;
+                filterAdjuster = GPUImageFilterTools.FilterAdjuster(filter)
+                switchFilterTo(filter, gpuImageView, filterAdjuster, name)
+            }
+        }
+
     }
 
     @SuppressLint("SetTextI18n")
-    private fun switchFilterTo(filter: GPUImageFilter, gpuImageView: GPUImageView, filterAdjuster: GPUImageFilterTools.FilterAdjuster,
+    private fun switchFilterTo(filter: GPUImageFilter, gpuImageView: GPUImageView, filterAdjuster: GPUImageFilterTools.FilterAdjuster?,
                                name: String) {
         //ui
         txt_style_name.text = name
-        txt_style_action.text = "++ ${filterAdjuster.canAdjust()} " + if (filterAdjuster.canAdjust()) "$progress" else ""
+        txt_style_action.text = "++ ${filterAdjuster?.canAdjust()} " + if (filterAdjuster?.canAdjust() == true) "$progress" else ""
 
         //logic
         if (gpuImageView.filter == null || gpuImageView.filter.javaClass != filter.javaClass) {
             gpuImageView.filter = filter
-            if (filterAdjuster.canAdjust()) {
-                filterAdjuster.adjust(progress)
+            if (filterAdjuster?.canAdjust() == true) {
+                filterAdjuster?.adjust(progress)
             }
         }
 

@@ -16,14 +16,27 @@
 
 package jp.co.cyberagent.android.gpuimage.util;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.hardware.Camera.Size;
+import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.util.Log;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+
+import javax.microedition.khronos.opengles.GL10;
+
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter;
 
 public class OpenGlUtils {
     public static final int NO_TEXTURE = -1;
@@ -138,4 +151,43 @@ public class OpenGlUtils {
         float fRandNum = (float) Math.random();
         return min + (max - min) * fRandNum;
     }
+
+
+    public static int getExternalOESTextureID() {
+        int[] texture = new int[1];
+        GLES20.glGenTextures(1, texture, 0);
+        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texture[0]);
+        GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+                GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_LINEAR);
+        GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+                GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR);
+        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+                GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE);
+        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+                GL10.GL_TEXTURE_WRAP_T, GL10.GL_CLAMP_TO_EDGE);
+        return texture[0];
+    }
+
+    public static String readShaderFromRawResource(final int resourceId, Context mContext) {
+        final InputStream inputStream = mContext.getResources().openRawResource(
+                resourceId);
+        final InputStreamReader inputStreamReader = new InputStreamReader(
+                inputStream);
+        final BufferedReader bufferedReader = new BufferedReader(
+                inputStreamReader);
+
+        String nextLine;
+        final StringBuilder body = new StringBuilder();
+
+        try {
+            while ((nextLine = bufferedReader.readLine()) != null) {
+                body.append(nextLine);
+                body.append('\n');
+            }
+        } catch (IOException e) {
+            return null;
+        }
+        return body.toString();
+    }
+
 }

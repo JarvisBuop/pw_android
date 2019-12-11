@@ -84,5 +84,12 @@ enum class FilterType {
     HALFTONE,
     TRANSFORM2D,
     SOLARIZE,
-    VIBRANCE
+    VIBRANCE,
+
+    /**
+     * custom
+     */
+    CUSTOM_丑颜,
+    CUSTOM_美颜,
+    CUSTOM_TEST1,
 }

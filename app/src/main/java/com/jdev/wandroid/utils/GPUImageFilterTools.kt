@@ -18,15 +18,69 @@ package com.jdev.wandroid.utils
 
 import android.app.AlertDialog
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PointF
 import android.opengl.Matrix
 import com.jdev.wandroid.R
 import com.jdev.wandroid.mockdata.FilterType
+import com.jdev.wandroid.widget.GPUImagePicFilter
+import com.jdev.wandroid.widget.GPUImageUglyFilter
+import com.jdev.wandroid.widget.GpuImageBeautyFilter
 import jp.co.cyberagent.android.gpuimage.filter.*
 import java.util.*
 
 object GPUImageFilterTools {
+    fun showCustomFilterDialog(context: Context,
+                               name: String = "",
+                               listener: (filter: GPUImageFilter, filterName: String) -> Unit) {
+
+        val filters = FilterList().apply {
+            addFilter(FilterType.CUSTOM_丑颜.name, FilterType.CUSTOM_丑颜)
+            addFilter(FilterType.CUSTOM_美颜.name, FilterType.CUSTOM_美颜)
+            addFilter(FilterType.CUSTOM_TEST1.name, FilterType.CUSTOM_TEST1)
+        }
+
+        var index = filters.names.indexOf(name)
+        AlertDialog.Builder(context)
+                .setTitle("Choose a custom filter")
+                .setSingleChoiceItems(filters.names.toTypedArray(), index) { dialog, item ->
+                    dialog.dismiss()
+                    listener(createCustomFilterForType(context, filters.filters[item]), filters.names[item])
+                }
+                .create().show()
+    }
+
+    fun createCustomFilterForType(context: Context, type: FilterType): GPUImageFilter {
+        return when (type) {
+            FilterType.CUSTOM_丑颜 -> {
+                GPUImageUglyFilter(context)
+            }
+            FilterType.CUSTOM_美颜 -> {
+                GpuImageBeautyFilter()
+            }
+
+//            FilterType.CUSTOM_TEST1 ->{
+//
+//            }
+            else -> {
+                GpuImageBeautyFilter()
+            }
+        }
+    }
+
+    fun createCustomAdjusterByFilter(filter: GPUImageFilter): FilterAdjuster.Adjuster<out GPUImageFilter>? {
+        return when (filter) {
+            else -> {
+                null
+            }
+        }
+    }
+
+
+    /**
+     * ==============================================
+     */
     fun showDialog(
             context: Context,
             name: String = "",
@@ -317,16 +371,24 @@ object GPUImageFilterTools {
             FilterType.TRANSFORM2D -> GPUImageTransformFilter()
             FilterType.SOLARIZE -> GPUImageSolarizeFilter()
             FilterType.VIBRANCE -> GPUImageVibranceFilter()
+            else -> {
+                return createCustomFilterForType(context, type)
+            }
         }
     }
 
-    private fun createBlendFilter(
+    fun createBlendFilter(
             context: Context,
-            filterClass: Class<out GPUImageTwoInputFilter>
+            filterClass: Class<out GPUImageTwoInputFilter>,
+            blendBitmap: Bitmap? = null
     ): GPUImageFilter {
+        var bitmapTemp = blendBitmap
+        if (bitmapTemp == null) {
+            bitmapTemp = BitmapFactory.decodeResource(context.resources, R.drawable.gpuimage_origin)
+        }
         return try {
             filterClass.newInstance().apply {
-                bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.gpuimage_origin)
+                bitmap = bitmapTemp
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -385,7 +447,7 @@ object GPUImageFilterTools {
                 is GPUImageTransformFilter -> RotateAdjuster(filter)
                 is GPUImageSolarizeFilter -> SolarizeAdjuster(filter)
                 is GPUImageVibranceFilter -> VibranceAdjuster(filter)
-                else -> null
+                else -> createCustomAdjusterByFilter(filter)
             }
         }
 
@@ -397,7 +459,7 @@ object GPUImageFilterTools {
             adjuster?.adjust(percentage)
         }
 
-        private abstract inner class Adjuster<T : GPUImageFilter>(protected val filter: T) {
+        abstract inner class Adjuster<T : GPUImageFilter>(protected val filter: T) {
 
             abstract fun adjust(percentage: Int)
 
