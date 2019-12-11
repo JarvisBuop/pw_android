@@ -27,6 +27,7 @@ class ContainerActivity : BaseActivity() {
 
         //----------------
         val KEY_ANDROID_GPUIMAGE = 4
+        val KEY_ANDROID_GPUIMAGE_SIMPLE = 5
 
         fun launch(mContext: Context, code: Int) {
             mContext.startActivity(
@@ -52,6 +53,10 @@ class ContainerActivity : BaseActivity() {
 
                 KEY_ANDROID_GPUIMAGE -> {
                     return GpuImageTestFrag()
+                }
+
+                KEY_ANDROID_GPUIMAGE_SIMPLE ->{
+                    return GpuImageTestFrag2()
                 }
 
                 else -> return null

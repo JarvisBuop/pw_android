@@ -1,19 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <jp.co.cyberagent.android.gpuimage.GPUImageView
-        android:id="@+id/image_style"
-        android:layout_width="match_parent"
+
+    <ImageView
+        android:id="@+id/image_origin"
+        android:layout_width="200dp"
         android:layout_height="200dp"
+        android:layout_gravity="center"
         android:src="@drawable/gpuimage_origin" />
 
-    <TextView
-        android:id="@+id/txt_style_name"
-        style="@style/txt_nor_detail_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="111" />
+    <jp.co.cyberagent.android.gpuimage.GPUImageView
+        android:id="@+id/gpuImageView"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/txt_style_name"
+            style="@style/txt_nor_detail_title"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="111" />
+
+        <Button
+            android:id="@+id/txt_style_save"
+            style="@style/txt_nor_detail_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/txt_style_name"
+            android:padding="8dp"
+            android:text="save" />
+
+        <Button
+            android:id="@+id/txt_style_select"
+            style="@style/txt_nor_detail_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/txt_style_save"
+            android:padding="8dp"
+            android:text="select" />
+
+        <Button
+            android:id="@+id/txt_style_action"
+            style="@style/txt_nor_detail_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txt_style_name"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:padding="8dp"
+            tools:text="++" />
+
+    </RelativeLayout>
+
+
 </LinearLayout>

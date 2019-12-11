@@ -20,7 +20,7 @@ ext {
             lottie_version            : "2.7.0",
             blackjutil_version        : "1.26.0",
             glide_lib_version         : "4.7.1",
-            facebook_webp_version     : "1.9.0",
+            facebook_webp_version     : "2.0.0",
             okhttp_version            : "3.10.0",
             okhttp_integration_version: "4.6.1",
             ijkplayer_java_version    : "0.8.8",

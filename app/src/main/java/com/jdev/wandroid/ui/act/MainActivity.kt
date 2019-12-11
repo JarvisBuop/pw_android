@@ -37,7 +37,7 @@ class MainActivity : BaseActivity() {
             OrientVo("opengl 处理图像/视频滤镜",
                     "https://github.com/cats-oss/android-gpuimage (Android filters based on OpenGL (idea from GPUImage for iOS))",
                     LEVEL.LEVEL_HIGH, ContainerActivity::class.java, ContainerActivity.KEY_ANDROID_GPUIMAGE),
-            OrientVo("test", "desc"),
+            OrientVo("opengl 滤镜 test", clazz = ContainerActivity::class.java, clazzCode = ContainerActivity.KEY_ANDROID_GPUIMAGE_SIMPLE),
             OrientVo("test", "desc"),
             OrientVo("test", "desc"),
             OrientVo("test", "desc"),

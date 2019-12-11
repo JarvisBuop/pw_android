@@ -3,8 +3,10 @@ package com.jdev.wandroid.ui.frg
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.support.v7.widget.GridLayoutManager
+import android.view.View
 import android.widget.ImageView
 import android.widget.SeekBar
+import com.blankj.utilcode.util.LogUtils
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.jdev.kit.baseui.BaseViewStubFragment
@@ -24,14 +26,12 @@ import kotlinx.android.synthetic.main.app_frag_gpuimage.*
  * https://github.com/cats-oss/android-gpuimage
  *
  * Android filters based on OpenGL (idea from GPUImage for iOS)
+ *
+ * tips: 列表中不显示, 可能多次设置导致运算慢出现问题;
  */
 class GpuImageTestFrag : BaseViewStubFragment() {
-
-    var adjusterMaps = mutableMapOf<FilterType, GPUImageFilterTools.FilterAdjuster>()
-
-
     private lateinit var myAdapter: MyAdapter<FilterVo>
-    private var filterAdjuster: GPUImageFilterTools.FilterAdjuster? = null
+    private var progress:Int = 0
     override fun getViewStubId(): Int {
         return R.layout.app_frag_gpuimage
     }
@@ -48,13 +48,8 @@ class GpuImageTestFrag : BaseViewStubFragment() {
     private fun initFilterDatas() {
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                for ((key, value) in adjusterMaps.entries) {
-                    if (value.canAdjust()) {
-                        value.adjust(progress)
-                        //更新recycelrview中
-                        myAdapter.notifyDataSetChanged()
-                    }
-                }
+                this@GpuImageTestFrag.progress = progress
+                changeFilter(progress)
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -62,13 +57,29 @@ class GpuImageTestFrag : BaseViewStubFragment() {
         })
     }
 
+    private fun changeFilter(progress: Int) {
+        var data = myAdapter.data
+        for (value in data) {
+            if (value.adjuster.canAdjust()) {
+                value.adjuster.adjust(progress)
+                //更新recycelrview中
+                myAdapter.notifyDataSetChanged()
+            }
+        }
+    }
+
     private fun fetchDatas() {
         var filterObj = GPUImageFilterTools.initFilterListObj()
         var arr = arrayListOf<FilterVo>()
         arr.add(FilterVo())
         for ((index, value) in filterObj.filters.withIndex()) {
-            arr.add(FilterVo(value, filterObj.names.get(index), GPUImageFilterTools.createFilterForType(mContext!!, value)))
+            var filter = GPUImageFilterTools.createFilterForType(mContext!!, value)
+            arr.add(FilterVo(value, filterObj.names.get(index),
+                    filter,
+                    GPUImageFilterTools.FilterAdjuster(filter)
+            ))
         }
+        changeFilter(50)
         myAdapter.setNewData(arr)
     }
 
@@ -82,22 +93,25 @@ class GpuImageTestFrag : BaseViewStubFragment() {
     inner class MyAdapter<T>(layoutId: Int, mDataList: List<T>? = null) : BaseQuickAdapter<T, BaseViewHolder>(layoutId, mDataList) {
 
         override fun convert(helper: BaseViewHolder, item: T?) {
-            var gpuImageView = helper.getView<GPUImageView>(R.id.image_style)
+            LogUtils.e("convert :: ${helper.adapterPosition}")
+            var gpuImageView = helper.getView<GPUImageView>(R.id.gpuImageView)
+            var imageView = helper.getView<ImageView>(R.id.image_origin)
             if (item is FilterVo) {
                 helper.setText(R.id.txt_style_name, item.filterName ?: "origin")
                 if (helper.adapterPosition == 0) {
-                    gpuImageView.setImage(BitmapFactory.decodeResource(mContext.resources, R.drawable.gpuimage_origin))
+                    imageView.visibility = View.VISIBLE
+                    gpuImageView.visibility = View.GONE
+                    imageView.setImageResource(R.drawable.gpuimage_origin)
                 } else {
+                    imageView.visibility = View.GONE
+                    gpuImageView.visibility = View.VISIBLE
+                    gpuImageView.setImage(BitmapFactory.decodeResource(mContext.resources,R.drawable.gpuimage_origin))
                     //滤镜;
-                    var createFilter = item.filter
-                    var filterAdjuster = adjusterMaps.get(item.filterType)
-                    if (filterAdjuster == null) {
-                        filterAdjuster = GPUImageFilterTools.FilterAdjuster(createFilter)
-                        adjusterMaps.put(item.filterType, filterAdjuster)
+                    if (gpuImageView.filter == null || gpuImageView.filter.javaClass != item.filter.javaClass) {
+                        gpuImageView.filter = item.filter
+                        gpuImageView.requestRender()
                     }
 
-                    gpuImageView.filter = createFilter
-                    gpuImageView.requestRender()
                 }
             }
         }
@@ -105,8 +119,9 @@ class GpuImageTestFrag : BaseViewStubFragment() {
 
     data class FilterVo(
             var filterType: FilterType = FilterType.CONTRAST,
-            var filterName: String = "",
-            var filter: GPUImageFilter = GPUImageContrastFilter(2.0f)
+            var filterName: String? = null,
+            var filter: GPUImageFilter = GPUImageContrastFilter(2.0f),
+            var adjuster: GPUImageFilterTools.FilterAdjuster = GPUImageFilterTools.FilterAdjuster(filter)
     )
 
 }
