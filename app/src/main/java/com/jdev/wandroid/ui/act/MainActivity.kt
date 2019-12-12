@@ -32,14 +32,27 @@ import kotlin.reflect.KProperty
  * home page
  */
 class MainActivity : BaseActivity() {
+
+    //----------------DATA CODE---------------------
     //top recyclerview datas
     var mTopDatas = arrayListOf<OrientVo>(
-            OrientVo("opengl 处理图像/视频滤镜",
-                    "https://github.com/cats-oss/android-gpuimage (Android filters based on OpenGL (idea from GPUImage for iOS))",
-                    LEVEL.LEVEL_HIGH, ContainerActivity::class.java, ContainerActivity.KEY_ANDROID_GPUIMAGE),
-            OrientVo("opengl 滤镜 test", clazz = ContainerActivity::class.java, clazzCode = ContainerActivity.KEY_ANDROID_GPUIMAGE_SIMPLE),
-            OrientVo("test", "desc"),
-            OrientVo("test", "desc"),
+            OrientVo("gpuimage - 滤镜列表测试 (有问题)",
+                    "Android filters based on OpenGL (idea from GPUImage for iOS)",
+                    clazz = ContainerActivity::class.java,
+                    clazzCode = ContainerActivity.KEY_ANDROID_GPUIMAGE),
+            OrientVo("gpuimage 滤镜 单张图片测试",
+                    level = LEVEL.LEVEL_HIGH,
+                    clazz = ContainerActivity::class.java,
+                    clazzCode = ContainerActivity.KEY_ANDROID_GPUIMAGE_SIMPLE),
+            OrientVo("gpuimage 美颜相机",
+                    "gpuimage camera demo",
+                    clazz = ContainerActivity::class.java,
+                    clazzCode = ContainerActivity.KEY_ANDROID_GPUIMAGE_CAMERA),
+            OrientVo("magicCamera 美颜相机",
+                    "https://github.com/jameswanliu/MagicCamera_master",
+                    level = LEVEL.LEVEL_HIGH,
+                    clazz = ContainerActivity::class.java,
+                    clazzCode = ContainerActivity.KEY_ANDROID_MAGIC_CAMERA),
             OrientVo("test", "desc"),
             OrientVo("test", "desc"),
             OrientVo("test", "desc"),
@@ -47,11 +60,18 @@ class MainActivity : BaseActivity() {
             OrientVo("test", "desc")
     )
 
+
     //bottom recyclerview datas
     var mBottomDatas = arrayListOf<OrientVo>(
-            OrientVo("组件module_welcome", "显示welcome页面", clazz = WelcomeActivity::class.java),
-            OrientVo("组件module_video", "测试视频及三方", clazz = GithubJiaoziVideoAct::class.java),
-            OrientVo("处理滑动冲突首页效果", "两个三方处理滑动冲突", clazz = FullscreenActivity::class.java),
+            OrientVo("组件module_welcome",
+                    "显示welcome页面",
+                    clazz = WelcomeActivity::class.java),
+            OrientVo("组件module_video",
+                    "测试视频及三方",
+                    clazz = GithubJiaoziVideoAct::class.java),
+            OrientVo("处理滑动冲突首页效果",
+                    "两个三方处理滑动冲突",
+                    clazz = FullscreenActivity::class.java),
             OrientVo("test", "desc"),
             OrientVo("test", "desc"),
             OrientVo("test", "desc"),
@@ -69,7 +89,7 @@ class MainActivity : BaseActivity() {
 
     var mSecretCodes: SparseArray<OrientVo> by CodeDelegate(mSecretString)
 
-
+    //----------------LOGIC CODE--------------------
     lateinit var mAdapterTop: MyAdapter<OrientVo>
     lateinit var mAdapterBottom: MyAdapter<OrientVo>
 
@@ -100,20 +120,11 @@ class MainActivity : BaseActivity() {
 
     override fun customOperate(savedInstanceState: Bundle?) {
         initToolBar()
-
         initRecyclerViews()
         initTopView()
         initFootView()
-        fetchDatas()
-    }
 
-    private fun initToolBar() {
-        fabView?.visibility = View.VISIBLE
-        fabView?.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
-        //sample_text.text = stringFromJNI()
+        fetchDatas()
     }
 
     /**
@@ -130,6 +141,16 @@ class MainActivity : BaseActivity() {
 //            System.loadLibrary("native-lib")
 //        }
 //    }
+
+    private fun initToolBar() {
+        fabView?.visibility = View.VISIBLE
+        fabView?.setOnClickListener { view ->
+            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
+        }
+        //sample_text.text = stringFromJNI()
+    }
+
 
     private fun initTopView() {
         edt_input.setOnEditorActionListener { v, actionId, event ->
@@ -238,6 +259,8 @@ class MainActivity : BaseActivity() {
         }
     }
 
+
+    //----------------EXTRA CLASS------------------
     class MyAdapter<T>(layoutId: Int, mDataList: List<T>? = null) : BaseQuickAdapter<T, BaseViewHolder>(layoutId, mDataList) {
         override fun convert(helper: BaseViewHolder?, item: T?) {
             if (item is OrientVo) {

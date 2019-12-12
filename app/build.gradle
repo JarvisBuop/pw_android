@@ -159,8 +159,8 @@ dependencies {
 
 
 
-    api project(path: ':kit')
-    api project(path: ':gpuimage')
+    api project(path: ':lib_kit')
+    api project(path: ':lib_gpuimage')
 //    implementation 'androidx.appcompat:appcompat:1.0.2'
     //module import
     api project(path: ':module_welcome')

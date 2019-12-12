@@ -29,7 +29,7 @@ import kotlinx.android.synthetic.main.app_item_gpuimage.*
  *
  * Android filters based on OpenGL (idea from GPUImage for iOS)
  */
-class GpuImageTestFrag2 : BaseViewStubFragment() {
+class GpuImageTestSingleImageFrag : BaseViewStubFragment() {
     companion object {
         private const val REQUEST_PHOTOPICKER = 1
         private const val REQUEST_STORAGE_PERMISSION = 2

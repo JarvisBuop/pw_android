@@ -17,24 +17,19 @@ import com.jdev.wandroid.ui.frg.*
 class ContainerActivity : BaseActivity() {
 
     companion object {
-        val EXTRA_KEY = "KEY"
+        const val EXTRA_KEY = "KEY"
 
-        //----------------
-        val KEY_GESTURE = 0
-        val KEY_PHOTOVIEW = 1
-        val KEY_SHADOW = 2
-        val KEY_WEBP = 3
+        //--------selftest--------
+        const val KEY_GESTURE = 0
+        const val KEY_PHOTOVIEW = 1
+        const val KEY_SHADOW = 2
+        const val KEY_WEBP = 3
 
-        //----------------
-        val KEY_ANDROID_GPUIMAGE = 4
-        val KEY_ANDROID_GPUIMAGE_SIMPLE = 5
-
-        fun launch(mContext: Context, code: Int) {
-            mContext.startActivity(
-                    Intent(mContext, ContainerActivity::class.java)
-                            .putExtra(EXTRA_KEY, code)
-            )
-        }
+        //-------gpuimage---------
+        const val KEY_ANDROID_GPUIMAGE = 4
+        const val KEY_ANDROID_GPUIMAGE_SIMPLE = 5
+        const val KEY_ANDROID_GPUIMAGE_CAMERA = 6
+        const val KEY_ANDROID_MAGIC_CAMERA = 7
 
         fun getFragmentByKey(code: Int): BaseFragment? {
             when (code) {
@@ -50,17 +45,28 @@ class ContainerActivity : BaseActivity() {
                 KEY_WEBP -> {
                     return WebPTestFrag()
                 }
-
                 KEY_ANDROID_GPUIMAGE -> {
-                    return GpuImageTestFrag()
+                    return GpuImageTestMultiImageFrag()
                 }
-
-                KEY_ANDROID_GPUIMAGE_SIMPLE ->{
-                    return GpuImageTestFrag2()
+                KEY_ANDROID_GPUIMAGE_SIMPLE -> {
+                    return GpuImageTestSingleImageFrag()
+                }
+                KEY_ANDROID_GPUIMAGE_CAMERA -> {
+                    return GpuImageCameraFrag()
+                }
+                KEY_ANDROID_MAGIC_CAMERA -> {
+                    return GpuMagicCameraFrag()
                 }
 
                 else -> return null
             }
+        }
+
+        fun launch(mContext: Context, code: Int) {
+            mContext.startActivity(
+                    Intent(mContext, ContainerActivity::class.java)
+                            .putExtra(EXTRA_KEY, code)
+            )
         }
     }
 

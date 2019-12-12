@@ -29,7 +29,7 @@ import kotlinx.android.synthetic.main.app_frag_gpuimage.*
  *
  * tips: 列表中不显示, 可能多次设置导致运算慢出现问题;
  */
-class GpuImageTestFrag : BaseViewStubFragment() {
+class GpuImageTestMultiImageFrag : BaseViewStubFragment() {
     private lateinit var myAdapter: MyAdapter<FilterVo>
     private var progress:Int = 0
     override fun getViewStubId(): Int {
@@ -48,7 +48,7 @@ class GpuImageTestFrag : BaseViewStubFragment() {
     private fun initFilterDatas() {
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                this@GpuImageTestFrag.progress = progress
+                this@GpuImageTestMultiImageFrag.progress = progress
                 changeFilter(progress)
             }
 
