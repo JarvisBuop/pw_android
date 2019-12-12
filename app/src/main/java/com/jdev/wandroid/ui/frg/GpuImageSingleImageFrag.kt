@@ -49,7 +49,7 @@ class GpuImageSingleImageFrag : BaseViewStubFragment() {
 
         var filterType = MagicFilterType.CUSTOM_丑颜
         var filterName = filterType.name
-        var filter: GPUImageFilter? = MagicFilterFactory.getFilterByType(filterType)
+        var filter: GPUImageFilter? = MagicFilterFactory.getFilterByType(mContext!!,filterType)
         filterAdjuster = GPUImageFilterTools.FilterAdjuster(filter)
 
         gpuImageView.setImage(BitmapFactory.decodeResource(mContext!!.resources, R.drawable.gpuimage_origin))

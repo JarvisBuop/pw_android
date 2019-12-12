@@ -34,6 +34,7 @@ import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter;
 import com.seu.magicfilter.filter.helper.MagicFilterFactory;
 import com.seu.magicfilter.filter.helper.MagicFilterType;
 import com.seu.magicfilter.encoder.gles.EglCore;
+import com.seu.magicfilter.utils.MagicParams;
 
 /**
  * Encode a movie from frames rendered from an external texture image.
@@ -383,7 +384,7 @@ public class TextureMovieEncoder implements Runnable {
         // Create new programs and such for the new context.
         mInput = new MagicCameraInputFilter();
         mInput.init();
-        filter = MagicFilterFactory.Companion.getFilterByType(type);
+        filter = MagicFilterFactory.Companion.getFilterByType(MagicParams.context,type);
         if(filter != null){
             filter.init();
             filter.onInputSizeChanged(mPreviewWidth, mPreviewHeight);
@@ -406,7 +407,7 @@ public class TextureMovieEncoder implements Runnable {
 
         mInput = new MagicCameraInputFilter();
         mInput.init();
-        filter = MagicFilterFactory.Companion.getFilterByType(type);
+        filter = MagicFilterFactory.Companion.getFilterByType(MagicParams.context,type);
         if(filter != null){
             filter.init();
             filter.onInputSizeChanged(mPreviewWidth, mPreviewHeight);

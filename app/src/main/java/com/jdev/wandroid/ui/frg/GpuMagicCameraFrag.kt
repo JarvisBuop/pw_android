@@ -45,9 +45,7 @@ class GpuMagicCameraFrag : BaseViewStubFragment() {
     override fun initIntentData(): Boolean = true
 
     override fun customOperate(savedInstanceState: Bundle?) {
-        val builder = MagicEngine.Builder()
-        magicEngine = builder
-                .build(glsurfaceview_camera)
+        magicEngine = MagicEngine.Builder().build(glsurfaceview_camera)
         initView()
 
     }

@@ -74,7 +74,7 @@ class GpuImageMultiImageFrag : BaseViewStubFragment() {
         var arr = arrayListOf<FilterVo>()
         arr.add(FilterVo())
         for ((index, value) in filterObj.filters.withIndex()) {
-            var filter = MagicFilterFactory.getFilterByType(value)
+            var filter = MagicFilterFactory.getFilterByType(mContext!!,value)
             if (filter != null) {
                 arr.add(FilterVo(value, filterObj.names.get(index),
                         filter,
