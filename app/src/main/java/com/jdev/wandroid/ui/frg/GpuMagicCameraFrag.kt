@@ -4,7 +4,6 @@ import android.Manifest
 import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.pm.PackageManager
@@ -16,7 +15,6 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import com.blankj.utilcode.util.ScreenUtils
 import com.jdev.kit.baseui.BaseViewStubFragment
@@ -58,13 +56,13 @@ class GpuMagicCameraFrag : BaseViewStubFragment() {
     private lateinit var mFilterListView: RecyclerView
     private lateinit var mAdapter: FilterAdapter
     private lateinit var magicEngine: MagicEngine
+    private lateinit var btn_shutter: ImageView
+    private lateinit var btn_mode: ImageView
+
     private var isRecording = false
     private val MODE_PIC = 1
     private val MODE_VIDEO = 2
     private var mode = MODE_PIC
-
-    private var btn_shutter: ImageView? = null
-    private var btn_mode: ImageView? = null
 
     private var animator: ObjectAnimator? = null
 
