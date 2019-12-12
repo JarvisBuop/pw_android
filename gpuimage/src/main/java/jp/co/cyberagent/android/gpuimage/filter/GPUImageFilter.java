@@ -52,13 +52,13 @@ public class GPUImageFilter {
     private final LinkedList<Runnable> runOnDraw;
     private final String vertexShader;
     private final String fragmentShader;
-    private int glProgId;
-    private int glAttribPosition;
-    private int glUniformTexture;
-    private int glAttribTextureCoordinate;
-    private int outputWidth;
-    private int outputHeight;
-    private boolean isInitialized;
+    protected int glProgId;
+    protected int glAttribPosition;
+    protected int glUniformTexture;
+    protected int glAttribTextureCoordinate;
+    protected int outputWidth;
+    protected int outputHeight;
+    protected boolean isInitialized;
 
     public GPUImageFilter() {
         this(NO_FILTER_VERTEX_SHADER, NO_FILTER_FRAGMENT_SHADER);

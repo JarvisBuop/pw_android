@@ -1,21 +1,20 @@
-package com.jdev.wandroid.widget
-
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter
-import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils
-import android.opengl.GLES20
-import android.R
-import android.content.Context
-
-
-/**
- * info: create by jd in 2019/12/11
- * @see:
- * @description:
- *
- */
-
-
-class MagicAmaroFilter(var context: Context) : GPUImageFilter(GPUImageFilter.NO_FILTER_VERTEX_SHADER, OpenGlUtils.readShaderFromRawResource(R.raw.amaro)) {
+//package com.jdev.wandroid.widget
+//
+//import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter
+//import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils
+//import android.opengl.GLES20
+//import android.R
+//import android.content.Context
+//
+//
+///**
+// * info: create by jd in 2019/12/11
+// * @see:
+// * @description:
+// *
+// */
+//
+//class MagicAmaroFilter(var context: Context) : GPUImageFilter(GPUImageFilter.NO_FILTER_VERTEX_SHADER, OpenGlUtils.readShaderFromRawResource(R.raw.amaro)) {
 //    private val inputTextureHandles = intArrayOf(-1, -1, -1)
 //    private val inputTextureUniformLocations = intArrayOf(-1, -1, -1)
 //    private var mGLStrengthLocation: Int = 0
@@ -64,4 +63,4 @@ class MagicAmaroFilter(var context: Context) : GPUImageFilter(GPUImageFilter.NO_
 //            inputTextureHandles[2] = OpenGlUtils.loadTexture(context, "filter/amaromap.png")
 //        }
 //    }
-}
+//}
