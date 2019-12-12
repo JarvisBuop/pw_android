@@ -54,10 +54,10 @@ class GpuMagicCameraFrag : BaseViewStubFragment() {
 
     }
 
-    private var mFilterLayout: View? = null
-    private var mFilterListView: RecyclerView? = null
-    private var mAdapter: FilterAdapter? = null
-    private var magicEngine: MagicEngine? = null
+    private lateinit var mFilterLayout: View
+    private lateinit var mFilterListView: RecyclerView
+    private lateinit var mAdapter: FilterAdapter
+    private lateinit var magicEngine: MagicEngine
     private var isRecording = false
     private val MODE_PIC = 1
     private val MODE_VIDEO = 2
@@ -71,7 +71,7 @@ class GpuMagicCameraFrag : BaseViewStubFragment() {
     private val types = arrayOf(MagicFilterType.NONE, MagicFilterType.FAIRYTALE, MagicFilterType.SUNRISE, MagicFilterType.SUNSET, MagicFilterType.WHITECAT, MagicFilterType.BLACKCAT, MagicFilterType.SKINWHITEN, MagicFilterType.HEALTHY, MagicFilterType.SWEETS, MagicFilterType.ROMANCE, MagicFilterType.SAKURA, MagicFilterType.WARM, MagicFilterType.ANTIQUE, MagicFilterType.NOSTALGIA, MagicFilterType.CALM, MagicFilterType.LATTE, MagicFilterType.TENDER, MagicFilterType.COOL, MagicFilterType.EMERALD, MagicFilterType.EVERGREEN, MagicFilterType.CRAYON, MagicFilterType.SKETCH, MagicFilterType.AMARO, MagicFilterType.BRANNAN, MagicFilterType.BROOKLYN, MagicFilterType.EARLYBIRD, MagicFilterType.FREUD, MagicFilterType.HEFE, MagicFilterType.HUDSON, MagicFilterType.INKWELL, MagicFilterType.KEVIN, MagicFilterType.LOMO, MagicFilterType.N1977, MagicFilterType.NASHVILLE, MagicFilterType.PIXAR, MagicFilterType.RISE, MagicFilterType.SIERRA, MagicFilterType.SUTRO, MagicFilterType.TOASTER2, MagicFilterType.VALENCIA, MagicFilterType.WALDEN, MagicFilterType.XPROII)
 
     private fun initView() {
-        mFilterLayout = layout_filter_tab
+        mFilterLayout = layout_filter
         mFilterListView = filter_listView
 
         btn_shutter = btn_camera_shutter
@@ -93,7 +93,7 @@ class GpuMagicCameraFrag : BaseViewStubFragment() {
         mAdapter!!.setOnFilterChangeListener(onFilterChangeListener)
 
 
-        animator = ObjectAnimator.ofFloat(btn_shutter!!, "rotation", 0f, 360f)
+        animator = ObjectAnimator.ofFloat(btn_shutter, "rotation", 0f, 360f)
         animator!!.duration = 500
         animator!!.repeatCount = ValueAnimator.INFINITE
 
@@ -176,7 +176,7 @@ class GpuMagicCameraFrag : BaseViewStubFragment() {
     }
 
     private fun showFilters() {
-        val animator = ObjectAnimator.ofFloat(mFilterLayout!!, "translationY", (mFilterLayout!!.height).toFloat(), 0f)
+        val animator = ObjectAnimator.ofFloat(mFilterLayout, "translationY", (mFilterLayout!!.height).toFloat(), 0f)
         animator.setDuration(200)
         animator.addListener(object : Animator.AnimatorListener {
 
@@ -201,7 +201,7 @@ class GpuMagicCameraFrag : BaseViewStubFragment() {
     }
 
     private fun hideFilters() {
-        val animator = ObjectAnimator.ofFloat(mFilterLayout!!, "translationY", 0f, mFilterLayout!!.height.toFloat())
+        val animator = ObjectAnimator.ofFloat(mFilterLayout, "translationY", 0f, mFilterLayout!!.height.toFloat())
         animator.setDuration(200)
         animator.addListener(object : Animator.AnimatorListener {
 
