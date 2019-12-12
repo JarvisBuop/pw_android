@@ -1,4 +1,4 @@
-package jp.co.cyberagent.android.gpuimage.helper
+package com.seu.magicfilter.filter.helper
 
 /**
  * info: create by jd in 2019/12/10
@@ -91,10 +91,6 @@ enum class FilterType {
      */
     CUSTOM_丑颜,
     CUSTOM_美颜,
-    CUSTOM_TEST1,
-
-    /**
-     * magicfilter
-     */
+    CUSTOM_TEST1
 
 }

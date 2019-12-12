@@ -17,7 +17,7 @@ import com.jdev.wandroid.R
 import com.jdev.wandroid.utils.gputils.GPUImageFilterTools
 import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
 import jp.co.cyberagent.android.gpuimage.GPUImageView
-import jp.co.cyberagent.android.gpuimage.helper.FilterType
+import com.seu.magicfilter.filter.helper.FilterType
 import kotlinx.android.synthetic.main.app_item_gpuimage.*
 
 /**

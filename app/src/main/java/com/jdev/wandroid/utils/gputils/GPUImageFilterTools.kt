@@ -23,7 +23,7 @@ import android.graphics.BitmapFactory
 import android.graphics.PointF
 import android.opengl.Matrix
 import com.jdev.wandroid.R
-import jp.co.cyberagent.android.gpuimage.helper.FilterType
+import com.seu.magicfilter.filter.helper.FilterType
 import com.jdev.wandroid.widget.GPUImageUglyFilter
 import com.jdev.wandroid.widget.GpuImageBeautyFilter
 import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
