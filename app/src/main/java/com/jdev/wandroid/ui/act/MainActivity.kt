@@ -36,11 +36,11 @@ class MainActivity : BaseActivity() {
     //----------------DATA CODE---------------------
     //top recyclerview datas
     var mTopDatas = arrayListOf<OrientVo>(
-            OrientVo("gpuimage - 滤镜列表测试 (有问题)",
+            OrientVo("gpuimage 滤镜列表测试 (有问题)",
                     "Android filters based on OpenGL (idea from GPUImage for iOS)",
                     clazz = ContainerActivity::class.java,
                     clazzCode = ContainerActivity.KEY_ANDROID_GPUIMAGE),
-            OrientVo("gpuimage 滤镜 单张图片测试",
+            OrientVo("gpuimage 滤镜单张图片测试",
                     level = LEVEL.LEVEL_HIGH,
                     clazz = ContainerActivity::class.java,
                     clazzCode = ContainerActivity.KEY_ANDROID_GPUIMAGE_SIMPLE),
@@ -223,7 +223,7 @@ class MainActivity : BaseActivity() {
         item?.also {
             if (it.clazz != null) {
                 if (it.clazz == ContainerActivity::class.java && clazzCode != null && clazzCode != -1) {
-                    mSecretString.put(clazzCode, OrientVo("$clazzCode -> add"))
+                    mSecretString.put(clazzCode, item)
                     clickItemByCode(clazzCode)
                 } else {
                     mContext.startActivity(Intent(mContext, it.clazz))

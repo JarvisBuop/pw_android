@@ -68,13 +68,6 @@ class GpuImageCameraFrag : BaseViewStubFragment() {
         gpuImageView.setRenderMode(GPUImageView.RENDERMODE_CONTINUOUSLY)
     }
 
-
-    public override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-
-    }
-
     override fun onResume() {
         super.onResume()
         gpuImageView.doOnLayout {

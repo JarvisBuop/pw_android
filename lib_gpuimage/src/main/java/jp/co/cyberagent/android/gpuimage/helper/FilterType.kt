@@ -1,4 +1,4 @@
-package com.jdev.wandroid.mockdata
+package jp.co.cyberagent.android.gpuimage.helper
 
 /**
  * info: create by jd in 2019/12/10

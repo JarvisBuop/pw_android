@@ -14,10 +14,10 @@ import android.widget.Toast
 import com.blankj.utilcode.util.ToastUtils
 import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
-import com.jdev.wandroid.mockdata.FilterType
 import com.jdev.wandroid.utils.gputils.GPUImageFilterTools
 import jp.co.cyberagent.android.gpuimage.GPUImageView
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter
+import jp.co.cyberagent.android.gpuimage.helper.FilterType
 import kotlinx.android.synthetic.main.app_item_gpuimage.*
 
 /**

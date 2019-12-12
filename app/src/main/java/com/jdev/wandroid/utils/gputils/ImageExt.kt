@@ -5,6 +5,9 @@ import android.media.Image
 import android.os.Build
 import android.support.annotation.RequiresApi
 
+/**
+ * Image类的扩展方法;
+ */
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 fun Image.generateNV21Data(): ByteArray {
     val crop = cropRect

@@ -11,7 +11,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
-import com.jdev.wandroid.mockdata.FilterType
+import jp.co.cyberagent.android.gpuimage.helper.FilterType
 import com.jdev.wandroid.utils.gputils.GPUImageFilterTools
 import jp.co.cyberagent.android.gpuimage.GPUImageView
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageContrastFilter
