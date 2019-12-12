@@ -115,7 +115,7 @@ public abstract class MagicBaseView extends GLSurfaceView implements GLSurfaceVi
                 if (filter != null)
                     filter.destroy();
                 filter = null;
-                filter = MagicFilterFactory.initFilters(type);
+                filter = MagicFilterFactory.Companion.getFilterByType(type);
                 if (filter != null)
                     filter.init();
                 onFilterChanged();

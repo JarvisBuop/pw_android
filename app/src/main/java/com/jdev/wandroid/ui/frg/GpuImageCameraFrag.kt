@@ -97,10 +97,10 @@ class GpuImageCameraFrag : BaseViewStubFragment() {
         }
     }
 
-    private fun switchFilterTo(filter: GPUImageFilter) {
-        if (gpuImageView.filter == null || gpuImageView.filter!!.javaClass != filter.javaClass) {
+    private fun switchFilterTo(filter: GPUImageFilter?) {
+        if (gpuImageView.filter == null || gpuImageView.filter!!.javaClass != filter?.javaClass) {
             gpuImageView.filter = filter
-            filterAdjuster = GPUImageFilterTools.FilterAdjuster(filter)
+            filterAdjuster = GPUImageFilterTools.FilterAdjuster(filter!!)
             filterAdjuster?.adjust(seekBar.progress)
         }
     }

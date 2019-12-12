@@ -11,9 +11,10 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
-import com.seu.magicfilter.filter.helper.FilterType
 import com.jdev.wandroid.utils.gputils.GPUImageFilterTools
 import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
+import com.seu.magicfilter.filter.helper.MagicFilterFactory
+import com.seu.magicfilter.filter.helper.MagicFilterType
 import jp.co.cyberagent.android.gpuimage.GPUImageView
 import com.seu.magicfilter.filter.origin.GPUImageContrastFilter
 import kotlinx.android.synthetic.main.app_frag_gpuimage.*
@@ -31,7 +32,7 @@ import kotlinx.android.synthetic.main.app_frag_gpuimage.*
  */
 class GpuImageMultiImageFrag : BaseViewStubFragment() {
     private lateinit var myAdapter: MyAdapter<FilterVo>
-    private var progress:Int = 0
+    private var progress: Int = 0
     override fun getViewStubId(): Int {
         return R.layout.app_frag_gpuimage
     }
@@ -73,11 +74,13 @@ class GpuImageMultiImageFrag : BaseViewStubFragment() {
         var arr = arrayListOf<FilterVo>()
         arr.add(FilterVo())
         for ((index, value) in filterObj.filters.withIndex()) {
-            var filter = GPUImageFilterTools.createFilterForType(mContext!!, value)
-            arr.add(FilterVo(value, filterObj.names.get(index),
-                    filter,
-                    GPUImageFilterTools.FilterAdjuster(filter)
-            ))
+            var filter = MagicFilterFactory.getFilterByType(value)
+            if (filter != null) {
+                arr.add(FilterVo(value, filterObj.names.get(index),
+                        filter,
+                        GPUImageFilterTools.FilterAdjuster(filter)
+                ))
+            }
         }
         changeFilter(50)
         myAdapter.setNewData(arr)
@@ -105,7 +108,7 @@ class GpuImageMultiImageFrag : BaseViewStubFragment() {
                 } else {
                     imageView.visibility = View.GONE
                     gpuImageView.visibility = View.VISIBLE
-                    gpuImageView.setImage(BitmapFactory.decodeResource(mContext.resources,R.drawable.gpuimage_origin))
+                    gpuImageView.setImage(BitmapFactory.decodeResource(mContext.resources, R.drawable.gpuimage_origin))
                     //滤镜;
                     if (gpuImageView.filter == null || gpuImageView.filter.javaClass != item.filter.javaClass) {
                         gpuImageView.filter = item.filter
@@ -118,7 +121,7 @@ class GpuImageMultiImageFrag : BaseViewStubFragment() {
     }
 
     data class FilterVo(
-            var filterType: FilterType = FilterType.CONTRAST,
+            var filterType: MagicFilterType = MagicFilterType.CONTRAST,
             var filterName: String? = null,
             var filter: GPUImageFilter = GPUImageContrastFilter(2.0f),
             var adjuster: GPUImageFilterTools.FilterAdjuster = GPUImageFilterTools.FilterAdjuster(filter)

@@ -16,8 +16,9 @@ import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
 import com.jdev.wandroid.utils.gputils.GPUImageFilterTools
 import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
+import com.seu.magicfilter.filter.helper.MagicFilterFactory
 import jp.co.cyberagent.android.gpuimage.GPUImageView
-import com.seu.magicfilter.filter.helper.FilterType
+import com.seu.magicfilter.filter.helper.MagicFilterType
 import kotlinx.android.synthetic.main.app_item_gpuimage.*
 
 /**
@@ -46,9 +47,9 @@ class GpuImageSingleImageFrag : BaseViewStubFragment() {
     override fun customOperate(savedInstanceState: Bundle?) {
         layout_controller.visibility = View.VISIBLE
 
-        var filterType = FilterType.CUSTOM_丑颜
+        var filterType = MagicFilterType.CUSTOM_丑颜
         var filterName = filterType.name
-        var filter: GPUImageFilter = GPUImageFilterTools.createFilterForType(mContext!!, filterType)
+        var filter: GPUImageFilter? = MagicFilterFactory.getFilterByType(filterType)
         filterAdjuster = GPUImageFilterTools.FilterAdjuster(filter)
 
         gpuImageView.setImage(BitmapFactory.decodeResource(mContext!!.resources, R.drawable.gpuimage_origin))
@@ -64,12 +65,13 @@ class GpuImageSingleImageFrag : BaseViewStubFragment() {
         }
 
         txt_style_action.setOnClickListener {
-            if (filterAdjuster?.canAdjust()?:false) {
+            if (filterAdjuster?.canAdjust() ?: false) {
                 progress += 10
                 if (progress > 100) {
                     progress = 0
                 }
-                txt_style_action.text = "++ ${filterAdjuster?.canAdjust()} " + if (filterAdjuster?.canAdjust()?:false) "$progress" else ""
+                txt_style_action.text = "++ ${filterAdjuster?.canAdjust()} " + if (filterAdjuster?.canAdjust()
+                                ?: false) "$progress" else ""
 
                 //更新gpuimage;
                 filterAdjuster?.adjust(progress)
@@ -104,14 +106,14 @@ class GpuImageSingleImageFrag : BaseViewStubFragment() {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun switchFilterTo(filter: GPUImageFilter, gpuImageView: GPUImageView, filterAdjuster: GPUImageFilterTools.FilterAdjuster?,
+    private fun switchFilterTo(filter: GPUImageFilter?, gpuImageView: GPUImageView, filterAdjuster: GPUImageFilterTools.FilterAdjuster?,
                                name: String) {
         //ui
         txt_style_name.text = name
         txt_style_action.text = "++ ${filterAdjuster?.canAdjust()} " + if (filterAdjuster?.canAdjust() == true) "$progress" else ""
 
         //logic
-        if (gpuImageView.filter == null || gpuImageView.filter.javaClass != filter.javaClass) {
+        if (gpuImageView.filter == null || gpuImageView.filter.javaClass != filter?.javaClass) {
             gpuImageView.filter = filter
             if (filterAdjuster?.canAdjust() == true) {
                 filterAdjuster?.adjust(progress)

@@ -16,8 +16,8 @@ import com.seu.magicfilter.filter.helper.MagicFilterType;
 /**
  * Created by why8222 on 2016/3/17.
  */
-public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHolder>{
-    
+public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHolder> {
+
     private MagicFilterType[] filters;
     private Context context;
     private int selected = 0;
@@ -36,7 +36,7 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHold
                 .findViewById(R.id.filter_thumb_image);
         viewHolder.filterName = (TextView) view
                 .findViewById(R.id.filter_thumb_name);
-        viewHolder.filterRoot = (FrameLayout)view
+        viewHolder.filterRoot = (FrameLayout) view
                 .findViewById(R.id.filter_root);
         viewHolder.thumbSelected = (FrameLayout) view
                 .findViewById(R.id.filter_thumb_selected);
@@ -46,17 +46,22 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHold
     }
 
     @Override
-    public void onBindViewHolder(FilterHolder holder,final int position) {
+    public void onBindViewHolder(FilterHolder holder, final int position) {
         holder.thumbImage.setImageResource(FilterTypeHelper.FilterType2Thumb(filters[position]));
-        holder.filterName.setText(FilterTypeHelper.FilterType2Name(filters[position]));
+        int i = FilterTypeHelper.FilterType2Name(filters[position]);
+        if (i != 0) {
+            holder.filterName.setText(i);
+        } else {
+            holder.filterName.setText(filters[position].toString());
+        }
         holder.filterName.setBackgroundColor(context.getResources().getColor(
                 FilterTypeHelper.FilterType2Color(filters[position])));
-        if(position == selected){
+        if (position == selected) {
             holder.thumbSelected.setVisibility(View.VISIBLE);
             holder.thumbSelected_bg.setBackgroundColor(context.getResources().getColor(
                     FilterTypeHelper.FilterType2Color(filters[position])));
             holder.thumbSelected_bg.setAlpha(0.7f);
-        }else {
+        } else {
             holder.thumbSelected.setVisibility(View.GONE);
         }
 
@@ -64,7 +69,7 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHold
 
             @Override
             public void onClick(View v) {
-                if(selected == position)
+                if (selected == position)
                     return;
                 int lastSelected = selected;
                 selected = position;
@@ -92,13 +97,13 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterHold
         }
     }
 
-    public interface onFilterChangeListener{
+    public interface onFilterChangeListener {
         void onFilterChanged(MagicFilterType filterType);
     }
 
     private onFilterChangeListener onFilterChangeListener;
 
-    public void setOnFilterChangeListener(onFilterChangeListener onFilterChangeListener){
+    public void setOnFilterChangeListener(onFilterChangeListener onFilterChangeListener) {
         this.onFilterChangeListener = onFilterChangeListener;
     }
 }

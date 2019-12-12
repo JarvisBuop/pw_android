@@ -242,7 +242,7 @@ public class FilterTypeHelper {
 		case SKETCH:
 			return R.string.filter_sketch;
 		default:
-			return R.string.filter_none;
+			return 0;
 		}
 	}
 }
