@@ -140,7 +140,7 @@ class MagicFilterFactory {
                         0.75f
                 )
                 MagicFilterType.TONE_CURVE -> GPUImageToneCurveFilter().apply {
-                    setFromCurveFileInputStream(MagicParams.context.resources.openRawResource(R.raw.tone_cuver_sample))
+                    setFromCurveFileInputStream(context.resources.openRawResource(R.raw.tone_cuver_sample))
                 }
                 MagicFilterType.LUMINANCE -> GPUImageLuminanceFilter()
                 MagicFilterType.LUMINANCE_THRESHSOLD -> GPUImageLuminanceThresholdFilter(0.5f)
@@ -243,7 +243,7 @@ class MagicFilterFactory {
                 )
 
                 MagicFilterType.LOOKUP_AMATORKA -> GPUImageLookupFilter().apply {
-                    bitmap = BitmapFactory.decodeResource(MagicParams.context.resources, R.drawable.lookup_amatorka)
+                    bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.lookup_amatorka)
                 }
                 MagicFilterType.GAUSSIAN_BLUR -> GPUImageGaussianBlurFilter()
                 MagicFilterType.CROSSHATCH -> GPUImageCrosshatchFilter()
