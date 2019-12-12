@@ -8,9 +8,9 @@ import android.widget.Toast
 import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
 import com.jdev.wandroid.utils.gputils.*
+import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
+import com.seu.magicfilter.utils.Rotation
 import jp.co.cyberagent.android.gpuimage.GPUImageView
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter
-import jp.co.cyberagent.android.gpuimage.util.Rotation
 import kotlinx.android.synthetic.main.app_frag_gpucamera.*
 
 /**

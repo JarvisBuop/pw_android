@@ -25,6 +25,11 @@ import android.hardware.Camera.Size;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 
+import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter;
+import com.seu.magicfilter.utils.OpenGlUtils;
+import com.seu.magicfilter.utils.Rotation;
+import com.seu.magicfilter.utils.TextureRotationUtil;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -36,21 +41,8 @@ import java.util.Queue;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter;
-import jp.co.cyberagent.android.gpuimage.util.OpenGlUtils;
-import jp.co.cyberagent.android.gpuimage.util.Rotation;
-import jp.co.cyberagent.android.gpuimage.util.TextureRotationUtil;
-
-import static jp.co.cyberagent.android.gpuimage.util.TextureRotationUtil.TEXTURE_NO_ROTATION;
-
 public class GPUImageRenderer implements GLSurfaceView.Renderer, GLTextureView.Renderer, PreviewCallback {
     private static final int NO_IMAGE = -1;
-    public static final float CUBE[] = {
-            -1.0f, -1.0f,
-            1.0f, -1.0f,
-            -1.0f, 1.0f,
-            1.0f, 1.0f,
-    };
 
     private GPUImageFilter filter;
 
@@ -84,12 +76,12 @@ public class GPUImageRenderer implements GLSurfaceView.Renderer, GLTextureView.R
         runOnDraw = new LinkedList<>();
         runOnDrawEnd = new LinkedList<>();
 
-        glCubeBuffer = ByteBuffer.allocateDirect(CUBE.length * 4)
+        glCubeBuffer = ByteBuffer.allocateDirect(TextureRotationUtil.CUBE.length * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
-        glCubeBuffer.put(CUBE).position(0);
+        glCubeBuffer.put(TextureRotationUtil.CUBE).position(0);
 
-        glTextureBuffer = ByteBuffer.allocateDirect(TEXTURE_NO_ROTATION.length * 4)
+        glTextureBuffer = ByteBuffer.allocateDirect(TextureRotationUtil.TEXTURE_NO_ROTATION.length * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
         setRotation(Rotation.NORMAL, false, false);
@@ -108,7 +100,7 @@ public class GPUImageRenderer implements GLSurfaceView.Renderer, GLTextureView.R
         outputHeight = height;
         GLES20.glViewport(0, 0, width, height);
         GLES20.glUseProgram(filter.getProgram());
-        filter.onOutputSizeChanged(width, height);
+        filter.onDisplaySizeChanged(width, height);
         adjustImageScaling();
         synchronized (surfaceChangedWaiter) {
             surfaceChangedWaiter.notifyAll();
@@ -119,7 +111,7 @@ public class GPUImageRenderer implements GLSurfaceView.Renderer, GLTextureView.R
     public void onDrawFrame(final GL10 gl) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         runAll(runOnDraw);
-        filter.onDraw(glTextureId, glCubeBuffer, glTextureBuffer);
+        filter.onDrawFrame(glTextureId, glCubeBuffer, glTextureBuffer);
         runAll(runOnDrawEnd);
         if (surfaceTexture != null) {
             surfaceTexture.updateTexImage();
@@ -204,7 +196,7 @@ public class GPUImageRenderer implements GLSurfaceView.Renderer, GLTextureView.R
                 }
                 GPUImageRenderer.this.filter.ifNeedInit();
                 GLES20.glUseProgram(GPUImageRenderer.this.filter.getProgram());
-                GPUImageRenderer.this.filter.onOutputSizeChanged(outputWidth, outputHeight);
+                GPUImageRenderer.this.filter.onDisplaySizeChanged(outputWidth, outputHeight);
             }
         });
     }
@@ -288,7 +280,7 @@ public class GPUImageRenderer implements GLSurfaceView.Renderer, GLTextureView.R
         float ratioWidth = imageWidthNew / outputWidth;
         float ratioHeight = imageHeightNew / outputHeight;
 
-        float[] cube = CUBE;
+        float[] cube = TextureRotationUtil.CUBE;
         float[] textureCords = TextureRotationUtil.getRotation(rotation, flipHorizontal, flipVertical);
         if (scaleType == GPUImage.ScaleType.CENTER_CROP) {
             float distHorizontal = (1 - 1 / ratioWidth) / 2;
@@ -301,10 +293,10 @@ public class GPUImageRenderer implements GLSurfaceView.Renderer, GLTextureView.R
             };
         } else {
             cube = new float[]{
-                    CUBE[0] / ratioHeight, CUBE[1] / ratioWidth,
-                    CUBE[2] / ratioHeight, CUBE[3] / ratioWidth,
-                    CUBE[4] / ratioHeight, CUBE[5] / ratioWidth,
-                    CUBE[6] / ratioHeight, CUBE[7] / ratioWidth,
+                    TextureRotationUtil.CUBE[0] / ratioHeight, TextureRotationUtil.CUBE[1] / ratioWidth,
+                    TextureRotationUtil.CUBE[2] / ratioHeight, TextureRotationUtil.CUBE[3] / ratioWidth,
+                    TextureRotationUtil.CUBE[4] / ratioHeight, TextureRotationUtil.CUBE[5] / ratioWidth,
+                    TextureRotationUtil.CUBE[6] / ratioHeight, TextureRotationUtil.CUBE[7] / ratioWidth,
             };
         }
 

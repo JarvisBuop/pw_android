@@ -1,7 +1,7 @@
 package com.jdev.wandroid.widget
 
 import android.content.Context
-import jp.co.cyberagent.android.gpuimage.filter.*
+import com.seu.magicfilter.filter.origin.*
 
 /**
  * info: create by jd in 2019/12/11

@@ -92,4 +92,9 @@ enum class FilterType {
     CUSTOM_丑颜,
     CUSTOM_美颜,
     CUSTOM_TEST1,
+
+    /**
+     * magicfilter
+     */
+
 }

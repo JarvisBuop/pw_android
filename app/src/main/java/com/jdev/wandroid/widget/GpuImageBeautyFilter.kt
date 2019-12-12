@@ -1,7 +1,7 @@
 package com.jdev.wandroid.widget
 
 import android.opengl.GLES20
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter
+import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
 
 
 /**
@@ -59,8 +59,8 @@ class GpuImageBeautyFilter : GPUImageFilter(NO_FILTER_VERTEX_SHADER, BILATERAL_F
         setFloatVec2(singleStepOffsetLocation, floatArrayOf(2.0f / w, 2.0f / h))
     }
 
-    override fun onOutputSizeChanged(width: Int, height: Int) {
-        super.onOutputSizeChanged(width, height)
+    override fun onDisplaySizeChanged(width: Int, height: Int) {
+        super.onDisplaySizeChanged(width, height)
         setTexelSize(width.toFloat(), height.toFloat())
     }
 

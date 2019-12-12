@@ -7,6 +7,8 @@ import com.seu.magicfilter.widget.base.MagicBaseView;
 
 /**
  * Created by why8222 on 2016/2/26.
+ *
+ * 属性管理;
  */
 public class MagicParams {
     public static Context context;

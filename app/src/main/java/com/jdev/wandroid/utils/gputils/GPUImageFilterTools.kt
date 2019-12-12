@@ -26,7 +26,8 @@ import com.jdev.wandroid.R
 import jp.co.cyberagent.android.gpuimage.helper.FilterType
 import com.jdev.wandroid.widget.GPUImageUglyFilter
 import com.jdev.wandroid.widget.GpuImageBeautyFilter
-import jp.co.cyberagent.android.gpuimage.filter.*
+import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
+import com.seu.magicfilter.filter.origin.*
 import java.util.*
 
 object GPUImageFilterTools {

@@ -57,14 +57,14 @@ public class GPUImageFilter {
     protected int mGLAttribPosition;
     protected int mGLUniformTexture;
     protected int mGLAttribTextureCoordinate;
-
-    protected int mIntputWidth;
-    protected int mIntputHeight;
     protected boolean mIsInitialized;
+
+    //magicfilter 重命名 且默认初始化cube和texture数据;
+    protected int mIntputWidth,mIntputHeight;
+    protected int mOutputWidth, mOutputHeight;
     protected FloatBuffer mGLCubeBuffer;
     protected FloatBuffer mGLTextureBuffer;
-    protected int mOutputWidth, mOutputHeight;
-    
+
     public GPUImageFilter() {
         this(NO_FILTER_VERTEX_SHADER, NO_FILTER_FRAGMENT_SHADER);
     }
@@ -87,7 +87,6 @@ public class GPUImageFilter {
 
     public void init() {
         onInit();
-        mIsInitialized = true;
         onInitialized();
     }
 
@@ -95,13 +94,16 @@ public class GPUImageFilter {
         mGLProgId = OpenGlUtils.loadProgram(mVertexShader, mFragmentShader);
         mGLAttribPosition = GLES20.glGetAttribLocation(mGLProgId, "position");
         mGLUniformTexture = GLES20.glGetUniformLocation(mGLProgId, "inputImageTexture");
-        mGLAttribTextureCoordinate = GLES20.glGetAttribLocation(mGLProgId,
-                "inputTextureCoordinate");
+        mGLAttribTextureCoordinate = GLES20.glGetAttribLocation(mGLProgId, "inputTextureCoordinate");
         mIsInitialized = true;
     }
 
     protected void onInitialized() {
 
+    }
+
+    public void ifNeedInit() {
+        if (!mIsInitialized) init();
     }
 
     public final void destroy() {
@@ -116,6 +118,11 @@ public class GPUImageFilter {
     public void onInputSizeChanged(final int width, final int height) {
         mIntputWidth = width;
         mIntputHeight = height;
+    }
+
+    public void onDisplaySizeChanged(final int width, final int height) {
+        mOutputWidth = width;
+        mOutputHeight = height;
     }
 
     public int onDrawFrame(final int textureId, final FloatBuffer cubeBuffer,
@@ -196,6 +203,14 @@ public class GPUImageFilter {
         return mIntputHeight;
     }
 
+    public int getOutputWidth() {
+        return mOutputWidth;
+    }
+
+    public int getOutputHeight() {
+        return mOutputHeight;
+    }
+
     public int getProgram() {
         return mGLProgId;
     }
@@ -216,15 +231,17 @@ public class GPUImageFilter {
         runOnDraw(new Runnable() {
             @Override
             public void run() {
+                ifNeedInit();
                 GLES20.glUniform1i(location, intValue);
             }
         });
     }
 
-    protected void setFloat(final int location, final float floatValue) {
+    public void setFloat(final int location, final float floatValue) {
         runOnDraw(new Runnable() {
             @Override
             public void run() {
+                ifNeedInit();
                 GLES20.glUniform1f(location, floatValue);
             }
         });
@@ -234,6 +251,7 @@ public class GPUImageFilter {
         runOnDraw(new Runnable() {
             @Override
             public void run() {
+                ifNeedInit();
                 GLES20.glUniform2fv(location, 1, FloatBuffer.wrap(arrayValue));
             }
         });
@@ -243,6 +261,7 @@ public class GPUImageFilter {
         runOnDraw(new Runnable() {
             @Override
             public void run() {
+                ifNeedInit();
                 GLES20.glUniform3fv(location, 1, FloatBuffer.wrap(arrayValue));
             }
         });
@@ -252,6 +271,7 @@ public class GPUImageFilter {
         runOnDraw(new Runnable() {
             @Override
             public void run() {
+                ifNeedInit();
                 GLES20.glUniform4fv(location, 1, FloatBuffer.wrap(arrayValue));
             }
         });
@@ -261,6 +281,7 @@ public class GPUImageFilter {
         runOnDraw(new Runnable() {
             @Override
             public void run() {
+                ifNeedInit();
                 GLES20.glUniform1fv(location, arrayValue.length, FloatBuffer.wrap(arrayValue));
             }
         });
@@ -271,6 +292,7 @@ public class GPUImageFilter {
 
             @Override
             public void run() {
+                ifNeedInit();
                 float[] vec2 = new float[2];
                 vec2[0] = point.x;
                 vec2[1] = point.y;
@@ -284,6 +306,7 @@ public class GPUImageFilter {
 
             @Override
             public void run() {
+                ifNeedInit();
                 GLES20.glUniformMatrix3fv(location, 1, false, matrix, 0);
             }
         });
@@ -294,6 +317,7 @@ public class GPUImageFilter {
 
             @Override
             public void run() {
+                ifNeedInit();
                 GLES20.glUniformMatrix4fv(location, 1, false, matrix, 0);
             }
         });
@@ -305,8 +329,5 @@ public class GPUImageFilter {
         }
     }
 
-    public void onDisplaySizeChanged(final int width, final int height) {
-    	mOutputWidth = width;
-    	mOutputHeight = height;
-    }
+
 }

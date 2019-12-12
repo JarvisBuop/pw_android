@@ -13,9 +13,9 @@ import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
 import jp.co.cyberagent.android.gpuimage.helper.FilterType
 import com.jdev.wandroid.utils.gputils.GPUImageFilterTools
+import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
 import jp.co.cyberagent.android.gpuimage.GPUImageView
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageContrastFilter
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter
+import com.seu.magicfilter.filter.origin.GPUImageContrastFilter
 import kotlinx.android.synthetic.main.app_frag_gpuimage.*
 
 /**
