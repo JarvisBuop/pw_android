@@ -12,7 +12,7 @@ import com.chad.library.adapter.base.BaseViewHolder
 import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
 import com.jdev.wandroid.mockdata.FilterType
-import com.jdev.wandroid.utils.GPUImageFilterTools
+import com.jdev.wandroid.utils.gputils.GPUImageFilterTools
 import jp.co.cyberagent.android.gpuimage.GPUImageView
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageContrastFilter
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter
@@ -29,7 +29,7 @@ import kotlinx.android.synthetic.main.app_frag_gpuimage.*
  *
  * tips: 列表中不显示, 可能多次设置导致运算慢出现问题;
  */
-class GpuImageTestMultiImageFrag : BaseViewStubFragment() {
+class GpuImageMultiImageFrag : BaseViewStubFragment() {
     private lateinit var myAdapter: MyAdapter<FilterVo>
     private var progress:Int = 0
     override fun getViewStubId(): Int {
@@ -48,7 +48,7 @@ class GpuImageTestMultiImageFrag : BaseViewStubFragment() {
     private fun initFilterDatas() {
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                this@GpuImageTestMultiImageFrag.progress = progress
+                this@GpuImageMultiImageFrag.progress = progress
                 changeFilter(progress)
             }
 

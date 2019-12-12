@@ -15,7 +15,7 @@ import com.blankj.utilcode.util.ToastUtils
 import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
 import com.jdev.wandroid.mockdata.FilterType
-import com.jdev.wandroid.utils.GPUImageFilterTools
+import com.jdev.wandroid.utils.gputils.GPUImageFilterTools
 import jp.co.cyberagent.android.gpuimage.GPUImageView
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter
 import kotlinx.android.synthetic.main.app_item_gpuimage.*
@@ -29,7 +29,7 @@ import kotlinx.android.synthetic.main.app_item_gpuimage.*
  *
  * Android filters based on OpenGL (idea from GPUImage for iOS)
  */
-class GpuImageTestSingleImageFrag : BaseViewStubFragment() {
+class GpuImageSingleImageFrag : BaseViewStubFragment() {
     companion object {
         private const val REQUEST_PHOTOPICKER = 1
         private const val REQUEST_STORAGE_PERMISSION = 2

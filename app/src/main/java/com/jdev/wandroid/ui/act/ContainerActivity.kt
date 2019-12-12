@@ -46,10 +46,10 @@ class ContainerActivity : BaseActivity() {
                     return WebPTestFrag()
                 }
                 KEY_ANDROID_GPUIMAGE -> {
-                    return GpuImageTestMultiImageFrag()
+                    return GpuImageMultiImageFrag()
                 }
                 KEY_ANDROID_GPUIMAGE_SIMPLE -> {
-                    return GpuImageTestSingleImageFrag()
+                    return GpuImageSingleImageFrag()
                 }
                 KEY_ANDROID_GPUIMAGE_CAMERA -> {
                     return GpuImageCameraFrag()
@@ -92,6 +92,11 @@ class ContainerActivity : BaseActivity() {
         } else {
             noDataOperate()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        currentFrag?.onResume()
     }
 
 }

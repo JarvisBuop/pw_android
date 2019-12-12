@@ -1,7 +1,7 @@
 include ':app',
-        ':lib_kit',
         ':module_welcome',
+        ':module_video',
+        ':lib_kit',
         ':lib_jiaozivideoplayer',
         ':lib_adapter',
-        ':module_video',
         ':lib_gpuimage'

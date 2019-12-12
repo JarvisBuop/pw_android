@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.jdev.wandroid.utils
+package com.jdev.wandroid.utils.gputils
 
 import android.app.AlertDialog
 import android.content.Context

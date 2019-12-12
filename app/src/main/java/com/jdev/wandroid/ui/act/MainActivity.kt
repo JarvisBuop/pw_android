@@ -174,8 +174,9 @@ class MainActivity : BaseActivity() {
                         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
                             var view = LayoutInflater.from(mContext).inflate(R.layout.app_item_centerdrag, parent, false)
                             var txtTips = view.findViewById<TextView>(R.id.scroll_tip)
-                            var item = codeDatas.get(position)
-                            txtTips.text = item.title
+                            var id = codeDatas.keyAt(position)
+                            var orientVo = codeDatas[id]
+                            txtTips.text = orientVo?.title?:""
                             return view
                         }
 
