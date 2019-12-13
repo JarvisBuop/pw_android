@@ -15,10 +15,12 @@ import com.blankj.utilcode.util.ToastUtils
 import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
 import com.jdev.wandroid.utils.gputils.GPUImageFilterTools
+import com.seu.magicfilter.MagicEngine
 import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
 import com.seu.magicfilter.filter.helper.MagicFilterFactory
 import jp.co.cyberagent.android.gpuimage.GPUImageView
 import com.seu.magicfilter.filter.helper.MagicFilterType
+import kotlinx.android.synthetic.main.app_frag_magiccamera.*
 import kotlinx.android.synthetic.main.app_item_gpuimage.*
 
 /**
@@ -45,6 +47,8 @@ class GpuImageSingleImageFrag : BaseViewStubFragment() {
     override fun initIntentData(): Boolean = true
 
     override fun customOperate(savedInstanceState: Bundle?) {
+        //todo 使用时修改;
+        MagicEngine.Builder().build(mContext)
         layout_controller.visibility = View.VISIBLE
 
         var filterType = MagicFilterType.CUSTOM_丑颜
