@@ -86,7 +86,7 @@ public class JZMediaExo extends JZMediaInterface implements Player.EventListener
             simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context, renderersFactory, trackSelector, loadControl);
             // Produces DataSource instances through which media data is loaded.
             DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context,
-                    Util.getUserAgent(context, context.getResources().getString(R.string.app_name)));
+                    Util.getUserAgent(context, context.getResources().getString(R.string.app_name_module_video)));
 
             String currUrl = jzvd.jzDataSource.getCurrentUrl().toString();
             MediaSource videoSource;

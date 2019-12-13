@@ -96,6 +96,7 @@ class MagicFilterFactory {
                 MagicFilterType.SATURATION -> return GPUImageSaturationFilter()
                 MagicFilterType.SHARPEN -> return GPUImageSharpenFilter()
                 MagicFilterType.IMAGE_ADJUST -> return MagicImageAdjustFilter()
+
                 //origin filter
 //                MagicFilterType.BRIGHTNESS -> com.seu.magicfilter.filter.origin.GPUImageBrightnessFilter(1.5f)
 //                MagicFilterType.CONTRAST -> com.seu.magicfilter.filter.origin.GPUImageContrastFilter(2.0f)
@@ -252,7 +253,7 @@ class MagicFilterFactory {
                 MagicFilterType.DILATION -> GPUImageDilationFilter()
                 MagicFilterType.KUWAHARA -> GPUImageKuwaharaFilter()
                 MagicFilterType.RGB_DILATION -> GPUImageRGBDilationFilter()
-                MagicFilterType.SKETCH -> GPUImageSketchFilter()
+//                MagicFilterType.SKETCH -> GPUImageSketchFilter()
                 MagicFilterType.TOON -> GPUImageToonFilter()
                 MagicFilterType.SMOOTH_TOON -> GPUImageSmoothToonFilter()
                 MagicFilterType.BULGE_DISTORTION -> GPUImageBulgeDistortionFilter()

@@ -49,7 +49,7 @@ class GpuImageSingleImageFrag : BaseViewStubFragment() {
 
         var filterType = MagicFilterType.CUSTOM_丑颜
         var filterName = filterType.name
-        var filter: GPUImageFilter? = MagicFilterFactory.getFilterByType(mContext!!,filterType)
+        var filter: GPUImageFilter? = MagicFilterFactory.getFilterByType(mContext!!, filterType)
         filterAdjuster = GPUImageFilterTools.FilterAdjuster(filter)
 
         gpuImageView.setImage(BitmapFactory.decodeResource(mContext!!.resources, R.drawable.gpuimage_origin))
@@ -113,7 +113,7 @@ class GpuImageSingleImageFrag : BaseViewStubFragment() {
         txt_style_action.text = "++ ${filterAdjuster?.canAdjust()} " + if (filterAdjuster?.canAdjust() == true) "$progress" else ""
 
         //logic
-        if (gpuImageView.filter == null || gpuImageView.filter.javaClass != filter?.javaClass) {
+        if (filter != null && (gpuImageView.filter == null || gpuImageView.filter.javaClass != filter.javaClass)) {
             gpuImageView.filter = filter
             if (filterAdjuster?.canAdjust() == true) {
                 filterAdjuster?.adjust(progress)
