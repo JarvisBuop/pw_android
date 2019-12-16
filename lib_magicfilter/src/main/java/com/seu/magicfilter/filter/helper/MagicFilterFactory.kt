@@ -7,12 +7,6 @@ import com.blankj.utilcode.util.Utils
 import com.seu.magicfilter.R
 import com.seu.magicfilter.filter.advanced.*
 import com.seu.magicfilter.filter.base.gpuimage.*
-import com.seu.magicfilter.filter.base.gpuimage.GPUImageBrightnessFilter
-import com.seu.magicfilter.filter.base.gpuimage.GPUImageContrastFilter
-import com.seu.magicfilter.filter.base.gpuimage.GPUImageExposureFilter
-import com.seu.magicfilter.filter.base.gpuimage.GPUImageHueFilter
-import com.seu.magicfilter.filter.base.gpuimage.GPUImageSaturationFilter
-import com.seu.magicfilter.filter.base.gpuimage.GPUImageSharpenFilter
 import com.seu.magicfilter.filter.origin.*
 
 class MagicFilterFactory {
@@ -95,13 +89,7 @@ class MagicFilterFactory {
                 MagicFilterType.SHARPEN -> return GPUImageSharpenFilter()
                 MagicFilterType.IMAGE_ADJUST -> return MagicImageAdjustFilter()
 
-                //origin filter
-//                MagicFilterType.BRIGHTNESS -> com.seu.magicfilter.filter.origin.GPUImageBrightnessFilter(1.5f)
-//                MagicFilterType.CONTRAST -> com.seu.magicfilter.filter.origin.GPUImageContrastFilter(2.0f)
-//                MagicFilterType.EXPOSURE -> com.seu.magicfilter.filter.origin.GPUImageExposureFilter(0.0f)
-//                MagicFilterType.HUE -> com.seu.magicfilter.filter.origin.GPUImageHueFilter(90.0f)
-//                MagicFilterType.SATURATION -> com.seu.magicfilter.filter.origin.GPUImageSaturationFilter(1.0f)
-//                MagicFilterType.SHARPEN -> com.seu.magicfilter.filter.origin.GPUImageSharpenFilter()
+                //origin
                 MagicFilterType.GAMMA -> GPUImageGammaFilter(2.0f)
                 MagicFilterType.INVERT -> GPUImageColorInvertFilter()
                 MagicFilterType.PIXELATION -> GPUImagePixelationFilter()
@@ -114,7 +102,7 @@ class MagicFilterFactory {
                 MagicFilterType.POSTERIZE -> GPUImagePosterizeFilter()
                 MagicFilterType.FILTER_GROUP -> GPUImageFilterGroup(
                         listOf(
-                                com.seu.magicfilter.filter.origin.GPUImageContrastFilter(),
+                                GPUImageContrastFilter(),
                                 GPUImageDirectionalSobelEdgeDetectionFilter(),
                                 GPUImageGrayscaleFilter()
                         )

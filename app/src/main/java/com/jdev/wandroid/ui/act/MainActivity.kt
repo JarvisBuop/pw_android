@@ -53,7 +53,10 @@ class MainActivity : BaseActivity() {
                     level = LEVEL.LEVEL_HIGH,
                     clazz = ContainerActivity::class.java,
                     clazzCode = ContainerActivity.KEY_ANDROID_MAGIC_CAMERA),
-            OrientVo("test", "desc"),
+            OrientVo("opengl test",
+                    "opengl demo",
+                    clazz = ContainerActivity::class.java,
+                    clazzCode = ContainerActivity.KEY_ANDROID_OPENGL_SIMGLE_DEMO),
             OrientVo("test", "desc"),
             OrientVo("test", "desc"),
             OrientVo("test", "desc"),
@@ -176,7 +179,7 @@ class MainActivity : BaseActivity() {
                             var txtTips = view.findViewById<TextView>(R.id.scroll_tip)
                             var id = codeDatas.keyAt(position)
                             var orientVo = codeDatas[id]
-                            txtTips.text = orientVo?.title?:""
+                            txtTips.text = orientVo?.title ?: ""
                             return view
                         }
 

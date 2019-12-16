@@ -28,6 +28,16 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.LinkedList;
 
+/**
+ * glsl (opengl shadering lauguage)
+ *
+ * 顶点 + 纹理;
+ *
+ * vertex shader :  每一个点的具体显示的位置;
+ *
+ * fragment shader : 每一个点的具体颜色值;
+ *
+ */
 public class GPUImageFilter {
     public static final String NO_FILTER_VERTEX_SHADER = "" +
             "attribute vec4 position;\n" +
@@ -51,8 +61,12 @@ public class GPUImageFilter {
             "}";
 
     private final LinkedList<Runnable> mRunOnDraw;
+
+    //向量渲染,纹理渲染;
     private final String mVertexShader;
     private final String mFragmentShader;
+
+    //id,顶点位置信息,纹理信息与坐标
     protected int mGLProgId;
     protected int mGLAttribPosition;
     protected int mGLUniformTexture;
@@ -62,6 +76,8 @@ public class GPUImageFilter {
     //magicfilter 重命名 且默认初始化cube和texture数据;
     protected int mIntputWidth,mIntputHeight;
     protected int mOutputWidth, mOutputHeight;
+
+    //绘制信息;
     protected FloatBuffer mGLCubeBuffer;
     protected FloatBuffer mGLTextureBuffer;
 

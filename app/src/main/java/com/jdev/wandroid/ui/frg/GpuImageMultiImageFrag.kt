@@ -12,12 +12,12 @@ import com.chad.library.adapter.base.BaseViewHolder
 import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
 import com.jdev.wandroid.utils.gputils.GPUImageFilterTools
+import com.seu.magicfilter.filter.base.gpuimage.GPUImageContrastFilter
 import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
 import com.seu.magicfilter.filter.helper.FilterAdjuster
 import com.seu.magicfilter.filter.helper.MagicFilterFactory
 import com.seu.magicfilter.filter.helper.MagicFilterType
 import jp.co.cyberagent.android.gpuimage.GPUImageView
-import com.seu.magicfilter.filter.origin.GPUImageContrastFilter
 import kotlinx.android.synthetic.main.app_frag_gpuimage.*
 
 /**

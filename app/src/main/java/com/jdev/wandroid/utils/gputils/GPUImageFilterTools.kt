@@ -18,6 +18,9 @@ package com.jdev.wandroid.utils.gputils
 
 import android.app.AlertDialog
 import android.content.Context
+import com.blankj.utilcode.util.Utils
+import com.jarvisdong.kit.utils.ResourceIdUtils
+import com.jdev.wandroid.R
 import com.jdev.wandroid.widget.GPUImageUglyFilter
 import com.jdev.wandroid.widget.GpuImageBeautyFilter
 import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
@@ -38,7 +41,7 @@ object GPUImageFilterTools {
                 MagicFilterType.CUSTOM_美颜
         )
         val names = arrayListOf<String>()
-        for(i in filters){
+        for (i in filters) {
             names.add(i.toString())
         }
 
@@ -86,8 +89,8 @@ object GPUImageFilterTools {
         val filters = initFilterListObj()
 
         val names = arrayListOf<String>()
-        for(i in filters){
-            names.add(i.toString())
+        for (i in filters) {
+            names.add(i.toString().plus(" ${FilterType2Name(i)}"))
         }
 
         var index = names.indexOf(name)
@@ -95,7 +98,7 @@ object GPUImageFilterTools {
         builder.setTitle("Choose a filter")
                 .setSingleChoiceItems(names.toTypedArray(), index) { dialog, item ->
                     dialog.dismiss()
-                    listener(MagicFilterFactory.getFilterByType( filters[item]), names[item])
+                    listener(MagicFilterFactory.getFilterByType(filters[item]), names[item])
                 }
                 .create().show()
     }
@@ -228,4 +231,59 @@ object GPUImageFilterTools {
     }
 
 
+    fun FilterType2Name(filterType: MagicFilterType): String {
+        when (filterType) {
+            MagicFilterType.NONE -> return ResourceIdUtils.getStringById(R.string.filter_none)
+            MagicFilterType.WHITECAT -> return ResourceIdUtils.getStringById(R.string.filter_whitecat)
+            MagicFilterType.BLACKCAT -> return ResourceIdUtils.getStringById(R.string.filter_blackcat)
+            MagicFilterType.ROMANCE -> return ResourceIdUtils.getStringById(R.string.filter_romance)
+            MagicFilterType.SAKURA -> return ResourceIdUtils.getStringById(R.string.filter_sakura)
+            MagicFilterType.AMARO -> return ResourceIdUtils.getStringById(R.string.filter_amaro)
+            MagicFilterType.BRANNAN -> return ResourceIdUtils.getStringById(R.string.filter_brannan)
+            MagicFilterType.BROOKLYN -> return ResourceIdUtils.getStringById(R.string.filter_brooklyn)
+            MagicFilterType.EARLYBIRD -> return ResourceIdUtils.getStringById(R.string.filter_Earlybird)
+            MagicFilterType.FREUD -> return ResourceIdUtils.getStringById(R.string.filter_freud)
+            MagicFilterType.HEFE -> return ResourceIdUtils.getStringById(R.string.filter_hefe)
+            MagicFilterType.HUDSON -> return ResourceIdUtils.getStringById(R.string.filter_hudson)
+            MagicFilterType.INKWELL -> return ResourceIdUtils.getStringById(R.string.filter_inkwell)
+            MagicFilterType.KEVIN -> return ResourceIdUtils.getStringById(R.string.filter_kevin)
+            MagicFilterType.LOMO -> return ResourceIdUtils.getStringById(R.string.filter_lomo)
+            MagicFilterType.N1977 -> return ResourceIdUtils.getStringById(R.string.filter_n1977)
+            MagicFilterType.NASHVILLE -> return ResourceIdUtils.getStringById(R.string.filter_nashville)
+            MagicFilterType.PIXAR -> return ResourceIdUtils.getStringById(R.string.filter_pixar)
+            MagicFilterType.RISE -> return ResourceIdUtils.getStringById(R.string.filter_rise)
+            MagicFilterType.SIERRA -> return ResourceIdUtils.getStringById(R.string.filter_sierra)
+            MagicFilterType.SUTRO -> return ResourceIdUtils.getStringById(R.string.filter_sutro)
+            MagicFilterType.TOASTER2 -> return ResourceIdUtils.getStringById(R.string.filter_toastero)
+            MagicFilterType.VALENCIA -> return ResourceIdUtils.getStringById(R.string.filter_valencia)
+            MagicFilterType.WALDEN -> return ResourceIdUtils.getStringById(R.string.filter_walden)
+            MagicFilterType.XPROII -> return ResourceIdUtils.getStringById(R.string.filter_xproii)
+            MagicFilterType.ANTIQUE -> return ResourceIdUtils.getStringById(R.string.filter_antique)
+            MagicFilterType.CALM -> return ResourceIdUtils.getStringById(R.string.filter_calm)
+            MagicFilterType.COOL -> return ResourceIdUtils.getStringById(R.string.filter_cool)
+            MagicFilterType.EMERALD -> return ResourceIdUtils.getStringById(R.string.filter_emerald)
+            MagicFilterType.EVERGREEN -> return ResourceIdUtils.getStringById(R.string.filter_evergreen)
+            MagicFilterType.FAIRYTALE -> return ResourceIdUtils.getStringById(R.string.filter_fairytale)
+            MagicFilterType.HEALTHY -> return ResourceIdUtils.getStringById(R.string.filter_healthy)
+            MagicFilterType.NOSTALGIA -> return ResourceIdUtils.getStringById(R.string.filter_nostalgia)
+            MagicFilterType.TENDER -> return ResourceIdUtils.getStringById(R.string.filter_tender)
+            MagicFilterType.SWEETS -> return ResourceIdUtils.getStringById(R.string.filter_sweets)
+            MagicFilterType.LATTE -> return ResourceIdUtils.getStringById(R.string.filter_latte)
+            MagicFilterType.WARM -> return ResourceIdUtils.getStringById(R.string.filter_warm)
+            MagicFilterType.SUNRISE -> return ResourceIdUtils.getStringById(R.string.filter_sunrise)
+            MagicFilterType.SUNSET -> return ResourceIdUtils.getStringById(R.string.filter_sunset)
+            MagicFilterType.SKINWHITEN -> return ResourceIdUtils.getStringById(R.string.filter_skinwhiten)
+            MagicFilterType.CRAYON -> return ResourceIdUtils.getStringById(R.string.filter_crayon)
+            MagicFilterType.SKETCH -> return ResourceIdUtils.getStringById(R.string.filter_sketch)
+            //base
+            MagicFilterType.CONTRAST -> return ResourceIdUtils.getStringById(R.string.edit_contrast)
+            MagicFilterType.BRIGHTNESS -> return ResourceIdUtils.getStringById(R.string.edit_brightness)
+            MagicFilterType.EXPOSURE -> return ResourceIdUtils.getStringById(R.string.edit_exposure)
+            MagicFilterType.HUE -> return ResourceIdUtils.getStringById(R.string.edit_hue)
+            MagicFilterType.SATURATION -> return ResourceIdUtils.getStringById(R.string.edit_saturation)
+            MagicFilterType.SHARPEN -> return ResourceIdUtils.getStringById(R.string.edit_sharpness)
+            MagicFilterType.VIBRANCE -> return ResourceIdUtils.getStringById(R.string.edit_vibrance)
+            else -> return ""
+        }
+    }
 }

@@ -1,7 +1,7 @@
 package com.seu.magicfilter.filter.helper
 
 import android.opengl.Matrix
-import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
+import com.seu.magicfilter.filter.base.gpuimage.*
 import com.seu.magicfilter.filter.origin.*
 
 class FilterAdjuster(filter: GPUImageFilter?) {

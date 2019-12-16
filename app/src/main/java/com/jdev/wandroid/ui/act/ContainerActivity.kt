@@ -42,6 +42,7 @@ class ContainerActivity : BaseActivity() {
         const val KEY_ANDROID_GPUIMAGE_SIMPLE = 5
         const val KEY_ANDROID_GPUIMAGE_CAMERA = 6
         const val KEY_ANDROID_MAGIC_CAMERA = 7
+        const val KEY_ANDROID_OPENGL_SIMGLE_DEMO = 8
 
         fun getFragmentByKey(code: Int): BaseFragment? {
             when (code) {
@@ -68,6 +69,9 @@ class ContainerActivity : BaseActivity() {
                 }
                 KEY_ANDROID_MAGIC_CAMERA -> {
                     return GpuMagicCameraFrag()
+                }
+                KEY_ANDROID_OPENGL_SIMGLE_DEMO -> {
+                    return SimpleOpenglDemoFrag()
                 }
 
                 else -> return null
@@ -119,8 +123,8 @@ class ContainerActivity : BaseActivity() {
         currentFrag?.onResume()
     }
 
-    fun isPermission(callback: (() -> Unit)? = null, permission: String, permissions: Array<out String>,isRequestPermission:Boolean = true): Boolean {
-        if(!isRequestPermission){
+    fun isPermission(callback: (() -> Unit)? = null, permission: String, permissions: Array<out String>, isRequestPermission: Boolean = true): Boolean {
+        if (!isRequestPermission) {
             return true
         }
         var checkSelfPermission = PermissionChecker.checkSelfPermission(this, permission)

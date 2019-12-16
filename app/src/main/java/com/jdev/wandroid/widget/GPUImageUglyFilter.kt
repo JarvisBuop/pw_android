@@ -1,7 +1,11 @@
 package com.jdev.wandroid.widget
 
 import android.content.Context
-import com.seu.magicfilter.filter.origin.*
+import com.seu.magicfilter.filter.base.gpuimage.GPUImageBrightnessFilter
+import com.seu.magicfilter.filter.base.gpuimage.GPUImageSaturationFilter
+import com.seu.magicfilter.filter.origin.GPUImageBilateralBlurFilter
+import com.seu.magicfilter.filter.origin.GPUImageFilterGroup
+import com.seu.magicfilter.filter.origin.GPUImageSobelEdgeDetectionFilter
 
 /**
  * info: create by jd in 2019/12/11

@@ -31,6 +31,10 @@ import kotlinx.android.synthetic.main.app_item_gpuimage.*
  * https://github.com/cats-oss/android-gpuimage
  *
  * Android filters based on OpenGL (idea from GPUImage for iOS)
+ *
+ * https://github.com/jameswanliu/MagicCamera_master
+ *
+ * magiccamera demo;
  */
 class GpuImageSingleImageFrag : BaseViewStubFragment() {
     companion object {
@@ -38,6 +42,7 @@ class GpuImageSingleImageFrag : BaseViewStubFragment() {
         private const val REQUEST_STORAGE_PERMISSION = 2
     }
 
+    private lateinit var filterType: MagicFilterType
     var progress: Int = 50
     var filterAdjuster: FilterAdjuster? = null
     override fun getViewStubId(): Int {
@@ -50,7 +55,7 @@ class GpuImageSingleImageFrag : BaseViewStubFragment() {
         layout_controller.visibility = View.VISIBLE
         gpuImageView.setImage(BitmapFactory.decodeResource(mContext!!.resources, R.drawable.gpuimage_origin))
 
-        var filterType = MagicFilterType.CUSTOM_丑颜
+        filterType = MagicFilterType.CUSTOM_丑颜
         var filterName = filterType.name
         var filter: GPUImageFilter? = MagicFilterFactory.getFilterByType(filterType)
         filterAdjuster = FilterAdjuster(filter)
