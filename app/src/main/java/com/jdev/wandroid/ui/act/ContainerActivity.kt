@@ -1,12 +1,17 @@
 package com.jdev.wandroid.ui.act
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.PermissionChecker
 import com.jarvisdong.kotlindemo.ui.BaseActivity
 import com.jdev.kit.baseui.BaseFragment
 import com.jdev.wandroid.R
 import com.jdev.wandroid.ui.frg.*
+import kotlinx.android.synthetic.main.app_activity_container.*
 
 /**
  * info: create by jd in 2019/12/9
@@ -15,6 +20,13 @@ import com.jdev.wandroid.ui.frg.*
  *
  */
 class ContainerActivity : BaseActivity() {
+    var callback: (() -> Unit)? = null
+    var permission = Manifest.permission.CAMERA
+    var permissions = arrayOf(
+            permission,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
 
     companion object {
         const val EXTRA_KEY = "KEY"
@@ -83,8 +95,16 @@ class ContainerActivity : BaseActivity() {
     }
 
     override fun customOperate(savedInstanceState: Bundle?) {
+        btn_retry.setOnClickListener {
+            isPermission({ fillContainer() }, permission, permissions)
+        }
+        isPermission({ fillContainer() }, permission, permissions)
+    }
+
+    fun fillContainer() {
         currentFrag = getFragmentByKey(intKey)
         if (currentFrag != null) {
+            layout_fragment_container.removeAllViews()
             setTextMarkTips(currentFrag!!.javaClass.simpleName)
             supportFragmentManager.beginTransaction()
                     .replace(R.id.layout_fragment_container, currentFrag!!, currentFrag!!.javaClass.simpleName)
@@ -99,4 +119,29 @@ class ContainerActivity : BaseActivity() {
         currentFrag?.onResume()
     }
 
+    fun isPermission(callback: (() -> Unit)? = null, permission: String, permissions: Array<out String>,isRequestPermission:Boolean = true): Boolean {
+        if(!isRequestPermission){
+            return true
+        }
+        var checkSelfPermission = PermissionChecker.checkSelfPermission(this, permission)
+        if (checkSelfPermission == PackageManager.PERMISSION_GRANTED) {
+            callback?.invoke()
+            return true
+        } else {
+            ActivityCompat.requestPermissions(this, permissions, 1)
+        }
+        return false
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == 1 && permissions.size == 3 &&
+                grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                grantResults[1] == PackageManager.PERMISSION_GRANTED &&
+                grantResults[2] == PackageManager.PERMISSION_GRANTED
+        ) {
+            callback?.invoke()
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+    }
 }
