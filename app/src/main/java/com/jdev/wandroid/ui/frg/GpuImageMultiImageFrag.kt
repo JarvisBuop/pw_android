@@ -13,6 +13,7 @@ import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
 import com.jdev.wandroid.utils.gputils.GPUImageFilterTools
 import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
+import com.seu.magicfilter.filter.helper.FilterAdjuster
 import com.seu.magicfilter.filter.helper.MagicFilterFactory
 import com.seu.magicfilter.filter.helper.MagicFilterType
 import jp.co.cyberagent.android.gpuimage.GPUImageView
@@ -78,7 +79,7 @@ class GpuImageMultiImageFrag : BaseViewStubFragment() {
             if (filter != null) {
                 arr.add(FilterVo(value, filterObj.get(index).toString(),
                         filter,
-                        GPUImageFilterTools.FilterAdjuster(filter)
+                        FilterAdjuster(filter)
                 ))
             }
         }
@@ -124,7 +125,7 @@ class GpuImageMultiImageFrag : BaseViewStubFragment() {
             var filterType: MagicFilterType = MagicFilterType.CONTRAST,
             var filterName: String? = null,
             var filter: GPUImageFilter = GPUImageContrastFilter(2.0f),
-            var adjuster: GPUImageFilterTools.FilterAdjuster = GPUImageFilterTools.FilterAdjuster(filter)
+            var adjuster: FilterAdjuster = FilterAdjuster(filter)
     )
 
 }

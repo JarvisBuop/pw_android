@@ -17,10 +17,10 @@ import com.jdev.wandroid.R
 import com.jdev.wandroid.utils.gputils.GPUImageFilterTools
 import com.seu.magicfilter.MagicEngine
 import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
+import com.seu.magicfilter.filter.helper.FilterAdjuster
 import com.seu.magicfilter.filter.helper.MagicFilterFactory
-import jp.co.cyberagent.android.gpuimage.GPUImageView
 import com.seu.magicfilter.filter.helper.MagicFilterType
-import kotlinx.android.synthetic.main.app_frag_magiccamera.*
+import jp.co.cyberagent.android.gpuimage.GPUImageView
 import kotlinx.android.synthetic.main.app_item_gpuimage.*
 
 /**
@@ -39,7 +39,7 @@ class GpuImageSingleImageFrag : BaseViewStubFragment() {
     }
 
     var progress: Int = 50
-    var filterAdjuster: GPUImageFilterTools.FilterAdjuster? = null
+    var filterAdjuster: FilterAdjuster? = null
     override fun getViewStubId(): Int {
         return R.layout.app_item_gpuimage
     }
@@ -50,20 +50,19 @@ class GpuImageSingleImageFrag : BaseViewStubFragment() {
         //todo 使用时修改;
         MagicEngine.Builder().build(mContext)
         layout_controller.visibility = View.VISIBLE
+        gpuImageView.setImage(BitmapFactory.decodeResource(mContext!!.resources, R.drawable.gpuimage_origin))
 
         var filterType = MagicFilterType.CUSTOM_丑颜
         var filterName = filterType.name
         var filter: GPUImageFilter? = MagicFilterFactory.getFilterByType(mContext!!, filterType)
-        filterAdjuster = GPUImageFilterTools.FilterAdjuster(filter)
-
-        gpuImageView.setImage(BitmapFactory.decodeResource(mContext!!.resources, R.drawable.gpuimage_origin))
+        filterAdjuster = FilterAdjuster(filter)
         switchFilterTo(filter, gpuImageView, filterAdjuster, filterName)
 
         txt_style_name.setOnClickListener {
             GPUImageFilterTools.showDialog(mContext!!, txt_style_name.text.toString()) { filter, name ->
 
                 //设置filteradjuster , 切换filter;
-                filterAdjuster = GPUImageFilterTools.FilterAdjuster(filter)
+                filterAdjuster = FilterAdjuster(filter)
                 switchFilterTo(filter, gpuImageView, filterAdjuster, name)
             }
         }
@@ -102,7 +101,10 @@ class GpuImageSingleImageFrag : BaseViewStubFragment() {
         txt_style_custom.setOnClickListener {
             GPUImageFilterTools.showCustomFilterDialog(mContext!!, txt_style_name.text.toString()) { filter, name ->
                 //设置filteradjuster , 切换filter;
-                filterAdjuster = GPUImageFilterTools.FilterAdjuster(filter)
+                filterAdjuster = FilterAdjuster(filter)
+                if(filterAdjuster?.adjuster == null){
+                    filterAdjuster?.adjuster = GPUImageFilterTools.createCustomAdjusterByFilter(filter)
+                }
                 switchFilterTo(filter, gpuImageView, filterAdjuster, name)
             }
         }
@@ -110,7 +112,7 @@ class GpuImageSingleImageFrag : BaseViewStubFragment() {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun switchFilterTo(filter: GPUImageFilter?, gpuImageView: GPUImageView, filterAdjuster: GPUImageFilterTools.FilterAdjuster?,
+    private fun switchFilterTo(filter: GPUImageFilter?, gpuImageView: GPUImageView, filterAdjuster: FilterAdjuster?,
                                name: String) {
         //ui
         txt_style_name.text = name

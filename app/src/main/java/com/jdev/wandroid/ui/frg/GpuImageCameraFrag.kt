@@ -9,6 +9,7 @@ import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
 import com.jdev.wandroid.utils.gputils.*
 import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
+import com.seu.magicfilter.filter.helper.FilterAdjuster
 import com.seu.magicfilter.utils.Rotation
 import jp.co.cyberagent.android.gpuimage.GPUImageView
 import kotlinx.android.synthetic.main.app_frag_gpucamera.*
@@ -27,7 +28,7 @@ class GpuImageCameraFrag : BaseViewStubFragment() {
             Camera2Loader(activity!!)
         }
     }
-    private var filterAdjuster: GPUImageFilterTools.FilterAdjuster? = null
+    private var filterAdjuster: FilterAdjuster? = null
 
 
     override fun getViewStubId(): Int {
@@ -100,7 +101,7 @@ class GpuImageCameraFrag : BaseViewStubFragment() {
     private fun switchFilterTo(filter: GPUImageFilter?) {
         if (gpuImageView.filter == null || gpuImageView.filter!!.javaClass != filter?.javaClass) {
             gpuImageView.filter = filter
-            filterAdjuster = GPUImageFilterTools.FilterAdjuster(filter!!)
+            filterAdjuster = FilterAdjuster(filter!!)
             filterAdjuster?.adjust(seekBar.progress)
         }
     }
