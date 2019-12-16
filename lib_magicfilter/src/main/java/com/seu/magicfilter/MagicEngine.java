@@ -61,13 +61,7 @@ public class MagicEngine {
     public static class Builder{
 
         public MagicEngine build(MagicBaseView magicBaseView) {
-            MagicParams.context = magicBaseView.getContext();
             MagicParams.magicBaseView = magicBaseView;
-            return new MagicEngine(this);
-        }
-
-        public MagicEngine build(Context context) {
-            MagicParams.context = context;
             return new MagicEngine(this);
         }
 

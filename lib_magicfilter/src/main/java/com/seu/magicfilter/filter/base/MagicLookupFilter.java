@@ -63,7 +63,7 @@ public class MagicLookupFilter extends GPUImageFilter {
 		super.onInitialized();
     	runOnDraw(new Runnable(){
     		public void run(){
-    			mLookupSourceTexture = OpenGlUtils.loadTexture(MagicParams.context, table);
+    			mLookupSourceTexture = OpenGlUtils.loadTexture( table);
     		}
     	});
     }

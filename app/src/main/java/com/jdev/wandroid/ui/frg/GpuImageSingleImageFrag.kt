@@ -47,14 +47,12 @@ class GpuImageSingleImageFrag : BaseViewStubFragment() {
     override fun initIntentData(): Boolean = true
 
     override fun customOperate(savedInstanceState: Bundle?) {
-        //todo 使用时修改;
-        MagicEngine.Builder().build(mContext)
         layout_controller.visibility = View.VISIBLE
         gpuImageView.setImage(BitmapFactory.decodeResource(mContext!!.resources, R.drawable.gpuimage_origin))
 
         var filterType = MagicFilterType.CUSTOM_丑颜
         var filterName = filterType.name
-        var filter: GPUImageFilter? = MagicFilterFactory.getFilterByType(mContext!!, filterType)
+        var filter: GPUImageFilter? = MagicFilterFactory.getFilterByType(filterType)
         filterAdjuster = FilterAdjuster(filter)
         switchFilterTo(filter, gpuImageView, filterAdjuster, filterName)
 
@@ -102,7 +100,7 @@ class GpuImageSingleImageFrag : BaseViewStubFragment() {
             GPUImageFilterTools.showCustomFilterDialog(mContext!!, txt_style_name.text.toString()) { filter, name ->
                 //设置filteradjuster , 切换filter;
                 filterAdjuster = FilterAdjuster(filter)
-                if(filterAdjuster?.adjuster == null){
+                if (filterAdjuster?.adjuster == null) {
                     filterAdjuster?.adjuster = GPUImageFilterTools.createCustomAdjusterByFilter(filter)
                 }
                 switchFilterTo(filter, gpuImageView, filterAdjuster, name)

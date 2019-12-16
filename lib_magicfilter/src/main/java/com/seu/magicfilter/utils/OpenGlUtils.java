@@ -21,6 +21,7 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.util.Log;
 
+import com.blankj.utilcode.util.Utils;
 import com.seu.magicfilter.MagicEngine;
 import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter;
 
@@ -112,7 +113,7 @@ public class OpenGlUtils {
 	    return textures[0];
     }
     
-    public static int loadTexture(final Context context, final String name){
+    public static int loadTexture(final String name){
 		final int[] textureHandle = new int[1];
 		
 		GLES20.glGenTextures(1, textureHandle, 0);
@@ -120,7 +121,7 @@ public class OpenGlUtils {
 		if (textureHandle[0] != 0){
 
 			// Read in the resource
-			final Bitmap bitmap = getImageFromAssetsFile(context,name);
+			final Bitmap bitmap = getImageFromAssetsFile(name);
 						
 			// Bind to the texture in OpenGL
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
@@ -144,9 +145,9 @@ public class OpenGlUtils {
 		return textureHandle[0];
 	}
 	
-	private static Bitmap getImageFromAssetsFile(Context context,String fileName){  
+	private static Bitmap getImageFromAssetsFile(String fileName){
 		Bitmap image = null;  
-	    AssetManager am = context.getResources().getAssets();
+	    AssetManager am = Utils.getApp().getResources().getAssets();
 	    try{  
 			InputStream is = am.open(fileName);
 			image = BitmapFactory.decodeStream(is);
@@ -216,7 +217,7 @@ public class OpenGlUtils {
 	}
 	
 	public static String readShaderFromRawResource(final int resourceId){
-		final InputStream inputStream = MagicParams.context.getResources().openRawResource(
+		final InputStream inputStream = Utils.getApp().getResources().openRawResource(
 				resourceId);
 		final InputStreamReader inputStreamReader = new InputStreamReader(
 				inputStream);

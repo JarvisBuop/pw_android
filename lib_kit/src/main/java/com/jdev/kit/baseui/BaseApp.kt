@@ -43,19 +43,6 @@ open class BaseApp : MultiDexApplication() {
         registerActivityLifecycleCallbacks(ActivityLifecycleCallbacksImpl())
     }
 
-    protected fun initGlideWebp() {
-        // webp support
-        val decoder = WebpResourceDecoder(this)
-        val byteDecoder = WebpBytebufferDecoder(this)
-
-        // use prepend() avoid intercept by default decoder
-        Glide.get(this).registry
-                .prepend<InputStream, Drawable>(InputStream::class.java!!, Drawable::class.java,
-                        decoder as ResourceDecoder<InputStream, Drawable>)
-                .prepend<ByteBuffer, Drawable>(ByteBuffer::class.java!!, Drawable::class.java,
-                        byteDecoder as ResourceDecoder<ByteBuffer, Drawable>)
-    }
-
     /**
      * 监听所有act的生命周期,判断是否处于后台,回到前台时需要更新用户信息;
      */
@@ -65,7 +52,7 @@ open class BaseApp : MultiDexApplication() {
 
         override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
             if (activity != null) {
-                LogUtils.e("\n Act-lifecle: " + activity.componentName + " onActivityCreated; cur in " + Thread.currentThread().name)
+                LogUtils.e("\n Act-lifecle: ${activity.componentName} onActivityCreated; cur in ${Thread.currentThread().name}; start act count: $actCount")
             }
         }
 
@@ -89,8 +76,22 @@ open class BaseApp : MultiDexApplication() {
 
         override fun onActivityDestroyed(activity: Activity?) {
             if (activity != null) {
-                LogUtils.e("\n Act-lifecle: " + activity.componentName + " onActivityDestroyed; cur in " + Thread.currentThread().name)
+                LogUtils.e("\n Act-lifecle: ${activity.componentName} onActivityDestroyed; cur in ${Thread.currentThread().name}; start act count: $actCount")
             }
         }
+    }
+
+    //------------------optional---------------------
+    protected fun initGlideWebp() {
+        // webp support
+        val decoder = WebpResourceDecoder(this)
+        val byteDecoder = WebpBytebufferDecoder(this)
+
+        // use prepend() avoid intercept by default decoder
+        Glide.get(this).registry
+                .prepend<InputStream, Drawable>(InputStream::class.java!!, Drawable::class.java,
+                        decoder as ResourceDecoder<InputStream, Drawable>)
+                .prepend<ByteBuffer, Drawable>(ByteBuffer::class.java!!, Drawable::class.java,
+                        byteDecoder as ResourceDecoder<ByteBuffer, Drawable>)
     }
 }

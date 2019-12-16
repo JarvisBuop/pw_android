@@ -95,7 +95,7 @@ object GPUImageFilterTools {
         builder.setTitle("Choose a filter")
                 .setSingleChoiceItems(names.toTypedArray(), index) { dialog, item ->
                     dialog.dismiss()
-                    listener(MagicFilterFactory.getFilterByType(context, filters[item]), names[item])
+                    listener(MagicFilterFactory.getFilterByType( filters[item]), names[item])
                 }
                 .create().show()
     }

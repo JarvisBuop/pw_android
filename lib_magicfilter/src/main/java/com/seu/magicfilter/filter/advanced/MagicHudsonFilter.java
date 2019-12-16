@@ -55,9 +55,9 @@ public class MagicHudsonFilter extends GPUImageFilter{
 		setFloat(mGLStrengthLocation, 1.0f);
 	    runOnDraw(new Runnable(){
 		    public void run(){
-		    	inputTextureHandles[0] = OpenGlUtils.loadTexture(MagicParams.context, "filter/hudsonbackground.png");
-				inputTextureHandles[1] = OpenGlUtils.loadTexture(MagicParams.context, "filter/overlaymap.png");
-				inputTextureHandles[2] = OpenGlUtils.loadTexture(MagicParams.context, "filter/hudsonmap.png");
+		    	inputTextureHandles[0] = OpenGlUtils.loadTexture("filter/hudsonbackground.png");
+				inputTextureHandles[1] = OpenGlUtils.loadTexture("filter/overlaymap.png");
+				inputTextureHandles[2] = OpenGlUtils.loadTexture("filter/hudsonmap.png");
 		    }
 	    });
 	}

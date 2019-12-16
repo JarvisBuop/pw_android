@@ -11,7 +11,6 @@ import com.seu.magicfilter.widget.base.MagicBaseView;
  * 属性管理;
  */
 public class MagicParams {
-    public static Context context;
     public static MagicBaseView magicBaseView;
 
     public static String videoPath = Environment.getExternalStorageDirectory().getPath();

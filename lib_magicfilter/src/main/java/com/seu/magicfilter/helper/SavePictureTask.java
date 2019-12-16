@@ -16,6 +16,7 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
+import com.blankj.utilcode.util.Utils;
 import com.seu.magicfilter.MagicEngine;
 import com.seu.magicfilter.utils.MagicParams;
 
@@ -37,7 +38,7 @@ public class SavePictureTask extends AsyncTask<Bitmap, Integer, String>{
 	@Override
 	protected void onPostExecute(final String result) {
 		if(result != null)
-			MediaScannerConnection.scanFile(MagicParams.context,
+			MediaScannerConnection.scanFile(Utils.getApp(),
 	                new String[] {result}, null,
 	                new MediaScannerConnection.OnScanCompletedListener() {
 	                    @Override

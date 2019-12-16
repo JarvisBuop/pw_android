@@ -1,9 +1,9 @@
 package com.seu.magicfilter.filter.helper
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PointF
+import com.blankj.utilcode.util.Utils
 import com.seu.magicfilter.R
 import com.seu.magicfilter.filter.advanced.*
 import com.seu.magicfilter.filter.base.gpuimage.*
@@ -14,7 +14,6 @@ import com.seu.magicfilter.filter.base.gpuimage.GPUImageHueFilter
 import com.seu.magicfilter.filter.base.gpuimage.GPUImageSaturationFilter
 import com.seu.magicfilter.filter.base.gpuimage.GPUImageSharpenFilter
 import com.seu.magicfilter.filter.origin.*
-import com.seu.magicfilter.utils.MagicParams
 
 class MagicFilterFactory {
 
@@ -26,13 +25,12 @@ class MagicFilterFactory {
         private var filterType = MagicFilterType.NONE
 
         fun createBlendFilter(
-                context: Context = MagicParams.context,
                 filterClass: Class<out GPUImageTwoInputFilter>,
                 blendBitmap: Bitmap? = null
         ): GPUImageFilter {
             var bitmapTemp = blendBitmap
             if (bitmapTemp == null) {
-                bitmapTemp = BitmapFactory.decodeResource(context.resources, R.drawable.gpuimage_origin)
+                bitmapTemp = BitmapFactory.decodeResource(Utils.getApp().resources, R.drawable.gpuimage_origin)
             }
             return try {
                 filterClass.newInstance().apply {
@@ -44,7 +42,7 @@ class MagicFilterFactory {
             }
         }
 
-        fun getFilterByType(context: Context = MagicParams.context, type: MagicFilterType): GPUImageFilter? {
+        fun getFilterByType( type: MagicFilterType): GPUImageFilter? {
             filterType = type
             return when (type) {
                 MagicFilterType.WHITECAT -> return MagicWhiteCatFilter()
@@ -141,110 +139,85 @@ class MagicFilterFactory {
                         0.75f
                 )
                 MagicFilterType.TONE_CURVE -> GPUImageToneCurveFilter().apply {
-                    setFromCurveFileInputStream(context.resources.openRawResource(R.raw.tone_cuver_sample))
+                    setFromCurveFileInputStream(Utils.getApp().resources.openRawResource(R.raw.tone_cuver_sample))
                 }
                 MagicFilterType.LUMINANCE -> GPUImageLuminanceFilter()
                 MagicFilterType.LUMINANCE_THRESHSOLD -> GPUImageLuminanceThresholdFilter(0.5f)
                 MagicFilterType.BLEND_DIFFERENCE -> createBlendFilter(
-                        context,
                         GPUImageDifferenceBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_SOURCE_OVER -> createBlendFilter(
-                        context,
                         GPUImageSourceOverBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_COLOR_BURN -> createBlendFilter(
-                        context,
                         GPUImageColorBurnBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_COLOR_DODGE -> createBlendFilter(
-                        context,
                         GPUImageColorDodgeBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_DARKEN -> createBlendFilter(
-                        context,
                         GPUImageDarkenBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_DISSOLVE -> createBlendFilter(
-                        context,
                         GPUImageDissolveBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_EXCLUSION -> createBlendFilter(
-                        context,
                         GPUImageExclusionBlendFilter::class.java
                 )
-
                 MagicFilterType.BLEND_HARD_LIGHT -> createBlendFilter(
-                        context,
                         GPUImageHardLightBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_LIGHTEN -> createBlendFilter(
-                        context,
                         GPUImageLightenBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_ADD -> createBlendFilter(
-                        context,
                         GPUImageAddBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_DIVIDE -> createBlendFilter(
-                        context,
                         GPUImageDivideBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_MULTIPLY -> createBlendFilter(
-                        context,
                         GPUImageMultiplyBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_OVERLAY -> createBlendFilter(
-                        context,
                         GPUImageOverlayBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_SCREEN -> createBlendFilter(
-                        context,
                         GPUImageScreenBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_ALPHA -> createBlendFilter(
-                        context,
                         GPUImageAlphaBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_COLOR -> createBlendFilter(
-                        context,
                         GPUImageColorBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_HUE -> createBlendFilter(
-                        context,
                         GPUImageHueBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_SATURATION -> createBlendFilter(
-                        context,
                         GPUImageSaturationBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_LUMINOSITY -> createBlendFilter(
-                        context,
                         GPUImageLuminosityBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_LINEAR_BURN -> createBlendFilter(
-                        context,
                         GPUImageLinearBurnBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_SOFT_LIGHT -> createBlendFilter(
-                        context,
                         GPUImageSoftLightBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_SUBTRACT -> createBlendFilter(
-                        context,
                         GPUImageSubtractBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_CHROMA_KEY -> createBlendFilter(
-                        context,
                         GPUImageChromaKeyBlendFilter::class.java
                 )
                 MagicFilterType.BLEND_NORMAL -> createBlendFilter(
-                        context,
                         GPUImageNormalBlendFilter::class.java
                 )
 
                 MagicFilterType.LOOKUP_AMATORKA -> GPUImageLookupFilter().apply {
-                    bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.lookup_amatorka)
+                    bitmap = BitmapFactory.decodeResource(Utils.getApp().resources, R.drawable.lookup_amatorka)
                 }
                 MagicFilterType.GAUSSIAN_BLUR -> GPUImageGaussianBlurFilter()
                 MagicFilterType.CROSSHATCH -> GPUImageCrosshatchFilter()

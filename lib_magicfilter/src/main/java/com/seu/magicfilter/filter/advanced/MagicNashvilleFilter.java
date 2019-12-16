@@ -55,7 +55,7 @@ public class MagicNashvilleFilter extends GPUImageFilter{
 		setFloat(mGLStrengthLocation, 1.0f);
 	    runOnDraw(new Runnable(){
 		    public void run(){
-		    	inputTextureHandles[0] = OpenGlUtils.loadTexture(MagicParams.context, "filter/nashvillemap.png");
+		    	inputTextureHandles[0] = OpenGlUtils.loadTexture( "filter/nashvillemap.png");
 		    }
 	    });
 	}

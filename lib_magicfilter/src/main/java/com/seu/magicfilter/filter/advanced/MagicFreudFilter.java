@@ -60,7 +60,7 @@ public class MagicFreudFilter extends GPUImageFilter{
 		setFloat(mGLStrengthLocation, 1.0f);
 	    runOnDraw(new Runnable(){
 		    public void run(){
-		    	inputTextureHandles[0] = OpenGlUtils.loadTexture(MagicParams.context, "filter/freud_rand.png");
+		    	inputTextureHandles[0] = OpenGlUtils.loadTexture("filter/freud_rand.png");
 		    }
 	    });
 	}

@@ -55,11 +55,11 @@ public class MagicEarlyBirdFilter extends GPUImageFilter{
 		setFloat(mGLStrengthLocation, 1.0f);
 	    runOnDraw(new Runnable(){
 		    public void run(){
-		    	inputTextureHandles[0] = OpenGlUtils.loadTexture(MagicParams.context, "filter/earlybirdcurves.png");
-				inputTextureHandles[1] = OpenGlUtils.loadTexture(MagicParams.context, "filter/earlybirdoverlaymap_new.png");
-				inputTextureHandles[2] = OpenGlUtils.loadTexture(MagicParams.context, "filter/vignettemap_new.png");
-				inputTextureHandles[3] = OpenGlUtils.loadTexture(MagicParams.context, "filter/earlybirdblowout.png");
-				inputTextureHandles[4] = OpenGlUtils.loadTexture(MagicParams.context, "filter/earlybirdmap.png");
+		    	inputTextureHandles[0] = OpenGlUtils.loadTexture("filter/earlybirdcurves.png");
+				inputTextureHandles[1] = OpenGlUtils.loadTexture("filter/earlybirdoverlaymap_new.png");
+				inputTextureHandles[2] = OpenGlUtils.loadTexture("filter/vignettemap_new.png");
+				inputTextureHandles[3] = OpenGlUtils.loadTexture("filter/earlybirdblowout.png");
+				inputTextureHandles[4] = OpenGlUtils.loadTexture("filter/earlybirdmap.png");
 		    }
 	    });
 	}

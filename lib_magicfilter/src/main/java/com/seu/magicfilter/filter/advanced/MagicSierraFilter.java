@@ -55,9 +55,9 @@ public class MagicSierraFilter extends GPUImageFilter{
 		setFloat(mGLStrengthLocation, 1.0f);
 	    runOnDraw(new Runnable(){
 		    public void run(){
-		    	inputTextureHandles[0] = OpenGlUtils.loadTexture(MagicParams.context, "filter/sierravignette.png");
-				inputTextureHandles[1] = OpenGlUtils.loadTexture(MagicParams.context, "filter/overlaymap.png");
-				inputTextureHandles[2] = OpenGlUtils.loadTexture(MagicParams.context, "filter/sierramap.png");
+		    	inputTextureHandles[0] = OpenGlUtils.loadTexture("filter/sierravignette.png");
+				inputTextureHandles[1] = OpenGlUtils.loadTexture("filter/overlaymap.png");
+				inputTextureHandles[2] = OpenGlUtils.loadTexture("filter/sierramap.png");
 		    }
 	    });
 	}
