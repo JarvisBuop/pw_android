@@ -180,7 +180,7 @@ public class OpenGlUtils {
         GLES20.glLinkProgram(iProgId);
         GLES20.glGetProgramiv(iProgId, GLES20.GL_LINK_STATUS, link, 0);
         if (link[0] <= 0) {
-            Log.d("Load Program", "Linking Failed");
+            Log.d("Load Program", "Linking Failed "+ GLES20.glGetProgramInfoLog(iProgId));
             return 0;
         }
         GLES20.glDeleteShader(iVShader);

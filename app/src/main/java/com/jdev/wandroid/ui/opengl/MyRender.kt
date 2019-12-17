@@ -24,57 +24,19 @@ class MyRender : GLSurfaceView.Renderer {
 
     //顶点颜色;
     val triangleColor = intArrayOf(
-            65535, 0, 0, 0,
-            0, 65535, 0, 0,
-            0, 0, 65535, 0
-    )
-
-//    //方形(两个三角形)顶点;
-//    val rectData = floatArrayOf(
-//            0.4f, 0.4f, 0.0f,
-//            0.4f, -0.4f, 0.0f,
-//            -0.4f, 0.4f, 0.0f,
-//            -0.4f, -0.4f, 0.0f
-//    )
-//
-//    val rectColor = intArrayOf(
+            65535, 0, 0, 0
 //            0, 65535, 0, 0,
-//            0, 0, 65535, 0,
-//            65535, 0, 0, 0,
-//            65535, 65535, 0, 0
-//    )
-//
-//    val rectData2 = floatArrayOf(
-//            -0.4f, 0.4f, 0.0f,
-//            0.4f, 0.4f, 0.0f,
-//            0.4f, -0.4f, 0.0f,
-//            -0.4f, -0.4f, 0.0f
-//    )
-//
-//    val pentacle = floatArrayOf(
-//            0.4f, 0.4f, 0.0f,
-//            -0.2f, 0.3f, 0.0f,
-//            0.5f, 0.0f, 0f,
-//            -0.4f, 0.0f, 0f,
-//            -0.1f, -0.3f, 0f
-//    )
+//            0, 0, 65535, 0
+    )
 
     private var triangleDataBuffer: FloatBuffer
     private var triangleColorBuffer: IntBuffer
 
-//    private var rectDataBuffer: FloatBuffer
-//    private var rectDataBuffer2: FloatBuffer
-//    private var pentacleBuffer: FloatBuffer
-//    private var rectColorBuffer: IntBuffer
-
-    constructor() {
+    init {
         triangleDataBuffer = floatBufferUtil(triangleData)
-//        rectDataBuffer = floatBufferUtil(rectData)
-//        rectDataBuffer2 = floatBufferUtil(rectData2)
-//        pentacleBuffer = floatBufferUtil(pentacle)
-
         triangleColorBuffer = intBufferUtil(triangleColor)
-//        rectColorBuffer = intBufferUtil(rectColor)
+
+
     }
 
     //将int数组转换成opengl es所需的IntBuffer;
@@ -114,35 +76,13 @@ class MyRender : GLSurfaceView.Renderer {
         //------------------
         gl.glLoadIdentity()
         //移动绘图中心
-        gl.glTranslatef(0f, 0f, -1.2f)
+        gl.glTranslatef(0f, 0f, 0f)
         //设置顶点位置数据;
         gl.glVertexPointer(3, GL10.GL_FLOAT, 0, triangleDataBuffer)
         //设置顶点颜色数据;
         gl.glColorPointer(4, GL10.GL_FIXED, 0, triangleColorBuffer)
         //根据顶点数据绘制平面图形;
         gl.glDrawArrays(GL10.GL_TRIANGLES, 0, 3)
-
-        //-----------------
-//        gl.glLoadIdentity()
-//        gl.glTranslatef(0.6f, 0.8f, -1.5f)
-//        gl.glVertexPointer(3, GL10.GL_FLOAT, 0, rectDataBuffer)
-//        gl.glColorPointer(4, GL10.GL_FIXED, 0, rectColorBuffer)
-//        gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 0, 4)
-
-        //------------------
-//        gl.glLoadIdentity()
-//        gl.glTranslatef(-0.4f, -0.5f, -1.5f)
-//        gl.glVertexPointer(3, GL10.GL_FLOAT, 0, rectDataBuffer2)
-//        gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 0, 4)
-//
-//        //-----------------
-//        gl.glLoadIdentity()
-//        gl.glTranslatef(0.4f, -0.5f, -1.5f)
-//        //设置使用纯色填充;
-//        gl.glColor4f(1.0f, 0.2f, 0.2f, 0.0f)
-//        gl.glDisableClientState(GL10.GL_COLOR_ARRAY)
-//        gl.glVertexPointer(3, GL10.GL_FLOAT, 0, pentacleBuffer)
-//        gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 0, 5)
 
         //绘制结束;
         gl.glFinish()
@@ -152,21 +92,21 @@ class MyRender : GLSurfaceView.Renderer {
     override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
         //设置3d视窗的大小及位置;
         gl.glViewport(0, 0, width, height)
-        //将当前矩阵模式设为投影矩阵
-        gl.glMatrixMode(GL10.GL_PROJECTION)
+        //将当前矩阵模式设为投影矩阵(在glFrustumf中设置zFar有效;)
+//        gl.glMatrixMode(GL10.GL_PROJECTION)
         //初始化
         gl.glLoadIdentity()
         var radio = width.toFloat() / height
-        //设置透视视窗的空间大小;
-        gl.glFrustumf(-radio, radio, -1f, 1f, 1f, 10f)
+//        设置透视视窗的空间大小;
+        gl.glFrustumf(-radio, radio, -1f, 1f, 1f, 0f)
     }
 
     override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
         //关闭抗抖动
         gl.glDisable(GL10.GL_DITHER)
         //系统对透视进行修正
-        gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_FASTEST)
-        gl.glClearColor(0f, 0f, 0f, 0f)
+//        gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_FASTEST)
+        gl.glClearColor(0f, 255f, 0f, 0f)
         //阴影平滑模式;
         gl.glShadeModel(GL10.GL_SMOOTH)
         //启动深度测试
