@@ -22,6 +22,15 @@ class MyRender : GLSurfaceView.Renderer {
             0f, -1f, 0.0f
     )
 
+    val lineData = floatArrayOf(
+            -1f, 0f,
+            -1f, 0.5f
+    )
+
+    val pointData = floatArrayOf(
+            0.5f, 0.5f
+    )
+
     //顶点颜色;
     val triangleColor = intArrayOf(
             65535, 0, 0, 0
@@ -30,38 +39,44 @@ class MyRender : GLSurfaceView.Renderer {
     )
 
     private var triangleDataBuffer: FloatBuffer
+    private var lineDataBuffer: FloatBuffer
+    private var pointDataBuffer: FloatBuffer
     private var triangleColorBuffer: IntBuffer
 
     init {
         triangleDataBuffer = floatBufferUtil(triangleData)
+        lineDataBuffer = floatBufferUtil(lineData)
+        pointDataBuffer = floatBufferUtil(pointData)
         triangleColorBuffer = intBufferUtil(triangleColor)
 
 
     }
 
-    //将int数组转换成opengl es所需的IntBuffer;
-    fun intBufferUtil(array: IntArray): IntBuffer {
-        var intBuffer: IntBuffer
-        //初始化bytebuffer,长度为arr数组的长度*4,因为一个int占4字节;
-        var qbb = ByteBuffer.allocateDirect(array.size * 4)
-        //数组排列用nativeOrder
-        qbb.order(ByteOrder.nativeOrder())
-        intBuffer = qbb.asIntBuffer()
-        intBuffer.put(array)
-        intBuffer.position(0)
-        return intBuffer
-    }
+    companion object {
 
-    //将float[]转换为opengl es所需的floatBuffer;
-    fun floatBufferUtil(array: FloatArray): FloatBuffer {
-        var floatBuffer: FloatBuffer
-        //初始化ByteBuffer,长度为arr数组的长度*4,因为一个int占4字节;
-        var qbb = ByteBuffer.allocateDirect(array.size * 4)
-        qbb.order(ByteOrder.nativeOrder())
-        floatBuffer = qbb.asFloatBuffer()
-        floatBuffer.put(array)
-        floatBuffer.position(0)
-        return floatBuffer
+        //将int数组转换成opengl es所需的IntBuffer;
+        fun intBufferUtil(array: IntArray): IntBuffer {
+            var intBuffer: IntBuffer
+            //初始化bytebuffer,长度为arr数组的长度*4,因为一个int占4字节;
+            var qbb = ByteBuffer.allocateDirect(array.size * 4)
+            //数组排列用nativeOrder
+            qbb.order(ByteOrder.nativeOrder())
+            intBuffer = qbb.asIntBuffer()
+            intBuffer.put(array)
+            intBuffer.position(0)
+            return intBuffer
+        }
+
+        //将float[]转换为opengl es所需的floatBuffer;
+        fun floatBufferUtil(array: FloatArray): FloatBuffer {
+            var floatBuffer: FloatBuffer
+            //初始化ByteBuffer,长度为arr数组的长度*4,因为一个int占4字节;
+            var qbb = ByteBuffer.allocateDirect(array.size * 4)
+                    .order(ByteOrder.nativeOrder())
+                    .asFloatBuffer()
+            qbb.put(array).position(0)
+            return qbb
+        }
     }
 
     override fun onDrawFrame(gl: GL10) {
@@ -76,13 +91,22 @@ class MyRender : GLSurfaceView.Renderer {
         //------------------
         gl.glLoadIdentity()
         //移动绘图中心
-        gl.glTranslatef(0f, 0f, 0f)
+//        gl.glTranslatef(0f, 0f, 0f)
         //设置顶点位置数据;
         gl.glVertexPointer(3, GL10.GL_FLOAT, 0, triangleDataBuffer)
         //设置顶点颜色数据;
         gl.glColorPointer(4, GL10.GL_FIXED, 0, triangleColorBuffer)
         //根据顶点数据绘制平面图形;
         gl.glDrawArrays(GL10.GL_TRIANGLES, 0, 3)
+
+
+        gl.glVertexPointer(2, GL10.GL_FLOAT, 0, lineDataBuffer)
+        gl.glColorPointer(2, GL10.GL_FIXED, 0, triangleColorBuffer)
+        gl.glDrawArrays(GL10.GL_LINES, 0, 2)
+
+        gl.glVertexPointer(1, GL10.GL_FLOAT, 0, pointDataBuffer)
+        gl.glColorPointer(1, GL10.GL_FIXED, 0, triangleColorBuffer)
+        gl.glDrawArrays(GL10.GL_POINTS, 0, 1)
 
         //绘制结束;
         gl.glFinish()

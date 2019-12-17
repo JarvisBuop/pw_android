@@ -39,7 +39,13 @@ public class OpenGlUtils {
 			return NO_TEXTURE; 
         int textures[] = new int[1];
         if (usedTexId == NO_TEXTURE) {
-            GLES20.glGenTextures(1, textures, 0);
+			/**
+			 * n: 给创建的texture返回n个唯一ID标志;
+			 * textures: opengl将texture的id存放在这个数组中,textures.length >= n +offset
+			 * offset: ;
+			 */
+			GLES20.glGenTextures(1, textures, 0);
+			//绑定texture,同一时间只能绑定一个texture;
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[0]);
             GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
                     GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
@@ -50,6 +56,7 @@ public class OpenGlUtils {
             GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
                     GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 
+            //再把bitmap传给opengl绑定;
             GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, img, 0);
         } else {
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, usedTexId);

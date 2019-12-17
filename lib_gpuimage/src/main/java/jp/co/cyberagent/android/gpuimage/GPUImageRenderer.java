@@ -281,6 +281,7 @@ public class GPUImageRenderer implements GLSurfaceView.Renderer, GLTextureView.R
         float ratioHeight = imageHeightNew / outputHeight;
 
         float[] cube = TextureRotationUtil.CUBE;
+
         float[] textureCords = TextureRotationUtil.getRotation(rotation, flipHorizontal, flipVertical);
         if (scaleType == GPUImage.ScaleType.CENTER_CROP) {
             float distHorizontal = (1 - 1 / ratioWidth) / 2;

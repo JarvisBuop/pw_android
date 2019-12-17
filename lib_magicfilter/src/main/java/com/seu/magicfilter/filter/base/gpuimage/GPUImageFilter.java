@@ -107,8 +107,11 @@ public class GPUImageFilter {
     }
 
     protected void onInit() {
+        //创建vertex shader 和 fragment shader 创建program link shader;
         mGLProgId = OpenGlUtils.loadProgram(mVertexShader, mFragmentShader);
+        //获取vertex shader的位置参数地址,后续赋值;
         mGLAttribPosition = GLES20.glGetAttribLocation(mGLProgId, "position");
+        //获取fragment shader的位置参数地址,后续赋值;
         mGLUniformTexture = GLES20.glGetUniformLocation(mGLProgId, "inputImageTexture");
         mGLAttribTextureCoordinate = GLES20.glGetAttribLocation(mGLProgId, "inputTextureCoordinate");
         mIsInitialized = true;
@@ -149,19 +152,33 @@ public class GPUImageFilter {
             return OpenGlUtils.NOT_INIT;
         }
 
+
+        /**
+         * 给vertex shader 赋值;
+         *
+         * index: vertex shader的position位置参数地址;
+         * size: position的维度,二维坐标填2;
+         * type: position的数据类型;GL_FLOAT,GL_INT
+         * nomalized: position 的数据类型int时候使用;
+         * stride: 跨度,相邻两个position数据之间的间隔,默认0;
+         * ptr: buffer position的数据buffer;
+         */
         cubeBuffer.position(0);
         GLES20.glVertexAttribPointer(mGLAttribPosition, 2, GLES20.GL_FLOAT, false, 0, cubeBuffer);
+        //通知opengl使用顶点数据绘制;
         GLES20.glEnableVertexAttribArray(mGLAttribPosition);
         textureBuffer.position(0);
         GLES20.glVertexAttribPointer(mGLAttribTextureCoordinate, 2, GLES20.GL_FLOAT, false, 0,
                 textureBuffer);
         GLES20.glEnableVertexAttribArray(mGLAttribTextureCoordinate);
         if (textureId != OpenGlUtils.NO_TEXTURE) {
+            //使用texture纹理
             GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
             GLES20.glUniform1i(mGLUniformTexture, 0);
         }
         onDrawArraysPre();
+        //绘制两个三角形,从数组0开始,绘制4个顶点;
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
         GLES20.glDisableVertexAttribArray(mGLAttribPosition);
         GLES20.glDisableVertexAttribArray(mGLAttribTextureCoordinate);
@@ -283,6 +300,11 @@ public class GPUImageFilter {
         });
     }
 
+    /**
+     *
+     * @param location 颜色写入位置;
+     * @param arrayValue colorarray rgba;
+     */
     protected void setFloatVec4(final int location, final float[] arrayValue) {
         runOnDraw(new Runnable() {
             @Override
