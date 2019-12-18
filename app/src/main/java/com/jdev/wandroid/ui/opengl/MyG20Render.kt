@@ -64,9 +64,9 @@ class MyG20Render : GLSurfaceView.Renderer {
             -0.5f, -0.5f)
 
     val triangleData = floatArrayOf(
-            0f, 0f, 0.0f,
-            1f, 0.0f, 0.0f,
-            0f, -1f, 0.0f
+            0f, 0f,
+            -1f, -1f,
+            1f, 0f
     )
 
     protected var mVertexBuffer: FloatBuffer? = null
@@ -78,14 +78,7 @@ class MyG20Render : GLSurfaceView.Renderer {
     protected var uColorLocation: Int = 0
 
     init {
-
-        // 初始化顶点数据
-        mVertexBuffer = ByteBuffer.allocateDirect(mVertexArray.size * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer()
-                .put(mVertexArray)
-//                .position(0)
-
+        mVertexBuffer = MyRender.floatBufferUtil(mVertexArray)
         mVertexTestBuffer = MyRender.floatBufferUtil(triangleData)
     }
 
@@ -95,18 +88,19 @@ class MyG20Render : GLSurfaceView.Renderer {
         // 启用这个Program
         glUseProgram(programId)
 
-        // 填充数据
+        // 填充数据 正方形;
         glUniform4f(uColorLocation, 1f, 0f, 0f, 1f)
         mVertexBuffer!!.position(0)
         glVertexAttribPointer(aPositionLocation, 2, GL_FLOAT, false, 0, mVertexBuffer)
         glEnableVertexAttribArray(aPositionLocation)
         glDrawArrays(GL_TRIANGLE_FAN, 0, 6)
 
-        glUniform4f(uColorLocation, 1f, 0f, 0f, 1f)
+        //todo 三角形;
+        glUniform4f(uColorLocation, 0f, 0f, 1f, 1f)
         mVertexTestBuffer!!.position(0)
-        glVertexAttribPointer(aPositionLocation,2,GL_FLOAT, false, 0, mVertexTestBuffer)
+        glVertexAttribPointer(aPositionLocation, 2, GL_FLOAT, false, 0, mVertexTestBuffer)
         glEnableVertexAttribArray(aPositionLocation)
-        glDrawArrays(GL_TRIANGLES, 0, 3)
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 3)
 
     }
 

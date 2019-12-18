@@ -202,6 +202,7 @@ public class GPUImageFilter {
 		GLES20.glEnableVertexAttribArray(mGLAttribTextureCoordinate);
 
 		if (textureId != OpenGlUtils.NO_TEXTURE) {
+		    //使用texture纹理;
             GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 		    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 		    GLES20.glUniform1i(mGLUniformTexture, 0);
