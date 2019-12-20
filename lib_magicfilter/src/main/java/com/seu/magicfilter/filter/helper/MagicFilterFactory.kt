@@ -11,12 +11,9 @@ import com.seu.magicfilter.filter.origin.*
 
 class MagicFilterFactory {
 
-    val currentFilterType: MagicFilterType
-        get() = filterType
-
     companion object {
 
-        private var filterType = MagicFilterType.NONE
+        var currentFilterType = MagicFilterType.NONE
 
         fun createBlendFilter(
                 filterClass: Class<out GPUImageTwoInputFilter>,
@@ -37,7 +34,7 @@ class MagicFilterFactory {
         }
 
         fun getFilterByType( type: MagicFilterType): GPUImageFilter? {
-            filterType = type
+            currentFilterType = type
             return when (type) {
                 MagicFilterType.WHITECAT -> return MagicWhiteCatFilter()
                 MagicFilterType.BLACKCAT -> return MagicBlackCatFilter()

@@ -18,6 +18,7 @@ import kotlinx.android.synthetic.main.app_frag_gpucamera.*
  * info: create by jd in 2019/12/12
  * @see:
  * @description: gpuimage camera
+ * @description: gpuimage camera
  *
  */
 class GpuImageCameraFrag : BaseViewStubFragment() {

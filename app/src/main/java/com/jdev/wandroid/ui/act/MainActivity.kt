@@ -23,7 +23,6 @@ import com.jdev.module_welcome.ui.act.WelcomeActivity
 import com.jdev.wandroid.R
 import kotlinx.android.synthetic.main.app_activity_main.*
 import kotlinx.android.synthetic.main.app_include_main_top.*
-import java.lang.Exception
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -39,31 +38,44 @@ class MainActivity : BaseActivity() {
             OrientVo("gpuimage 滤镜列表测试 (有问题)",
                     "Android filters based on OpenGL (idea from GPUImage for iOS)",
                     clazz = ContainerActivity::class.java,
-                    clazzCode = ContainerActivity.KEY_ANDROID_GPUIMAGE),
+                    clazzCode = KEY_ANDROID_GPUIMAGE),
             OrientVo("gpuimage 滤镜单张图片测试",
                     level = LEVEL.LEVEL_HIGH,
                     clazz = ContainerActivity::class.java,
-                    clazzCode = ContainerActivity.KEY_ANDROID_GPUIMAGE_SIMPLE),
+                    clazzCode = KEY_ANDROID_GPUIMAGE_SIMPLE),
             OrientVo("gpuimage 美颜相机",
                     "gpuimage camera demo",
                     clazz = ContainerActivity::class.java,
-                    clazzCode = ContainerActivity.KEY_ANDROID_GPUIMAGE_CAMERA),
+                    clazzCode = KEY_ANDROID_GPUIMAGE_CAMERA),
             OrientVo("magicCamera 美颜相机 MagicCameraDemo",
                     "https://github.com/jameswanliu/MagicCamera_master",
                     level = LEVEL.LEVEL_HIGH,
                     clazz = ContainerActivity::class.java,
-                    clazzCode = ContainerActivity.KEY_ANDROID_MAGIC_CAMERA),
+                    clazzCode = KEY_ANDROID_MAGIC_CAMERA),
             OrientVo("magicCamera MagicImageView",
                     "magic 图片处理demo",
                     clazz = ContainerActivity::class.java,
-                    clazzCode = ContainerActivity.KEY_ANDROID_GPU_TEST),
+                    clazzCode = KEY_ANDROID_GPU_TEST),
             OrientVo("opengl test",
                     "opengl demo",
                     clazz = ContainerActivity::class.java,
-                    clazzCode = ContainerActivity.KEY_ANDROID_OPENGL_SIMGLE_DEMO),
-            OrientVo("test", "desc"),
-            OrientVo("test", "desc"),
-            OrientVo("test", "desc")
+                    clazzCode = KEY_ANDROID_OPENGL_SIMGLE_DEMO),
+
+            OrientVo("jdgpu_single_image_test",
+                    "测试改变",
+                    clazz = ContainerActivity::class.java,
+                    clazzCode = KEY_ANDROID_JDGPU_SINGLE
+            ),
+            OrientVo("jdgpu_camera_test",
+                    "desc",
+                    clazz = ContainerActivity::class.java,
+                    clazzCode = KEY_ANDROID_JDGPU_CAMERA),
+            OrientVo("test",
+                    "desc"),
+            OrientVo("test",
+                    "desc"),
+            OrientVo("test",
+                    "desc")
     )
 
 
@@ -87,10 +99,10 @@ class MainActivity : BaseActivity() {
 
     //secretcode other datas (not important)
     var mSecretString = mutableMapOf<Int, OrientVo>(
-            Pair(ContainerActivity.KEY_GESTURE, OrientVo("${ContainerActivity.KEY_GESTURE} : gesture_test")),
-            Pair(ContainerActivity.KEY_PHOTOVIEW, OrientVo("${ContainerActivity.KEY_PHOTOVIEW} : photoview_test")),
-            Pair(ContainerActivity.KEY_SHADOW, OrientVo("${ContainerActivity.KEY_SHADOW} : shadow_test")),
-            Pair(ContainerActivity.KEY_WEBP, OrientVo("${ContainerActivity.KEY_WEBP} : webp_test"))
+            Pair(KEY_GESTURE, OrientVo("${KEY_GESTURE} : gesture_test")),
+            Pair(KEY_PHOTOVIEW, OrientVo("${KEY_PHOTOVIEW} : photoview_test")),
+            Pair(KEY_SHADOW, OrientVo("${KEY_SHADOW} : shadow_test")),
+            Pair(KEY_WEBP, OrientVo("${KEY_WEBP} : webp_test"))
     )
 
     var mSecretCodes: SparseArray<OrientVo> by CodeDelegate(mSecretString)

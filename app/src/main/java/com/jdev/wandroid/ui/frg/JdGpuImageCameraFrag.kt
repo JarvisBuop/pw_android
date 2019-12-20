@@ -15,9 +15,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
-import android.widget.RelativeLayout
-import com.blankj.utilcode.util.ScreenUtils
-import com.blankj.utilcode.util.ToastUtils
+import android.widget.Toast
 import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
 import com.jdev.wandroid.ui.adapter.FilterAdapter
@@ -26,7 +24,7 @@ import com.seu.magicfilter.MagicEngine
 import com.seu.magicfilter.filter.helper.MagicFilterType
 import com.seu.magicfilter.utils.MagicParams
 import kotlinx.android.synthetic.main.app_filter_layout.*
-import kotlinx.android.synthetic.main.app_frag_magiccamera.*
+import kotlinx.android.synthetic.main.app_frag_jdgpucamera.*
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -34,22 +32,19 @@ import java.util.*
 /**
  * info: create by jd in 2019/12/12
  * @see:
- * @description: magic camera demo
- *
- * @see https\://github.com/jameswanliu/MagicCamera_master
+ * @description: gpuimage camera
  *
  */
-class GpuMagicCameraFrag : BaseViewStubFragment() {
+class JdGpuImageCameraFrag : BaseViewStubFragment() {
     override fun getViewStubId(): Int {
-        return R.layout.app_frag_magiccamera
+        return R.layout.app_frag_jdgpucamera
     }
 
     override fun initIntentData(): Boolean = true
 
     override fun customOperate(savedInstanceState: Bundle?) {
-        magicEngine = MagicEngine.Builder().build(glsurfaceview_camera)
+        magicEngine = MagicEngine.Builder().build()
         initView()
-
     }
 
     private lateinit var mFilterLayout: View
@@ -95,16 +90,17 @@ class GpuMagicCameraFrag : BaseViewStubFragment() {
         animator!!.duration = 500
         animator!!.repeatCount = ValueAnimator.INFINITE
 
-        val params = glsurfaceview_camera.layoutParams as RelativeLayout.LayoutParams
-        params.width = ScreenUtils.getScreenWidth()
-        params.height = ScreenUtils.getScreenWidth() * 4 / 3
-        glsurfaceview_camera.layoutParams = params
+//        val params = glsurfaceview_camera.layoutParams as RelativeLayout.LayoutParams
+//        params.width = ScreenUtils.getScreenWidth()
+//        params.height = ScreenUtils.getScreenWidth() * 4 / 3
+//        glsurfaceview_camera.layoutParams = params
     }
 
     private val onFilterChangeListener = object : FilterAdapter.onFilterChangeListener {
 
         override fun onFilterChanged(filterType: MagicFilterType) {
-            magicEngine!!.setFilter(filterType)
+//            magicEngine!!.setFilter(filterType)
+            displayView.setFilter(filterType)
         }
     }
 
@@ -134,7 +130,10 @@ class GpuMagicCameraFrag : BaseViewStubFragment() {
                         takeVideo()
                 }
                 btn_camera_filter.id -> showFilters()
-                btn_camera_switch.id -> magicEngine!!.switchCamera()
+                btn_camera_switch.id -> {
+                    magicEngine!!.switchCamera()
+
+                }
                 btn_camera_beauty.id -> AlertDialog.Builder(mContext!!)
                         .setSingleChoiceItems(arrayOf("关闭", "1", "2", "3", "4", "5"), MagicParams.beautyLevel
                         ) { dialog, which ->
@@ -156,22 +155,26 @@ class GpuMagicCameraFrag : BaseViewStubFragment() {
             mode = MODE_PIC
             btn_mode!!.setImageResource(R.drawable.icon_video)
         }
-        ToastUtils.showShort(if (mode == MODE_PIC) "拍摄" else "录制")
     }
 
     private fun takePhoto() {
-        ToastUtils.showShort("开始拍照")
-        magicEngine!!.savePicture(getOutputMediaFile(), null)
+//        magicEngine!!.savePicture(getOutputMediaFile(), null)
+        val folderName = "GPUImage"
+        val fileName = System.currentTimeMillis().toString() + ".jpg"
+        displayView.saveToPictures(folderName, fileName) {
+            Toast.makeText(activity, "$folderName/$fileName saved", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun takeVideo() {
-        ToastUtils.showShort("开始录制")
         if (isRecording) {
             animator!!.end()
-            magicEngine!!.stopRecord()
+//            magicEngine!!.stopRecord()
+            displayView.changeRecordingState(false)
         } else {
             animator!!.start()
-            magicEngine!!.startRecord()
+//            magicEngine!!.startRecord()
+            displayView.changeRecordingState(true)
         }
         isRecording = !isRecording
     }

@@ -19,6 +19,22 @@ import kotlinx.android.synthetic.main.app_activity_container.*
  * @description:
  *
  */
+//--------selftest--------
+const val KEY_GESTURE = 0
+const val KEY_PHOTOVIEW = 1
+const val KEY_SHADOW = 2
+const val KEY_WEBP = 3
+
+//-------gpuimage---------
+const val KEY_ANDROID_GPUIMAGE = 4
+const val KEY_ANDROID_GPUIMAGE_SIMPLE = 5
+const val KEY_ANDROID_GPUIMAGE_CAMERA = 6
+const val KEY_ANDROID_MAGIC_CAMERA = 7
+const val KEY_ANDROID_GPU_TEST = 9
+const val KEY_ANDROID_OPENGL_SIMGLE_DEMO = 8
+const val KEY_ANDROID_JDGPU_SINGLE = 10
+const val KEY_ANDROID_JDGPU_CAMERA = 11
+
 class ContainerActivity : BaseActivity() {
     var callback: (() -> Unit)? = null
     var permission = Manifest.permission.CAMERA
@@ -30,20 +46,6 @@ class ContainerActivity : BaseActivity() {
 
     companion object {
         const val EXTRA_KEY = "KEY"
-
-        //--------selftest--------
-        const val KEY_GESTURE = 0
-        const val KEY_PHOTOVIEW = 1
-        const val KEY_SHADOW = 2
-        const val KEY_WEBP = 3
-
-        //-------gpuimage---------
-        const val KEY_ANDROID_GPUIMAGE = 4
-        const val KEY_ANDROID_GPUIMAGE_SIMPLE = 5
-        const val KEY_ANDROID_GPUIMAGE_CAMERA = 6
-        const val KEY_ANDROID_MAGIC_CAMERA = 7
-        const val KEY_ANDROID_GPU_TEST = 9
-        const val KEY_ANDROID_OPENGL_SIMGLE_DEMO = 8
 
         fun getFragmentByKey(code: Int): BaseFragment? {
             when (code) {
@@ -74,10 +76,15 @@ class ContainerActivity : BaseActivity() {
                 KEY_ANDROID_OPENGL_SIMGLE_DEMO -> {
                     return SimpleOpenglDemoFrag()
                 }
-                KEY_ANDROID_GPU_TEST ->{
-                    return SimpleGpuConfigFrag()
+                KEY_ANDROID_GPU_TEST -> {
+                    return GpuMagicSingleFrag()
                 }
-
+                KEY_ANDROID_JDGPU_SINGLE -> {
+                    return JdGpuImageSingleFrag()
+                }
+                KEY_ANDROID_JDGPU_CAMERA ->{
+                    return JdGpuImageCameraFrag()
+                }
                 else -> return null
             }
         }

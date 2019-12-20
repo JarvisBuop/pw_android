@@ -65,6 +65,11 @@ public class MagicEngine {
             return new MagicEngine(this);
         }
 
+        public MagicEngine build() {
+            return new MagicEngine(this);
+        }
+
+
         public Builder setVideoPath(String path){
             MagicParams.videoPath = path;
             return this;

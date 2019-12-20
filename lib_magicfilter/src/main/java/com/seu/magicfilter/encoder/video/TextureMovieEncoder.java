@@ -28,6 +28,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.seu.magicfilter.camera.utils.CameraInfo;
 import com.seu.magicfilter.filter.base.MagicCameraInputFilter;
 import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter;
@@ -287,9 +288,11 @@ public class TextureMovieEncoder implements Runnable {
 
             switch (what) {
                 case MSG_START_RECORDING:
+                    ToastUtils.showShort("开始录制");
                     encoder.handleStartRecording((EncoderConfig) obj);
                     break;
                 case MSG_STOP_RECORDING:
+                    ToastUtils.showShort("结束录制");
                     encoder.handleStopRecording();
                     break;
                 case MSG_FRAME_AVAILABLE:
