@@ -57,7 +57,10 @@ class MainActivity : BaseActivity() {
                     "opengl demo",
                     clazz = ContainerActivity::class.java,
                     clazzCode = ContainerActivity.KEY_ANDROID_OPENGL_SIMGLE_DEMO),
-            OrientVo("test", "desc"),
+            OrientVo("simple gpumanager",
+                    "合并后的测试",
+                    clazz = ContainerActivity::class.java,
+                    clazzCode = ContainerActivity.KEY_ANDROID_GPU_TEST),
             OrientVo("test", "desc"),
             OrientVo("test", "desc"),
             OrientVo("test", "desc")

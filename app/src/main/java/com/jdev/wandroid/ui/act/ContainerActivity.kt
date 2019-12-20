@@ -43,6 +43,7 @@ class ContainerActivity : BaseActivity() {
         const val KEY_ANDROID_GPUIMAGE_CAMERA = 6
         const val KEY_ANDROID_MAGIC_CAMERA = 7
         const val KEY_ANDROID_OPENGL_SIMGLE_DEMO = 8
+        const val KEY_ANDROID_GPU_TEST = 9
 
         fun getFragmentByKey(code: Int): BaseFragment? {
             when (code) {
@@ -72,6 +73,9 @@ class ContainerActivity : BaseActivity() {
                 }
                 KEY_ANDROID_OPENGL_SIMGLE_DEMO -> {
                     return SimpleOpenglDemoFrag()
+                }
+                KEY_ANDROID_GPU_TEST ->{
+                    return SimpleGpuConfigFrag()
                 }
 
                 else -> return null

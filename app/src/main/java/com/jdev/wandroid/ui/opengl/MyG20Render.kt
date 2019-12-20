@@ -71,11 +71,19 @@ class MyG20Render : GLSurfaceView.Renderer {
 
     protected var mVertexBuffer: FloatBuffer? = null
     protected var mVertexTestBuffer: FloatBuffer? = null
+    //投影矩阵;
     protected var mProjectionMatrix = FloatArray(16)
+    //view变化矩阵
+    protected var mViewMatrix = FloatArray(16)
+
+    protected var mProjectionViewMatrix = FloatArray(16)
 
     protected var uMatrixLocation: Int = 0
     protected var aPositionLocation: Int = 0
     protected var uColorLocation: Int = 0
+
+    protected val sFovy = 90 // 透视投影的视角，90度
+    protected val sZ = 2f
 
     init {
         mVertexBuffer = MyRender.floatBufferUtil(mVertexArray)
@@ -87,6 +95,7 @@ class MyG20Render : GLSurfaceView.Renderer {
 
         // 启用这个Program
         glUseProgram(programId)
+
 
         // 填充数据 正方形;
         glUniform4f(uColorLocation, 1f, 0f, 0f, 1f)
@@ -108,8 +117,20 @@ class MyG20Render : GLSurfaceView.Renderer {
         glViewport(0, 0, width, height)
         // 正交变换，只考虑竖屏的情况
         val rate = height * 1.0f / width
-        Matrix.orthoM(mProjectionMatrix, 0, -1f, 1f, -rate, rate, -1f, 1f) // 正交变换，防止界面拉伸
-        glUniformMatrix4fv(uMatrixLocation, 1, false, mProjectionMatrix, 0)
+//        Matrix.orthoM(mProjectionMatrix, 0, -1f, 1f, -rate, rate, -1f, 1f) // 正交变换，防止界面拉伸
+//        glUniformMatrix4fv(uMatrixLocation, 1, false, mProjectionMatrix, 0)
+
+
+        // 旋转矩阵;
+        val screenAspect = width * 1.0f / height
+        Matrix.perspectiveM(mProjectionMatrix, 0, sFovy.toFloat(), screenAspect, 1f, 10f)
+
+        Matrix.setIdentityM(mViewMatrix, 0)
+        Matrix.translateM(mViewMatrix,0,0f,0f,-sZ)
+        Matrix.rotateM(mViewMatrix, 0, -60f, 1f, 0f, 0f)
+        Matrix.multiplyMM(mProjectionViewMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0)
+
+        glUniformMatrix4fv(uMatrixLocation, 1, false, mProjectionViewMatrix, 0)
     }
 
     override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
