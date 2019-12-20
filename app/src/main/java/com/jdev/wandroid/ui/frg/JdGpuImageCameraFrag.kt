@@ -121,8 +121,17 @@ class JdGpuImageCameraFrag : BaseViewStubFragment() {
         override fun onClick(v: View) {
             when (v.id) {
                 btn_camera_mode.id -> switchMode()
-                btn_camera_shutter.id -> if ((PermissionChecker.checkSelfPermission(mContext!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED)) {
-                    ActivityCompat.requestPermissions(mContext as Activity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), v.id)
+                btn_camera_shutter.id -> if (
+                        (PermissionChecker.checkSelfPermission(mContext!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) &&
+                        (PermissionChecker.checkSelfPermission(mContext!!, Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) &&
+                        (PermissionChecker.checkSelfPermission(mContext!!, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED)
+
+                ) {
+                    ActivityCompat.requestPermissions(mContext as Activity, arrayOf(
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.CAMERA,
+                            Manifest.permission.RECORD_AUDIO
+                    ), v.id)
                 } else {
                     if (mode == MODE_PIC)
                         takePhoto()
