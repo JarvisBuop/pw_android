@@ -57,10 +57,10 @@ android {
 
     signingConfigs {
         release {
-            storeFile file(properties.getProperty("jdrobot.signing.keyfile"))
-            storePassword properties.getProperty("jdrobot.signing.password")
-            keyAlias properties.getProperty("jdrobot.signing.key.alias")
-            keyPassword properties.getProperty("jdrobot.signing.key.password")
+//            storeFile file(properties.getProperty("jdrobot.signing.keyfile"))
+//            storePassword properties.getProperty("jdrobot.signing.password")
+//            keyAlias properties.getProperty("jdrobot.signing.key.alias")
+//            keyPassword properties.getProperty("jdrobot.signing.key.password")
         }
     }
 

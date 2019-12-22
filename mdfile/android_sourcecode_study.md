@@ -29,6 +29,7 @@ SourceInsight
 
 [androidxref](http://androidxref.com)
 
+
 ------
 
 ### Android 系统启动
@@ -90,6 +91,120 @@ SourceInsight
 			- 执行`runSelectLoop()`方法, 死循环等待ams请求zygote进程创建新的应用程序进程; 运行 ServerSocket的accept方法等待socket连接,收到的socket类型可分为`zygote进程和AMS建立连接`(i==0) 和 `AMS向zygote进程发送一个创建新的应用程序进程`(旧版通过ZygoteConnection的runOnce方法创建一个新的应用程序进程,新版是通过ZygoteConnection的processOneCommand方法实现);
 
 ![runSelectLoop](https://img-blog.csdnimg.cn/20191018080348334.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+```
+
+	-----------------------------ZygoteConnection.java--------------------
+
+	/**
+     * Reads one start command from the command socket. If successful, a child is forked and a
+     * {@code Runnable} that calls the childs main method (or equivalent) is returned in the child
+     * process. {@code null} is always returned in the parent process (the zygote).
+     *
+     * If the client closes the socket, an {@code EOF} condition is set, which callers can test
+     * for by calling {@code ZygoteConnection.isClosedByPeer}.
+     */
+    Runnable processOneCommand(ZygoteServer zygoteServer) {
+        String args[];
+        Arguments parsedArgs = null;
+        FileDescriptor[] descriptors;
+
+        try {
+            args = readArgumentList();
+			//LocalSocket ,即服务端ServerSocket	
+            descriptors = mSocket.getAncillaryFileDescriptors();
+        } catch (IOException ex) {
+            throw new IllegalStateException("IOException on command socket", ex);
+        }
+
+        ...
+        
+		/* fork 一个新的VM实例, 新实例保存所有的根功能,新进程将调用capset();
+			返回值processId 0 表示子进程,不为0则为父进程,-1则为错误; */
+        pid = Zygote.forkAndSpecialize(parsedArgs.uid, parsedArgs.gid, parsedArgs.gids,
+                parsedArgs.debugFlags, rlimits, parsedArgs.mountExternal, parsedArgs.seInfo,
+                parsedArgs.niceName, fdsToClose, fdsToIgnore, parsedArgs.instructionSet,
+                parsedArgs.appDataDir);
+
+        try {
+            if (pid == 0) {
+                // in child
+                zygoteServer.setForkChild();
+
+                zygoteServer.closeServerSocket();
+                IoUtils.closeQuietly(serverPipeFd);
+                serverPipeFd = null;
+
+                return handleChildProc(parsedArgs, descriptors, childPipeFd);
+            } else {
+                // In the parent. A pid < 0 indicates a failure and will be handled in
+                // handleParentProc.
+                IoUtils.closeQuietly(childPipeFd);
+                childPipeFd = null;
+                handleParentProc(pid, descriptors, serverPipeFd);
+                return null;
+            }
+        } finally {
+            IoUtils.closeQuietly(childPipeFd);
+            IoUtils.closeQuietly(serverPipeFd);
+        }
+    }
+
+	/**
+     * Handles post-fork setup of child proc, closing sockets as appropriate,
+     * reopen stdio as appropriate, and ultimately throwing MethodAndArgsCaller
+     * if successful or returning if failed.
+     *
+     * @param parsedArgs non-null; zygote args
+     * @param descriptors null-ok; new file descriptors for stdio if available.
+     * @param pipeFd null-ok; pipe for communication back to Zygote.
+     */
+    private Runnable handleChildProc(Arguments parsedArgs, FileDescriptor[] descriptors,
+            FileDescriptor pipeFd) {
+        /**
+         * By the time we get here, the native code has closed the two actual Zygote
+         * socket connections, and substituted /dev/null in their place.  The LocalSocket
+         * objects still need to be closed properly.
+         */
+
+        closeSocket();
+        if (descriptors != null) {
+            try {
+                Os.dup2(descriptors[0], STDIN_FILENO);
+                Os.dup2(descriptors[1], STDOUT_FILENO);
+                Os.dup2(descriptors[2], STDERR_FILENO);
+
+                for (FileDescriptor fd: descriptors) {
+                    IoUtils.closeQuietly(fd);
+                }
+            } catch (ErrnoException ex) {
+                Log.e(TAG, "Error reopening stdio", ex);
+            }
+        }
+
+        if (parsedArgs.niceName != null) {
+            Process.setArgV0(parsedArgs.niceName);
+        }
+
+        // End of the postFork event.
+        Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);
+        if (parsedArgs.invokeWith != null) {
+            WrapperInit.execApplication(parsedArgs.invokeWith,
+                    parsedArgs.niceName, parsedArgs.targetSdkVersion,
+                    VMRuntime.getCurrentInstructionSet(),
+                    pipeFd, parsedArgs.remainingArgs);
+
+            // Should not get here.
+            throw new IllegalStateException("WrapperInit.execApplication unexpectedly returned");
+        } else {
+			/*注意此处,因为ZygoteInit 根据不同的参数args 通过反射的方式构建类(如com.android.server.SystemServer的生成),
+				此处传入的参数为连接的Socket(如创建新的应用进程的socket)的参数,用此socket的参数反射创建对应的类*/
+            return ZygoteInit.zygoteInit(parsedArgs.targetSdkVersion, parsedArgs.remainingArgs,
+                    null /* classLoader */);
+        }
+    }
+
+```
 
 - zygote进程启动简结:
 	- init.rc 脚本启动zygote进程, 进入到app_main.cpp 的main函数;
@@ -301,7 +416,7 @@ SourceInsight
 
 - `handleSystemServerProcess`(ZygoteInit) 方法启动SystemServer;创建PathClassLoader,调用`zygoteInit()`方法
 	- `zygoteInit()`方法 调用jni层`nativeZygoteInit()`(位于frameworks/base/core/jni/AndroidRuntime.cpp)方法,native层代码最终调用AppRuntime的`onZygoteInit()`方法,最终`启动Binder线程池`,这样SystemServer进程就可以使用Binder与其他进程进行通信;
-	- `applicationInit()`方法通过`findStaticMain()`方法使用反射获取`com.android.server.SystemServer`类;找到main方法并封装成`MethodAndArgsCaller (implement Runnable)`return出去稍后调用,由此进入到SystemServer的main方法中;
+	- `applicationInit()`方法通过`findStaticMain()`方法使用反射获取`com.android.server.SystemServer`类;找到main方法并封装成`MethodAndArgsCaller (implement Runnable)`return出去稍后调用,由此进入到SystemServer的main方法中; (此处也用于反射获取应用进程的ActivityThread入口)
 
 ```
 
@@ -837,3 +952,914 @@ SourceInsight
 
 
 ------------------------------------
+
+### android 应用程序进程的启动过程
+
+Ams 后在启动应用程序进程时检查这个应用程序需要的应用程序进程是否存在,不存在就会请求Zygote进程启动需要的应用程序进程;
+由上节可知,Zygote的java层会创建一个Server端的Socket,用来等待AMS请求Zygote来创建新的应用程序进程;
+Zygote进程Fork自身创建应用程序进程;
+
+> 应用程序进程启动过程
+
+- AMS发送启动应用程序进程请求
+
+	- AMS通过调用`startProcessLocked`方法向Zygote进程发送请求,最终通过`Process.start(...)`启动;
+	- start方法调用ZygoteProcess.start(...),通过startViaZygote方法创建args参数;
+	- 使用openZygoteSocketIfNeeded方法尝试与Zygote进程ServerSocket建立Socket连接,Zygote(runSelectLoop)中fork了一个新的应用程序进程;
+	- 在通过zygoteSendArgsAndGetResult方法将args传给Zygote,Zygote通过args启动对应的入口ActivityThread;
+
+- Zygote接受请求并创建应用程序进程
+
+	- zygoteConnection 通过socket通信取出Argument参数; 见 ZygoteConnection.java 中`processOneCommand`方法启动子进程;
+
+```
+
+	-----------------------ActivityManagerService.java-----------------------
+
+	private final void startProcessLocked(ProcessRecord app, String hostingType,
+            String hostingNameStr, String abiOverride, String entryPoint, String[] entryPointArgs) {
+        ...
+
+        try {
+            try {
+                final int userId = UserHandle.getUserId(app.uid);
+                AppGlobals.getPackageManager().checkPackageStartable(app.info.packageName, userId);
+            } catch (RemoteException e) {
+                throw e.rethrowAsRuntimeException();
+            }
+			//获取要创建的应用程序进程的用户Id;
+            int uid = app.uid;
+            int[] gids = null;
+            int mountExternal = Zygote.MOUNT_EXTERNAL_NONE;
+            if (!app.isolated) {
+                ...
+
+                /*
+					gids的创建赋值;
+                 * Add shared application and profile GIDs so applications can share some
+                 * resources like shared libraries and access user-wide resources
+                 */
+                if (ArrayUtils.isEmpty(permGids)) {
+                    gids = new int[3];
+                } else {
+                    gids = new int[permGids.length + 3];
+                    System.arraycopy(permGids, 0, gids, 3, permGids.length);
+                }
+                gids[0] = UserHandle.getSharedAppGid(UserHandle.getAppId(uid));
+                gids[1] = UserHandle.getCacheAppGid(UserHandle.getAppId(uid));
+                gids[2] = UserHandle.getUserGid(UserHandle.getUserId(uid));
+            }
+            ...
+			//设置用于启动的类,即应用程序入口;
+            if (entryPoint == null) entryPoint = "android.app.ActivityThread";
+            Trace.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER, "Start proc: " +
+                    app.processName);
+            checkTime(startTime, "startProcess: asking zygote to start proc");
+            ProcessStartResult startResult;
+            if (hostingType.equals("webview_service")) {
+                startResult = startWebView(entryPoint,
+                        app.processName, uid, uid, gids, debugFlags, mountExternal,
+                        app.info.targetSdkVersion, seInfo, requiredAbi, instructionSet,
+                        app.info.dataDir, null, entryPointArgs);
+            } else {
+                startResult = Process.start(entryPoint,
+                        app.processName, uid, uid, gids, debugFlags, mountExternal,
+                        app.info.targetSdkVersion, seInfo, requiredAbi, instructionSet,
+                        app.info.dataDir, invokeWith, entryPointArgs);
+            }
+            ...
+        } catch (RuntimeException e) {
+            ...
+        }
+    }
+
+	-----------------Process.java--------------------
+
+	/**
+     * Start a new process.
+     * 
+     * <p>If processes are enabled, a new process is created and the
+     * static main() function of a <var>processClass</var> is executed there.
+     * The process will continue running after this function returns.
+     * 
+     * <p>If processes are not enabled, a new thread in the caller's
+     * process is created and main() of <var>processClass</var> called there.
+     * 
+     * <p>The niceName parameter, if not an empty string, is a custom name to
+     * give to the process instead of using processClass.  This allows you to
+     * make easily identifyable processes even if you are using the same base
+     * <var>processClass</var> to start them.
+     * 
+     * When invokeWith is not null, the process will be started as a fresh app
+     * and not a zygote fork. Note that this is only allowed for uid 0 or when
+     * debugFlags contains DEBUG_ENABLE_DEBUGGER.
+     *
+     * @param processClass The class to use as the process's main entry
+     *                     point.
+     * @param niceName A more readable name to use for the process.
+     * @param uid The user-id under which the process will run.
+     * @param gid The group-id under which the process will run.
+     * @param gids Additional group-ids associated with the process.
+     * @param debugFlags Additional flags.
+     * @param targetSdkVersion The target SDK version for the app.
+     * @param seInfo null-ok SELinux information for the new process.
+     * @param abi non-null the ABI this app should be started with.
+     * @param instructionSet null-ok the instruction set to use.
+     * @param appDataDir null-ok the data directory of the app.
+     * @param invokeWith null-ok the command to invoke with.
+     * @param zygoteArgs Additional arguments to supply to the zygote process.
+     * 
+     * @return An object that describes the result of the attempt to start the process.
+     * @throws RuntimeException on fatal start failure
+     * 
+     * {@hide}
+     */
+    public static final ProcessStartResult start(final String processClass,
+                                  final String niceName,
+                                  int uid, int gid, int[] gids,
+                                  int debugFlags, int mountExternal,
+                                  int targetSdkVersion,
+                                  String seInfo,
+                                  String abi,
+                                  String instructionSet,
+                                  String appDataDir,
+                                  String invokeWith,
+                                  String[] zygoteArgs) {
+        return zygoteProcess.start(processClass, niceName, uid, gid, gids,
+                    debugFlags, mountExternal, targetSdkVersion, seInfo,
+                    abi, instructionSet, appDataDir, invokeWith, zygoteArgs);
+    }
+
+	
+	-------------ZygoteProcess.java----------------
+
+	/**
+     * Tries to open socket to Zygote process if not already open. If
+     * already open, does nothing.  May block and retry.  Requires that mLock be held.
+     * zygote的启动脚本有4种;
+     */
+    @GuardedBy("mLock")
+    private ZygoteState openZygoteSocketIfNeeded(String abi) throws ZygoteStartFailedEx {
+        Preconditions.checkState(Thread.holdsLock(mLock), "ZygoteProcess lock not held");
+
+        if (primaryZygoteState == null || primaryZygoteState.isClosed()) {
+            try {
+				//与Zygote进程建立Socket连接
+                primaryZygoteState = ZygoteState.connect(mSocket);
+            } catch (IOException ioe) {
+                throw new ZygoteStartFailedEx("Error connecting to primary zygote", ioe);
+            }
+        }
+		
+		//连接Zygote主模式返回的ZygoteState是否与启动应用程序进程所需要的ABI匹配
+        if (primaryZygoteState.matches(abi)) {
+            return primaryZygoteState;
+        }
+
+        // The primary zygote didn't match. Try the secondary.
+        if (secondaryZygoteState == null || secondaryZygoteState.isClosed()) {
+            try {
+				//尝试zygote辅模式;
+                secondaryZygoteState = ZygoteState.connect(mSecondarySocket);
+            } catch (IOException ioe) {
+                throw new ZygoteStartFailedEx("Error connecting to secondary zygote", ioe);
+            }
+        }
+		//连接zygote辅模式返回的ZygoteState是否与启动应用程序进程所需要的ABI匹配;
+        if (secondaryZygoteState.matches(abi)) {
+            return secondaryZygoteState;
+        }
+
+        throw new ZygoteStartFailedEx("Unsupported zygote ABI: " + abi);
+    }
+
+	/**
+     * Sends an argument list to the zygote process, which starts a new child
+     * and returns the child's pid. Please note: the present implementation
+     * replaces newlines in the argument list with spaces.
+     *
+     * @throws ZygoteStartFailedEx if process start failed for any reason
+     */
+    @GuardedBy("mLock")
+    private static Process.ProcessStartResult zygoteSendArgsAndGetResult(
+            ZygoteState zygoteState, ArrayList<String> args)
+            throws ZygoteStartFailedEx {
+        try {
+            // Throw early if any of the arguments are malformed. This means we can
+            // avoid writing a partial response to the zygote.
+            int sz = args.size();
+            for (int i = 0; i < sz; i++) {
+                if (args.get(i).indexOf('\n') >= 0) {
+                    throw new ZygoteStartFailedEx("embedded newlines not allowed");
+                }
+            }
+
+            /**
+             * See com.android.internal.os.SystemZygoteInit.readArgumentList()
+             * Presently the wire format to the zygote process is:
+             * a) a count of arguments (argc, in essence)
+             * b) a number of newline-separated argument strings equal to count
+             *
+             * After the zygote process reads these it will write the pid of
+             * the child or -1 on failure, followed by boolean to
+             * indicate whether a wrapper process was used.
+             */
+            final BufferedWriter writer = zygoteState.writer;
+            final DataInputStream inputStream = zygoteState.inputStream;
+
+            writer.write(Integer.toString(args.size()));
+            writer.newLine();
+
+            for (int i = 0; i < sz; i++) {
+                String arg = args.get(i);
+                writer.write(arg);
+                writer.newLine();
+            }
+
+            writer.flush();
+
+            // Should there be a timeout on this?
+            Process.ProcessStartResult result = new Process.ProcessStartResult();
+
+            // Always read the entire result from the input stream to avoid leaving
+            // bytes in the stream for future process starts to accidentally stumble
+            // upon.
+            result.pid = inputStream.readInt();
+            result.usingWrapper = inputStream.readBoolean();
+
+            if (result.pid < 0) {
+                throw new ZygoteStartFailedEx("fork() failed");
+            }
+            return result;
+        } catch (IOException ex) {
+            zygoteState.close();
+            throw new ZygoteStartFailedEx(ex);
+        }
+    }
+
+```
+
+>Binder线程池启动过程
+
+- 调用ZygoteInit.java的zygoteInit方法启动入口,通过`ZygoteInit.nativeZygoteInit()`方法启动Binder线程池;
+- 此jni方法对应 `AndroidRuntime.cpp` 的 `register_com_android_internal_os_ZygoteInit_nativeZygoteInit` native函数; 调用AndroidRuntime的 onZygoteInit方法, 而AppRuntime是androidRuntime的子类,从而调用了`app_main.cpp`中AppRuntime的 onZygoteInit方法;
+- onZygoteInit方法将当前线程注册到Binder驱动程序中,这样创建的线程就加入到binder线程池中;这样新创建的应用程序进程就支持Binder进程间通信,我们只需创建当前进程的Binder对象,注册到ServiceManager中就实现了Binder进程间通信; 
+
+我是这样理解的:
+
+![binder线程池](https://img-blog.csdnimg.cn/20191109133440902.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+```
+
+	----------------------app_main.cpp------------------------------
+
+	class AppRuntime : public AndroidRuntime
+	{
+	public:						
+    AppRuntime(char* argBlockStart, const size_t argBlockLength)
+        : AndroidRuntime(argBlockStart, argBlockLength)
+        , mClass(NULL)
+    {
+    }
+    ...
+
+    virtual void onZygoteInit()
+    {
+        sp<ProcessState> proc = ProcessState::self();
+        ALOGV("App process: starting thread pool.\n");
+        proc->startThreadPool();
+    }
+
+    ...
+	};
+
+
+	------------------------ProcessState.cpp---------------------------
+
+	void ProcessState::startThreadPool()
+	{
+	    AutoMutex _l(mLock);
+	    if (!mThreadPoolStarted) {
+	        mThreadPoolStarted = true;
+	        spawnPooledThread(true);
+	    }
+	}
+
+	void ProcessState::spawnPooledThread(bool isMain)
+	{
+	    if (mThreadPoolStarted) {
+	        String8 name = makeBinderThreadName();
+	        ALOGV("Spawning new pooled thread, name=%s\n", name.string());
+	        sp<Thread> t = new PoolThread(isMain);
+	        t->run(name.string());
+	    }
+	}	
+
+	class PoolThread : public Thread
+	{
+	public:
+	    explicit PoolThread(bool isMain)
+	        : mIsMain(isMain)
+	    {
+	    }
+	    
+	protected:
+	    virtual bool threadLoop()
+	    {
+			//将当前线程注册到binder驱动程序中,创建的线程加入到Binder线程池中;新创建的应用程序进程就支持Binder进程间通信;
+			//我们只需创建当前进程的Binder对象,并注册到ServiceManager中就可以实现Binder进程间通信;
+	        IPCThreadState::self()->joinThreadPool(mIsMain);
+	        return false;
+	    }
+	    
+	    const bool mIsMain;
+	};
+
+```
+
+-----------
+
+### android四大组件的启动过程
+
+#### Activity 的启动过程
+
+> 根Activity的启动过程(应用程序的启动过程)
+
+- Launcher 请求 AMS过程;
+- AMS 到ApplicationThread 的调用过程;
+- ActivityThread 启动 Activity;
+
+------
+
+- Launcher 请求AMS过程
+	- launcher click事件调用`startActivity`方法,设置flag为`newtask`模式,在新的任务栈中启动;
+	- 8.0之后使用ActivityManager.getService()代替ActivityManagerNative.getDefault()获取AMS的代理对象;IActivityManager.aidl,8.0之前没有使用aidl,采用类似aidl的方式,用ams的代理对象ActivityManagerProxy来与ams进行进程间通信;8.0之后使用IActivityManager 作为进程间的通信;
+
+
+```
+
+	--------------------Activity.java------------------------
+
+	/**
+     * Launch an activity for which you would like a result when it finished.
+     * When this activity exits, your
+     * onActivityResult() method will be called with the given requestCode.
+     * Using a negative requestCode is the same as calling
+     * {@link #startActivity} (the activity is not launched as a sub-activity).
+     *
+     * <p>Note that this method should only be used with Intent protocols
+     * that are defined to return a result.  In other protocols (such as
+     * {@link Intent#ACTION_MAIN} or {@link Intent#ACTION_VIEW}), you may
+     * not get the result when you expect.  For example, if the activity you
+     * are launching uses {@link Intent#FLAG_ACTIVITY_NEW_TASK}, it will not
+     * run in your task and thus you will immediately receive a cancel result.
+     *
+     * <p>As a special case, if you call startActivityForResult() with a requestCode
+     * >= 0 during the initial onCreate(Bundle savedInstanceState)/onResume() of your
+     * activity, then your window will not be displayed until a result is
+     * returned back from the started activity.  This is to avoid visible
+     * flickering when redirecting to another activity.
+     *
+     * <p>This method throws {@link android.content.ActivityNotFoundException}
+     * if there was no Activity found to run the given Intent.
+     *
+     * @param intent The intent to start.
+     * @param requestCode If >= 0, this code will be returned in
+     *                    onActivityResult() when the activity exits.
+     * @param options Additional options for how the Activity should be started.
+     * See {@link android.content.Context#startActivity(Intent, Bundle)}
+     * Context.startActivity(Intent, Bundle)} for more details.
+     *
+     * @throws android.content.ActivityNotFoundException
+     *
+     * @see #startActivity
+     */
+    public void startActivityForResult(@RequiresPermission Intent intent, int requestCode,
+            @Nullable Bundle options) {
+        if (mParent == null) {
+            options = transferSpringboardActivityOptions(options);
+            Instrumentation.ActivityResult ar =
+                mInstrumentation.execStartActivity(
+                    this, mMainThread.getApplicationThread(), mToken, this,
+                    intent, requestCode, options);
+            if (ar != null) {
+                mMainThread.sendActivityResult(
+                    mToken, mEmbeddedID, requestCode, ar.getResultCode(),
+                    ar.getResultData());
+            }
+            if (requestCode >= 0) {
+                // If this start is requesting a result, we can avoid making
+                // the activity visible until the result is received.  Setting
+                // this code during onCreate(Bundle savedInstanceState) or onResume() will keep the
+                // activity hidden during this time, to avoid flickering.
+                // This can only be done when a result is requested because
+                // that guarantees we will get information back when the
+                // activity is finished, no matter what happens to it.
+                mStartedActivity = true;
+            }
+
+            cancelInputsAndStartExitTransition(options);
+            // TODO Consider clearing/flushing other event sources and events for child windows.
+        } else {
+            if (options != null) {
+                mParent.startActivityFromChild(this, intent, requestCode, options);
+            } else {
+                // Note we want to go through this method for compatibility with
+                // existing applications that may have overridden it.
+                mParent.startActivityFromChild(this, intent, requestCode);
+            }
+        }
+    }
+
+	-----------------------Instrumentation.java------------------------------
+	主要用于监控应用程序和系统的交互
+	/**
+     * Execute a startActivity call made by the application.  The default 
+     * implementation takes care of updating any active {@link ActivityMonitor}
+     * objects and dispatches this call to the system activity manager; you can
+     * override this to watch for the application to start an activity, and 
+     * modify what happens when it does. 
+     *
+     * <p>This method returns an {@link ActivityResult} object, which you can 
+     * use when intercepting application calls to avoid performing the start 
+     * activity action but still return the result the application is 
+     * expecting.  To do this, override this method to catch the call to start 
+     * activity so that it returns a new ActivityResult containing the results 
+     * you would like the application to see, and don't call up to the super 
+     * class.  Note that an application is only expecting a result if 
+     * <var>requestCode</var> is &gt;= 0.
+     *
+     * <p>This method throws {@link android.content.ActivityNotFoundException}
+     * if there was no Activity found to run the given Intent.
+     *
+     * @param who The Context from which the activity is being started.
+     * @param contextThread The main thread of the Context from which the activity
+     *                      is being started.
+     * @param token Internal token identifying to the system who is starting 
+     *              the activity; may be null.
+     * @param target Which activity is performing the start (and thus receiving 
+     *               any result); may be null if this call is not being made
+     *               from an activity.
+     * @param intent The actual Intent to start.
+     * @param requestCode Identifier for this request's result; less than zero 
+     *                    if the caller is not expecting a result.
+     * @param options Addition options.
+     *
+     * @return To force the return of a particular result, return an 
+     *         ActivityResult object containing the desired data; otherwise
+     *         return null.  The default implementation always returns null.
+     *
+     * @throws android.content.ActivityNotFoundException
+     *
+     * @see Activity#startActivity(Intent)
+     * @see Activity#startActivityForResult(Intent, int)
+     * @see Activity#startActivityFromChild
+     *
+     * {@hide}
+     */
+    public ActivityResult execStartActivity(
+            Context who, IBinder contextThread, IBinder token, Activity target,
+            Intent intent, int requestCode, Bundle options) {
+		IApplicationThread whoThread = (IApplicationThread) contextThread;
+        ...
+        try {
+            intent.migrateExtraStreamToClipData();
+            intent.prepareToLeaveProcess(who);
+            int result = ActivityManager.getService()
+                .startActivity(whoThread, who.getBasePackageName(), intent,
+                        intent.resolveTypeIfNeeded(who.getContentResolver()),
+                        token, target != null ? target.mEmbeddedID : null,
+                        requestCode, 0, null, options);
+            checkStartActivityResult(result, intent);
+        } catch (RemoteException e) {
+            throw new RuntimeException("Failure from system", e);
+        }
+        return null;
+    }
+
+	-------------------ActivityManager.java------------------	
+
+	/**
+     * @hide
+     */
+    public static IActivityManager getService() {
+        return IActivityManagerSingleton.get();
+    }
+
+    private static final Singleton<IActivityManager> IActivityManagerSingleton =
+            new Singleton<IActivityManager>() {
+                @Override
+                protected IActivityManager create() {
+					// IBInder类型的AMS的引用,IActivityManager.aidl 文件路径为/framework/base/core/java/android/app/IActivityManager.aidl;
+                    final IBinder b = ServiceManager.getService(Context.ACTIVITY_SERVICE);
+                    final IActivityManager am = IActivityManager.Stub.asInterface(b);
+                    return am;
+                }
+            };
+
+	------------------------Singleton.java-------------------------
+	public abstract class Singleton<T> {
+	    private T mInstance;
+	
+	    protected abstract T create();
+	
+	    public final T get() {
+	        synchronized (this) {
+	            if (mInstance == null) {
+	                mInstance = create();
+	            }
+	            return mInstance;
+	        }
+	    }
+	}
+
+
+	
+```
+
+
+- AMS 到ApplicationThread 的调用过程;
+
+launch请求了AMS后,调用了AMS的startActivity方法
+
+
+```
+
+	//------------------------ActivityManagerService.java-----------------------------
+	@Override
+    public final int startActivity(IApplicationThread caller, String callingPackage,
+            Intent intent, String resolvedType, IBinder resultTo, String resultWho, int requestCode,
+            int startFlags, ProfilerInfo profilerInfo, Bundle bOptions) {
+		//UserHandle.getCallingUserId()用于获取调用者的UserId,可用于判断调用者的权限;
+        return startActivityAsUser(caller, callingPackage, intent, resolvedType, resultTo,
+                resultWho, requestCode, startFlags, profilerInfo, bOptions,
+                UserHandle.getCallingUserId());
+    }
+
+    @Override
+    public final int startActivityAsUser(IApplicationThread caller, String callingPackage,
+            Intent intent, String resolvedType, IBinder resultTo, String resultWho, int requestCode,
+            int startFlags, ProfilerInfo profilerInfo, Bundle bOptions, int userId) {
+		//判断调用者进程是否被隔离; SecurityException;
+        enforceNotIsolatedCaller("startActivity");
+		//检查调用者权限; SecurityException;
+        userId = mUserController.handleIncomingUser(Binder.getCallingPid(), Binder.getCallingUid(),
+                userId, false, ALLOW_FULL_ONLY, "startActivity", null);
+        // TODO: Switch to user app stacks here.
+        return mActivityStarter.startActivityMayWait(caller, -1, callingPackage, intent,
+                resolvedType, null, null, resultTo, resultWho, requestCode, startFlags,
+                profilerInfo, null, null, bOptions, false, userId, null, "startActivityAsUser");
+    }
+
+
+	//---------------------ActivityStarter.java--加载activity的控制类,android7.0加入--------------------
+	//TaskRecord 代表启动activity的栈,最后一个表示启动的理由;
+	final int startActivityMayWait(IApplicationThread caller, int callingUid,
+            String callingPackage, Intent intent, String resolvedType,
+            IVoiceInteractionSession voiceSession, IVoiceInteractor voiceInteractor,
+            IBinder resultTo, String resultWho, int requestCode, int startFlags,
+            ProfilerInfo profilerInfo, WaitResult outResult,
+            Configuration globalConfig, Bundle bOptions, boolean ignoreTargetSecurity, int userId,
+            TaskRecord inTask, String reason) {
+        ...
+        
+		//ActivityStackSupervisor
+        ResolveInfo rInfo = mSupervisor.resolveIntent(intent, resolvedType, userId);
+        ...
+        // Collect information about the target of the Intent.
+        ActivityInfo aInfo = mSupervisor.resolveActivity(intent, rInfo, startFlags, profilerInfo);
+        ...
+
+            final ActivityRecord[] outRecord = new ActivityRecord[1];
+            int res = startActivityLocked(caller, intent, ephemeralIntent, resolvedType,
+                    aInfo, rInfo, voiceSession, voiceInteractor,
+                    resultTo, resultWho, requestCode, callingPid,
+                    callingUid, callingPackage, realCallingPid, realCallingUid, startFlags,
+                    options, ignoreTargetSecurity, componentSpecified, outRecord, inTask,
+                    reason);
+
+            ...
+            return res;
+        }
+    }
+
+	int startActivityLocked(IApplicationThread caller, Intent intent, Intent ephemeralIntent,
+            String resolvedType, ActivityInfo aInfo, ResolveInfo rInfo,
+            IVoiceInteractionSession voiceSession, IVoiceInteractor voiceInteractor,
+            IBinder resultTo, String resultWho, int requestCode, int callingPid, int callingUid,
+            String callingPackage, int realCallingPid, int realCallingUid, int startFlags,
+            ActivityOptions options, boolean ignoreTargetSecurity, boolean componentSpecified,
+            ActivityRecord[] outActivity, TaskRecord inTask, String reason) {
+
+        if (TextUtils.isEmpty(reason)) {
+            throw new IllegalArgumentException("Need to specify a reason.");
+        }
+        mLastStartReason = reason;
+        mLastStartActivityTimeMs = System.currentTimeMillis();
+        mLastStartActivityRecord[0] = null;
+
+        mLastStartActivityResult = startActivity(caller, intent, ephemeralIntent, resolvedType,
+                aInfo, rInfo, voiceSession, voiceInteractor, resultTo, resultWho, requestCode,
+                callingPid, callingUid, callingPackage, realCallingPid, realCallingUid, startFlags,
+                options, ignoreTargetSecurity, componentSpecified, mLastStartActivityRecord,
+                inTask);
+
+        if (outActivity != null) {
+            // mLastStartActivityRecord[0] is set in the call to startActivity above.
+            outActivity[0] = mLastStartActivityRecord[0];
+        }
+
+        // Aborted results are treated as successes externally, but we must track them internally.
+        return mLastStartActivityResult != START_ABORTED ? mLastStartActivityResult : START_SUCCESS;
+    }
+
+	/** DO NOT call this method directly. Use {@link #startActivityLocked} instead. */
+    private int startActivity(IApplicationThread caller, Intent intent, Intent ephemeralIntent,
+            String resolvedType, ActivityInfo aInfo, ResolveInfo rInfo,
+            IVoiceInteractionSession voiceSession, IVoiceInteractor voiceInteractor,
+            IBinder resultTo, String resultWho, int requestCode, int callingPid, int callingUid,
+            String callingPackage, int realCallingPid, int realCallingUid, int startFlags,
+            ActivityOptions options, boolean ignoreTargetSecurity, boolean componentSpecified,
+            ActivityRecord[] outActivity, TaskRecord inTask) {
+        int err = ActivityManager.START_SUCCESS;
+        // Pull the optional Ephemeral Installer-only bundle out of the options early.
+        final Bundle verificationBundle
+                = options != null ? options.popAppVerificationBundle() : null;
+		//process 的描述类;
+        ProcessRecord callerApp = null;
+        if (caller != null) {
+			//得到launcher进程
+            callerApp = mService.getRecordForAppLocked(caller);
+            if (callerApp != null) {
+				//获取launcher进程的pid和uid;
+                callingPid = callerApp.pid;
+                callingUid = callerApp.info.uid;
+            } else {
+                Slog.w(TAG, "Unable to find app for caller " + caller
+                        + " (pid=" + callingPid + ") when starting: "
+                        + intent.toString());
+                err = ActivityManager.START_PERMISSION_DENIED;
+            }
+        }
+        ...
+
+		//创建将要启动的Activity的描述类ActivityRecord;
+        ActivityRecord r = new ActivityRecord(mService, callerApp, callingPid, callingUid,
+                callingPackage, intent, resolvedType, aInfo, mService.getGlobalConfiguration(),
+                resultRecord, resultWho, requestCode, componentSpecified, voiceSession != null,
+                mSupervisor, options, sourceRecord);
+        if (outActivity != null) {
+            outActivity[0] = r;
+        }
+        ...
+
+        doPendingActivityLaunchesLocked(false);
+
+        return startActivity(r, sourceRecord, voiceSession, voiceInteractor, startFlags, true,
+                options, inTask, outActivity);
+    }	
+
+	private int startActivity(final ActivityRecord r, ActivityRecord sourceRecord,
+            IVoiceInteractionSession voiceSession, IVoiceInteractor voiceInteractor,
+            int startFlags, boolean doResume, ActivityOptions options, TaskRecord inTask,
+            ActivityRecord[] outActivity) {
+        int result = START_CANCELED;
+        try {
+            mService.mWindowManager.deferSurfaceLayout();
+            result = startActivityUnchecked(r, sourceRecord, voiceSession, voiceInteractor,
+                    startFlags, doResume, options, inTask, outActivity);
+        } finally {
+            // If we are not able to proceed, disassociate the activity from the task. Leaving an
+            // activity in an incomplete state can lead to issues, such as performing operations
+            // without a window container.
+            if (!ActivityManager.isStartResultSuccessful(result)
+                    && mStartActivity.getTask() != null) {
+                mStartActivity.getTask().removeActivity(mStartActivity);
+            }
+            mService.mWindowManager.continueSurfaceLayout();
+        }
+
+        postStartActivityProcessing(r, result, mSupervisor.getLastStack().mStackId,  mSourceRecord,
+                mTargetStack);
+
+        return result;
+    }
+	
+	//最终调用ActivityStarter的此方法
+	// Note: This method should only be called from {@link startActivity}.
+    private int startActivityUnchecked(final ActivityRecord r, ActivityRecord sourceRecord,
+            IVoiceInteractionSession voiceSession, IVoiceInteractor voiceInteractor,
+            int startFlags, boolean doResume, ActivityOptions options, TaskRecord inTask,
+            ActivityRecord[] outActivity) {
+
+        ...
+		// Should this be considered a new task?
+        int result = START_SUCCESS;
+        if (mStartActivity.resultTo == null && mInTask == null && !mAddingToTask
+                && (mLaunchFlags & FLAG_ACTIVITY_NEW_TASK) != 0) {//启动根activity将flag设为newtask
+            newTask = true;
+			//创建新的TaskRecord
+            result = setTaskFromReuseOrCreateNewTask(
+                    taskToAffiliate, preferredLaunchStackId, topStack);
+        } else if (mSourceRecord != null) {
+            result = setTaskFromSourceRecord();
+        } else if (mInTask != null) {
+            result = setTaskFromInTask();
+        } else {
+            // This not being started from an existing activity, and not part of a new task...
+            // just put it in the top task, though these days this case should never happen.
+            setTaskToCurrentTopOrCreateNewTask();
+        }
+        if (result != START_SUCCESS) {
+            return result;
+        }
+        ...
+        if (mDoResume) {
+            final ActivityRecord topTaskActivity =
+                    mStartActivity.getTask().topRunningActivityLocked();
+            if (!mTargetStack.isFocusable()
+                    || (topTaskActivity != null && topTaskActivity.mTaskOverlay
+                    && mStartActivity != topTaskActivity)) {
+                // If the activity is not focusable, we can't resume it, but still would like to
+                // make sure it becomes visible as it starts (this will also trigger entry
+                // animation). An example of this are PIP activities.
+                // Also, we don't want to resume activities in a task that currently has an overlay
+                // as the starting activity just needs to be in the visible paused state until the
+                // over is removed.
+                mTargetStack.ensureActivitiesVisibleLocked(null, 0, !PRESERVE_WINDOWS);
+                // Go ahead and tell window manager to execute app transition for this activity
+                // since the app transition will not be triggered through the resume channel.
+                mWindowManager.executeAppTransition();
+            } else {
+                // If the target stack was not previously focusable (previous top running activity
+                // on that stack was not visible) then any prior calls to move the stack to the
+                // will not update the focused stack.  If starting the new activity now allows the
+                // task stack to be focusable, then ensure that we now update the focused stack
+                // accordingly.
+                if (mTargetStack.isFocusable() && !mSupervisor.isFocusedStack(mTargetStack)) {
+                    mTargetStack.moveToFront("startActivityUnchecked");
+                }
+				// 
+                mSupervisor.resumeFocusedStackTopActivityLocked(mTargetStack, mStartActivity,
+                        mOptions);
+            }
+        } else {
+            mTargetStack.addRecentActivityLocked(mStartActivity);
+        }
+        mSupervisor.updateUserStackLocked(mStartActivity.userId, mTargetStack);
+
+        mSupervisor.handleNonResizableTaskIfNeeded(mStartActivity.getTask(), preferredLaunchStackId,
+                preferredLaunchDisplayId, mTargetStack.mStackId);
+
+        return START_SUCCESS;
+    }
+
+	//----------------ActivityStackSupervisor.java-----------------
+	boolean resumeFocusedStackTopActivityLocked(
+            ActivityStack targetStack, ActivityRecord target, ActivityOptions targetOptions) {
+
+        if (!readyToResume()) {
+            return false;
+        }
+
+        if (targetStack != null && isFocusedStack(targetStack)) {
+            return targetStack.resumeTopActivityUncheckedLocked(target, targetOptions);
+        }
+		//获取要启动的activity所在栈的栈顶的不是处于停止状态的ActivityRecord;
+        final ActivityRecord r = mFocusedStack.topRunningActivityLocked();
+        if (r == null || r.state != RESUMED) {
+            mFocusedStack.resumeTopActivityUncheckedLocked(null, null);
+        } else if (r.state == RESUMED) {
+            // Kick off any lingering app transitions form the MoveTaskToFront operation.
+            mFocusedStack.executeAppTransition(targetOptions);
+        }
+
+        return false;
+    }
+
+	///------------------ActivityStack.java---------------------
+	/**
+     * Ensure that the top activity in the stack is resumed.
+     *
+     * @param prev The previously resumed activity, for when in the process
+     * of pausing; can be null to call from elsewhere.
+     * @param options Activity options.
+     *
+     * @return Returns true if something is being resumed, or false if
+     * nothing happened.
+     *
+     * NOTE: It is not safe to call this method directly as it can cause an activity in a
+     *       non-focused stack to be resumed.
+     *       Use {@link ActivityStackSupervisor#resumeFocusedStackTopActivityLocked} to resume the
+     *       right activity for the current system state.
+     */
+    boolean resumeTopActivityUncheckedLocked(ActivityRecord prev, ActivityOptions options) {
+        if (mStackSupervisor.inResumeTopActivity) {
+            // Don't even start recursing.
+            return false;
+        }
+
+        boolean result = false;
+        try {
+            // Protect against recursion.
+            mStackSupervisor.inResumeTopActivity = true;
+            result = resumeTopActivityInnerLocked(prev, options);
+        } finally {
+            mStackSupervisor.inResumeTopActivity = false;
+        }
+
+        // When resuming the top activity, it may be necessary to pause the top activity (for
+        // example, returning to the lock screen. We suppress the normal pause logic in
+        // {@link #resumeTopActivityUncheckedLocked}, since the top activity is resumed at the end.
+        // We call the {@link ActivityStackSupervisor#checkReadyForSleepLocked} again here to ensure
+        // any necessary pause logic occurs. In the case where the Activity will be shown regardless
+        // of the lock screen, the call to {@link ActivityStackSupervisor#checkReadyForSleepLocked}
+        // is skipped.
+        final ActivityRecord next = topRunningActivityLocked(true /* focusableOnly */);
+        if (next == null || !next.canTurnScreenOn()) {
+            checkReadyForSleep();
+        }
+
+        return result;
+    }
+
+
+	private boolean resumeTopActivityInnerLocked(ActivityRecord prev, ActivityOptions options) {
+        ...
+        if (next.app != null && next.app.thread != null) {
+           ...
+        } else {
+            // Whoops, need to restart this activity!
+            ...
+            if (DEBUG_STATES) Slog.d(TAG_STATES, "resumeTopActivityLocked: Restarting " + next);
+            mStackSupervisor.startSpecificActivityLocked(next, true, true);
+        }
+
+        if (DEBUG_STACK) mStackSupervisor.validateTopActivitiesLocked();
+        return true;
+    }
+
+	//---------------ActivityStackSupervisor.java-----------------
+	void startSpecificActivityLocked(ActivityRecord r,
+            boolean andResume, boolean checkConfig) {
+        // Is this activity's application already running?
+		// 获取即将启动activity的所在的应用程序进程;
+        ProcessRecord app = mService.getProcessRecordLocked(r.processName,
+                r.info.applicationInfo.uid, true);
+
+        r.getStack().setLaunchTime(r);
+		
+		//判断要启动的activity所在的应用程序进程如果已经运行的话,调用realStartActivityLocked;进程没有启动则启动进程;
+        if (app != null && app.thread != null) {
+            try {
+                if ((r.info.flags&ActivityInfo.FLAG_MULTIPROCESS) == 0
+                        || !"android".equals(r.info.packageName)) {
+                    // Don't add this if it is a platform component that is marked
+                    // to run in multiple processes, because this is actually
+                    // part of the framework so doesn't make sense to track as a
+                    // separate apk in the process.
+                    app.addPackage(r.info.packageName, r.info.applicationInfo.versionCode,
+                            mService.mProcessStats);
+                }
+                realStartActivityLocked(r, app, andResume, checkConfig);
+                return;
+            } catch (RemoteException e) {
+                Slog.w(TAG, "Exception when starting activity "
+                        + r.intent.getComponent().flattenToShortString(), e);
+            }
+
+            // If a dead object exception was thrown -- fall through to
+            // restart the application.
+        }
+		//fork一个新的应用程序进程入口,详情见上节分析;
+        mService.startProcessLocked(r.processName, r.info.applicationInfo, true, 0,
+                "activity", r.intent.getComponent(), false, false, true);
+    }
+
+	//此处回调到调用处代码;
+	//thread指得是IApplicationThread,实现是ActivityThread的内部类ApplicationThread,ApplicationThread继承IApplicationThread.Stub;
+	//app为要启动Activity所处的应用程序进程;ProcessRecord记录类;
+	//所以这段代码指的就是要在目标应用程序进程启动Activity;
+	//当前代码逻辑运行在AMS所在的进程中(SystemServer进程),SystemServer通过ApplicationThread来与应用程序进程进行Binder通信;
+	final boolean realStartActivityLocked(ActivityRecord r, ProcessRecord app,
+            boolean andResume, boolean checkConfig) throws RemoteException {
+        ...
+                app.thread.scheduleLaunchActivity(new Intent(r.intent), r.appToken,
+                        System.identityHashCode(r), r.info,
+                        // TODO: Have this take the merged configuration instead of separate global
+                        // and override configs.
+                        mergedConfiguration.getGlobalConfiguration(),
+                        mergedConfiguration.getOverrideConfiguration(), r.compat,
+                        r.launchedFromPackage, task.voiceInteractor, app.repProcState, r.icicle,
+                        r.persistentState, results, newIntents, !andResume,
+                        mService.isNextTransitionForward(), profilerInfo);
+        return true;
+    }
+
+
+```
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191208181104168.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+-----
+
