@@ -5,7 +5,7 @@
 
 
 JNIEXPORT void JNICALL
-Java_com_example_lib_imagefilter_nativecall_GPUImageNativeLibrary_YUVtoRBGA(JNIEnv *env, jobject obj,
+Java_com_example_libimagefilter_nativecall_GPUImageNativeLibrary_YUVtoRBGA(JNIEnv *env, jobject obj,
                                                                        jbyteArray yuv420sp,
                                                                        jint width, jint height,
                                                                        jintArray rgbOut) {
@@ -64,7 +64,7 @@ Java_com_example_lib_imagefilter_nativecall_GPUImageNativeLibrary_YUVtoRBGA(JNIE
 }
 
 JNIEXPORT void JNICALL
-Java_com_example_lib_imagefilter_nativecall_GPUImageNativeLibrary_YUVtoARBG(JNIEnv *env, jobject obj,
+Java_com_example_libimagefilter_nativecall_GPUImageNativeLibrary_YUVtoARBG(JNIEnv *env, jobject obj,
                                                                        jbyteArray yuv420sp,
                                                                        jint width, jint height,
                                                                        jintArray rgbOut) {
@@ -124,7 +124,7 @@ Java_com_example_lib_imagefilter_nativecall_GPUImageNativeLibrary_YUVtoARBG(JNIE
 
 
 JNIEXPORT void JNICALL
-Java_com_example_lib_imagefilter_nativecall_GPUImageNativeLibrary_adjustBitmap(JNIEnv *jenv, jclass thiz,
+Java_com_example_libimagefilter_nativecall_GPUImageNativeLibrary_adjustBitmap(JNIEnv *jenv, jclass thiz,
                                                                        jobject src) {
     unsigned char *srcByteBuffer;
     int result = 0;

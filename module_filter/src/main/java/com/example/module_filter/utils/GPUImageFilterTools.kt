@@ -18,12 +18,12 @@ package com.example.module_filter.utils
 
 import android.app.AlertDialog
 import android.content.Context
-import com.example.lib_imagefilter.filter.base.gpuimage.GPUImageFilter
-import com.example.lib_imagefilter.filter.helper.MagicFilterType
+import com.example.libimagefilter.filter.base.gpuimage.GPUImageFilter
+import com.example.libimagefilter.filter.helper.MagicFilterType
 import com.jarvisdong.kit.utils.ResourceIdUtils
 import com.jdev.module_video.R
-import com.seu.magicfilter.filter.helper.FilterAdjuster
-import com.seu.magicfilter.filter.helper.MagicFilterFactory
+import com.example.libimagefilter.filter.helper.FilterAdjuster
+import com.example.libimagefilter.filter.helper.MagicFilterFactory
 
 object GPUImageFilterTools {
     /**
@@ -281,6 +281,7 @@ object GPUImageFilterTools {
             MagicFilterType.SATURATION -> return ResourceIdUtils.getStringById(R.string.edit_saturation)
             MagicFilterType.SHARPEN -> return ResourceIdUtils.getStringById(R.string.edit_sharpness)
             MagicFilterType.VIBRANCE -> return ResourceIdUtils.getStringById(R.string.edit_vibrance)
+            MagicFilterType.IMAGE_ADJUST -> return "基础滤镜混合"
             else -> return ""
         }
     }

@@ -15,8 +15,6 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
-import android.widget.RelativeLayout
-import com.blankj.utilcode.util.ScreenUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R

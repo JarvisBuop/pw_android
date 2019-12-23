@@ -159,9 +159,9 @@ dependencies {
 
 
 
+    api project(path: ':lib_imagefilter')
     api project(path: ':lib_kit')
     api project(path: ':lib_gpuimage')
-    api project(path: ':lib_imagefilter')
 
 //    implementation 'androidx.appcompat:appcompat:1.0.2'
     //module import

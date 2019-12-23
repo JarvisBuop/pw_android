@@ -9,7 +9,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.lib_imagefilter.filter.helper.MagicFilterType;
+import com.example.libimagefilter.filter.helper.MagicFilterType;
 import com.example.module_filter.ui.helper.FilterTypeHelper;
 import com.jdev.module_video.R;
 

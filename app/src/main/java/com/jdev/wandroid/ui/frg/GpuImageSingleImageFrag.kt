@@ -15,7 +15,6 @@ import com.blankj.utilcode.util.ToastUtils
 import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
 import com.jdev.wandroid.utils.gputils.GPUImageFilterTools
-import com.seu.magicfilter.MagicEngine
 import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
 import com.seu.magicfilter.filter.helper.FilterAdjuster
 import com.seu.magicfilter.filter.helper.MagicFilterFactory

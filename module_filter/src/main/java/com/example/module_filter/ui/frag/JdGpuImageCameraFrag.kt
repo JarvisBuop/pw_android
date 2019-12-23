@@ -16,9 +16,9 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
-import com.example.lib_imagefilter.camera.CameraEngine
-import com.example.lib_imagefilter.filter.helper.MagicFilterType
-import com.example.lib_imagefilter.utils.MagicParams
+import com.example.libimagefilter.camera.CameraEngine
+import com.example.libimagefilter.filter.helper.MagicFilterType
+import com.example.libimagefilter.utils.MagicParams
 import com.example.module_filter.ui.adapter.FilterAdapter
 import com.example.module_filter.utils.GPUImageFilterTools
 import com.jdev.kit.baseui.BaseViewStubFragment

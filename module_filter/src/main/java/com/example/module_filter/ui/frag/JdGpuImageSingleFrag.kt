@@ -12,14 +12,14 @@ import android.support.v4.content.ContextCompat
 import android.view.View
 import android.widget.Toast
 import com.blankj.utilcode.util.ToastUtils
-import com.example.lib_imagefilter.filter.base.gpuimage.GPUImageFilter
-import com.example.lib_imagefilter.filter.helper.MagicFilterType
-import com.example.lib_imagefilter.widget.JdGPUDisplayView
+import com.example.libimagefilter.filter.base.gpuimage.GPUImageFilter
+import com.example.libimagefilter.filter.helper.MagicFilterType
+import com.example.libimagefilter.widget.JdGPUDisplayView
 import com.example.module_filter.utils.GPUImageFilterTools
 import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.module_video.R
-import com.seu.magicfilter.filter.helper.FilterAdjuster
-import com.seu.magicfilter.filter.helper.MagicFilterFactory
+import com.example.libimagefilter.filter.helper.FilterAdjuster
+import com.example.libimagefilter.filter.helper.MagicFilterFactory
 import kotlinx.android.synthetic.main.app_frag_jdgpu_single.*
 
 /**
@@ -48,7 +48,7 @@ class JdGpuImageSingleFrag :BaseViewStubFragment(){
         layout_controller.visibility = View.VISIBLE
         gpuImageView.setImage(BitmapFactory.decodeResource(mContext!!.resources, R.drawable.gpuimage_origin))
 
-        filterType = MagicFilterType.CUSTOM_丑颜
+        filterType = MagicFilterType.CONTRAST
         var filterName = filterType.name
         var filter: GPUImageFilter? = MagicFilterFactory.getFilterByType(filterType)
         filterAdjuster = FilterAdjuster(filter)

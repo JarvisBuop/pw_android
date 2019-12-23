@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 JNIEXPORT void JNICALL
-Java_com_example_lib_imagefilter_nativecall_MagicJni_jniInitMagicBeautify(JNIEnv *env, jobject instance,
+Java_com_example_libimagefilter_nativecall_MagicJni_jniInitMagicBeautify(JNIEnv *env, jobject instance,
                                                                 jobject handler) {
     JniBitmap* jniBitmap = (JniBitmap*) env->GetDirectBufferAddress(handler);
     if (jniBitmap->_storedBitmapPixels == NULL){
@@ -24,37 +24,37 @@ Java_com_example_lib_imagefilter_nativecall_MagicJni_jniInitMagicBeautify(JNIEnv
 }
 
 JNIEXPORT void JNICALL
-Java_com_example_lib_imagefilter_nativecall_MagicJni_jniStartWhiteSkin(JNIEnv *env, jobject instance,
+Java_com_example_libimagefilter_nativecall_MagicJni_jniStartWhiteSkin(JNIEnv *env, jobject instance,
                                                              jfloat whiteLevel){
     MagicBeautify::getInstance()->startWhiteSkin(whiteLevel);
 }
 
 JNIEXPORT void JNICALL
-Java_com_example_lib_imagefilter_nativecall_MagicJni_jniStartSkinSmooth(JNIEnv *env, jobject instance,
+Java_com_example_libimagefilter_nativecall_MagicJni_jniStartSkinSmooth(JNIEnv *env, jobject instance,
                                                               jobject obj, jfloat DenoiseLevel){
     float sigema = 10 + DenoiseLevel * DenoiseLevel * 5;
     MagicBeautify::getInstance()->startSkinSmooth(sigema);
 }
 
 JNIEXPORT void JNICALL
-Java_com_example_lib_imagefilter_nativecall_MagicJni_jniUnInitMagicBeautify(JNIEnv *env, jobject instance){
+Java_com_example_libimagefilter_nativecall_MagicJni_jniUnInitMagicBeautify(JNIEnv *env, jobject instance){
     MagicBeautify::getInstance()->unInitMagicBeautify();
 }
 
 JNIEXPORT jobject JNICALL
-Java_com_example_lib_imagefilter_nativecall_MagicJni_jniStoreBitmapData(JNIEnv *env, jobject instance,
+Java_com_example_libimagefilter_nativecall_MagicJni_jniStoreBitmapData(JNIEnv *env, jobject instance,
                                                               jobject bitmap){
     return BitmapOperation::jniStoreBitmapData(env, instance, bitmap);
 }
 
 JNIEXPORT void JNICALL
-Java_com_example_lib_imagefilter_nativecall_MagicJni_jniFreeBitmapData(JNIEnv *env, jobject instance,
+Java_com_example_libimagefilter_nativecall_MagicJni_jniFreeBitmapData(JNIEnv *env, jobject instance,
                                                              jobject handle){
     BitmapOperation::jniFreeBitmapData(env, instance, handle);
 }
 
 JNIEXPORT jobject JNICALL
-Java_com_example_lib_imagefilter_nativecall_MagicJni_jniGetBitmapFromStoredBitmapData(JNIEnv *env, jobject instance,
+Java_com_example_libimagefilter_nativecall_MagicJni_jniGetBitmapFromStoredBitmapData(JNIEnv *env, jobject instance,
                                                                             jobject handle){
     return BitmapOperation::jniGetBitmapFromStoredBitmapData(env, instance, handle);
 }

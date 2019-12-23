@@ -18,7 +18,6 @@ package com.jdev.wandroid.utils.gputils
 
 import android.app.AlertDialog
 import android.content.Context
-import com.blankj.utilcode.util.Utils
 import com.jarvisdong.kit.utils.ResourceIdUtils
 import com.jdev.wandroid.R
 import com.jdev.wandroid.widget.GPUImageUglyFilter

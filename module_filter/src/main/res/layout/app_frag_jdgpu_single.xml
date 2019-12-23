@@ -14,7 +14,7 @@
         android:layout_gravity="center"
         android:src="@drawable/gpuimage_origin" />
 
-    <com.example.lib_imagefilter.widget.JdGPUDisplayView
+    <com.example.libimagefilter.widget.JdGPUDisplayView
         android:id="@+id/gpuImageView"
         android:layout_width="200dp"
         android:layout_height="200dp"
