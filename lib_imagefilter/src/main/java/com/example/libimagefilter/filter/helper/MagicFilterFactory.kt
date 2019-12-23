@@ -2,7 +2,6 @@ package com.example.libimagefilter.filter.helper
 
 import com.example.libimagefilter.filter.advanced.MagicImageAdjustFilter
 import com.example.libimagefilter.filter.base.gpuimage.*
-import com.example.libimagefilter.filter.helper.MagicFilterType
 
 class MagicFilterFactory {
 
