@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package jp.co.cyberagent.android.gpuimage.gpureal;
+package com.example.lib_imagefilter.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -36,20 +36,18 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
-import com.seu.magicfilter.camera.CameraEngine;
-import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter;
+import com.example.lib_imagefilter.R;
+import com.example.lib_imagefilter.camera.CameraEngine;
+import com.example.lib_imagefilter.filter.base.gpuimage.GPUImageFilter;
+import com.example.lib_imagefilter.filter.helper.MagicFilterType;
+import com.example.lib_imagefilter.nativecall.GPUImageNativeLibrary;
+import com.example.lib_imagefilter.utils.Rotation;
 import com.seu.magicfilter.filter.helper.MagicFilterFactory;
-import com.seu.magicfilter.filter.helper.MagicFilterType;
-import com.seu.magicfilter.utils.Rotation;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.concurrent.Semaphore;
-
-import jp.co.cyberagent.android.gpuimage.GLTextureView;
-import jp.co.cyberagent.android.gpuimage.GPUImageNativeLibrary;
-import jp.co.cyberagent.android.gpuimage.R;
 
 
 public class JdGPUDisplayView extends FrameLayout {
@@ -62,9 +60,6 @@ public class JdGPUDisplayView extends FrameLayout {
     private GPUImageFilter filter;
     public Size forceSize = null;
     private float ratio = 0.0f;
-
-    public final static int RENDERMODE_WHEN_DIRTY = 0;
-    public final static int RENDERMODE_CONTINUOUSLY = 1;
 
     public JdGPUDisplayView(Context context) {
         super(context);
@@ -80,9 +75,9 @@ public class JdGPUDisplayView extends FrameLayout {
         if (attrs != null) {
             TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.JdGPUDisplayView, 0, 0);
             try {
-                surfaceType = a.getInt(R.styleable.JdGPUDisplayView_gpuimage_surface_type, surfaceType);
-                renderType = a.getInt(R.styleable.JdGPUDisplayView_display_media, surfaceType);
-                isShowLoading = a.getBoolean(R.styleable.JdGPUDisplayView_gpuimage_show_loading, isShowLoading);
+                surfaceType = a.getInt(R.styleable.JdGPUDisplayView_filter_surface_type, surfaceType);
+                renderType = a.getInt(R.styleable.JdGPUDisplayView_filter_display_media, surfaceType);
+                isShowLoading = a.getBoolean(R.styleable.JdGPUDisplayView_filter_show_loading, isShowLoading);
 
             } finally {
                 a.recycle();
@@ -90,13 +85,13 @@ public class JdGPUDisplayView extends FrameLayout {
         }
         gpuImage = new JdGPUImage(context);
         gpuImage.initRenderByType(renderType);
-        if (surfaceType == JdGPUImage.SURFACE_TYPE_TEXTURE_VIEW) {
-            surfaceView = new GPUImageGLTextureView(context, attrs);
-            gpuImage.setGLTextureView((GLTextureView) surfaceView);
-        } else {
+//        if (surfaceType == JdGPUImage.SURFACE_TYPE_TEXTURE_VIEW) {
+//            surfaceView = new GPUImageGLTextureView(context, attrs);
+//            gpuImage.setGLTextureView((GLTextureView) surfaceView);
+//        } else {
             surfaceView = new GPUImageGLSurfaceView(context, attrs);
             gpuImage.setGLSurfaceView((GLSurfaceView) surfaceView);
-        }
+//        }
         addView(surfaceView);
     }
 
@@ -152,17 +147,16 @@ public class JdGPUDisplayView extends FrameLayout {
      * is created, or when {@link #requestRender} is called. Defaults to RENDERMODE_CONTINUOUSLY.
      *
      * @param renderMode one of the RENDERMODE_X constants
-     * @see #RENDERMODE_CONTINUOUSLY
-     * @see #RENDERMODE_WHEN_DIRTY
      * @see GLSurfaceView#setRenderMode(int)
-     * @see GLTextureView#setRenderMode(int)
+//     * @see GLTextureView#setRenderMode(int)
      */
     public void setRenderMode(int renderMode) {
         if (surfaceView instanceof GLSurfaceView) {
             ((GLSurfaceView) surfaceView).setRenderMode(renderMode);
-        } else if (surfaceView instanceof GLTextureView) {
-            ((GLTextureView) surfaceView).setRenderMode(renderMode);
         }
+//        else if (surfaceView instanceof GLTextureView) {
+//            ((GLTextureView) surfaceView).setRenderMode(renderMode);
+//        }
     }
 
     // TODO Should be an xml attribute. But then JdGPUImage can not be distributed as .jar anymore.
@@ -247,9 +241,10 @@ public class JdGPUDisplayView extends FrameLayout {
     public void requestRender() {
         if (surfaceView instanceof GLSurfaceView) {
             ((GLSurfaceView) surfaceView).requestRender();
-        } else if (surfaceView instanceof GLTextureView) {
-            ((GLTextureView) surfaceView).requestRender();
         }
+//        else if (surfaceView instanceof GLTextureView) {
+//            ((GLTextureView) surfaceView).requestRender();
+//        }
     }
 
     /**
@@ -399,9 +394,10 @@ public class JdGPUDisplayView extends FrameLayout {
     public void onPause() {
         if (surfaceView instanceof GLSurfaceView) {
             ((GLSurfaceView) surfaceView).onPause();
-        } else if (surfaceView instanceof GLTextureView) {
-            ((GLTextureView) surfaceView).onPause();
         }
+//        else if (surfaceView instanceof GLTextureView) {
+//            ((GLTextureView) surfaceView).onPause();
+//        }
     }
 
     /**
@@ -410,9 +406,10 @@ public class JdGPUDisplayView extends FrameLayout {
     public void onResume() {
         if (surfaceView instanceof GLSurfaceView) {
             ((GLSurfaceView) surfaceView).onResume();
-        } else if (surfaceView instanceof GLTextureView) {
-            ((GLTextureView) surfaceView).onResume();
         }
+//        else if (surfaceView instanceof GLTextureView) {
+//            ((GLTextureView) surfaceView).onResume();
+//        }
     }
 
     public static class Size {
@@ -451,25 +448,25 @@ public class JdGPUDisplayView extends FrameLayout {
         }
     }
 
-    private class GPUImageGLTextureView extends GLTextureView {
-        public GPUImageGLTextureView(Context context) {
-            super(context);
-        }
-
-        public GPUImageGLTextureView(Context context, AttributeSet attrs) {
-            super(context, attrs);
-        }
-
-        @Override
-        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            if (forceSize != null) {
-                super.onMeasure(MeasureSpec.makeMeasureSpec(forceSize.width, MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(forceSize.height, MeasureSpec.EXACTLY));
-            } else {
-                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            }
-        }
-    }
+//    private class GPUImageGLTextureView extends GLTextureView {
+//        public GPUImageGLTextureView(Context context) {
+//            super(context);
+//        }
+//
+//        public GPUImageGLTextureView(Context context, AttributeSet attrs) {
+//            super(context, attrs);
+//        }
+//
+//        @Override
+//        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+//            if (forceSize != null) {
+//                super.onMeasure(MeasureSpec.makeMeasureSpec(forceSize.width, MeasureSpec.EXACTLY),
+//                        MeasureSpec.makeMeasureSpec(forceSize.height, MeasureSpec.EXACTLY));
+//            } else {
+//                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+//            }
+//        }
+//    }
 
     private class LoadingView extends FrameLayout {
         public LoadingView(Context context) {

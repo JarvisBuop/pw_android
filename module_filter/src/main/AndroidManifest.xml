@@ -1,0 +1,7 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.module_filter">
+
+    <application>
+        <activity android:name="com.example.module_filter.ui.act.MainActivity" />
+    </application>
+</manifest>

@@ -1,17 +1,16 @@
-package jp.co.cyberagent.android.gpuimage.gpureal
+package com.example.lib_imagefilter.widget
 
 import android.graphics.SurfaceTexture
 import android.hardware.Camera
 import android.opengl.EGL14
 import android.opengl.GLES20
-import com.seu.magicfilter.camera.CameraEngine
-import com.seu.magicfilter.encoder.video.TextureMovieEncoder
-import com.seu.magicfilter.filter.advanced.MagicBeautyFilter
-import com.seu.magicfilter.filter.base.MagicCameraInputFilter
-import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
+import com.example.lib_imagefilter.camera.CameraEngine
+import com.example.lib_imagefilter.encoder.video.TextureMovieEncoder
+import com.example.lib_imagefilter.filter.base.MagicCameraInputFilter
+import com.example.lib_imagefilter.filter.base.gpuimage.GPUImageFilter
+import com.example.lib_imagefilter.utils.MagicParams
+import com.example.lib_imagefilter.utils.OpenGlUtils
 import com.seu.magicfilter.filter.helper.MagicFilterFactory
-import com.seu.magicfilter.utils.MagicParams
-import com.seu.magicfilter.utils.OpenGlUtils
 import java.io.File
 import java.io.IOException
 import java.nio.IntBuffer
@@ -27,7 +26,8 @@ import javax.microedition.khronos.opengles.GL10
 class JdGpuCameraRenderer() : JdGPUImageRenderer(null)/*, Camera.PreviewCallback*/ {
 
     private var cameraInputFilter: MagicCameraInputFilter? = null
-    private var beautyFilter: MagicBeautyFilter? = null
+    //todo
+//    private var beautyFilter: MagicBeautyFilter? = null
 
     //frame -> texture;
     private var surfaceTexture: SurfaceTexture? = null
@@ -184,7 +184,6 @@ class JdGpuCameraRenderer() : JdGPUImageRenderer(null)/*, Camera.PreviewCallback
     fun onBeautyLevelChanged() {
         cameraInputFilter?.onBeautyLevelChanged()
     }
-
 
 
 }

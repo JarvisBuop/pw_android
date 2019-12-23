@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package jp.co.cyberagent.android.gpuimage.gpureal;
+package com.example.lib_imagefilter.widget;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 
-import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter;
-import com.seu.magicfilter.utils.OpenGlUtils;
-import com.seu.magicfilter.utils.Rotation;
-import com.seu.magicfilter.utils.TextureRotationUtil;
+
+import com.example.lib_imagefilter.filter.base.gpuimage.GPUImageFilter;
+import com.example.lib_imagefilter.utils.OpenGlUtils;
+import com.example.lib_imagefilter.utils.Rotation;
+import com.example.lib_imagefilter.utils.TextureRotationUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -35,9 +36,8 @@ import java.util.Queue;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import jp.co.cyberagent.android.gpuimage.GLTextureView;
 
-public class JdGPUImageRenderer implements GLSurfaceView.Renderer, GLTextureView.Renderer {
+public class JdGPUImageRenderer implements GLSurfaceView.Renderer/*, GLTextureView.Renderer*/ {
     //滤镜;
     protected GPUImageFilter filter;
 

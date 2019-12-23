@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package jp.co.cyberagent.android.gpuimage.gpureal;
+package com.example.lib_imagefilter.widget;
 
 import android.app.ActivityManager;
 import android.content.Context;
@@ -37,8 +37,10 @@ import android.provider.MediaStore;
 import android.view.Display;
 import android.view.WindowManager;
 
-import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter;
-import com.seu.magicfilter.utils.Rotation;
+
+import com.example.lib_imagefilter.filter.base.gpuimage.GPUImageFilter;
+import com.example.lib_imagefilter.utils.PixelBuffer;
+import com.example.lib_imagefilter.utils.Rotation;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -48,8 +50,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 
-import jp.co.cyberagent.android.gpuimage.GLTextureView;
-import jp.co.cyberagent.android.gpuimage.PixelBuffer;
 
 /**
  * The main accessor for GPUImage functionality. This class helps to do common
@@ -64,7 +64,7 @@ public class JdGPUImage {
     }
 
     static final int SURFACE_TYPE_SURFACE_VIEW = 0;
-    static final int SURFACE_TYPE_TEXTURE_VIEW = 1;
+//    static final int SURFACE_TYPE_TEXTURE_VIEW = 1;
 
     static final int RENDER_TYPE_IMG = 0;
     static final int RENDER_TYPE_VIDEO = 1;
@@ -77,7 +77,7 @@ public class JdGPUImage {
     private JdGPUImageRenderer renderer;
     private int surfaceType = SURFACE_TYPE_SURFACE_VIEW;
     private GLSurfaceView glSurfaceView;
-    private GLTextureView glTextureView;
+//    private GLTextureView glTextureView;
     private GPUImageFilter filter;
     private Bitmap currentBitmap;
     private ScaleType scaleType = ScaleType.CENTER_CROP;
@@ -152,16 +152,16 @@ public class JdGPUImage {
      *
      * @param view the GLTextureView
      */
-    public void setGLTextureView(final GLTextureView view) {
-        surfaceType = SURFACE_TYPE_TEXTURE_VIEW;
-        glTextureView = view;
-        glTextureView.setEGLContextClientVersion(2);
-        glTextureView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
-        glTextureView.setOpaque(false);
-        glTextureView.setRenderer(renderer);
-        glTextureView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-        glTextureView.requestRender();
-    }
+//    public void setGLTextureView(final GLTextureView view) {
+//        surfaceType = SURFACE_TYPE_TEXTURE_VIEW;
+//        glTextureView = view;
+//        glTextureView.setEGLContextClientVersion(2);
+//        glTextureView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+//        glTextureView.setOpaque(false);
+//        glTextureView.setRenderer(renderer);
+//        glTextureView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+//        glTextureView.requestRender();
+//    }
 
     /**
      * Sets the background color
@@ -182,11 +182,12 @@ public class JdGPUImage {
             if (glSurfaceView != null) {
                 glSurfaceView.requestRender();
             }
-        } else if (surfaceType == SURFACE_TYPE_TEXTURE_VIEW) {
-            if (glTextureView != null) {
-                glTextureView.requestRender();
-            }
         }
+//        else if (surfaceType == SURFACE_TYPE_TEXTURE_VIEW) {
+//            if (glTextureView != null) {
+//                glTextureView.requestRender();
+//            }
+//        }
     }
 
     /**
@@ -342,7 +343,7 @@ public class JdGPUImage {
      * @return the bitmap with filter applied
      */
     public Bitmap getBitmapWithFilterApplied(final Bitmap bitmap, boolean recycle) {
-        if (glSurfaceView != null || glTextureView != null) {
+        if (glSurfaceView != null/* || glTextureView != null*/) {
             renderer.deleteImage();
             renderer.runOnDraw(new Runnable() {
 

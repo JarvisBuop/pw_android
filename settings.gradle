@@ -1,6 +1,8 @@
 include ':app',
+        ':module_filter',
         ':module_welcome',
         ':module_video',
+        ':lib_imagefilter',
         ':lib_kit',
         ':lib_jiaozivideoplayer',
         ':lib_adapter',

@@ -19,7 +19,7 @@ import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
 import com.seu.magicfilter.filter.helper.FilterAdjuster
 import com.seu.magicfilter.filter.helper.MagicFilterFactory
 import com.seu.magicfilter.filter.helper.MagicFilterType
-import jp.co.cyberagent.android.gpuimage.gpureal.JdGPUDisplayView
+import com.example.lib_imagefilter.widget.JdGPUDisplayView
 import kotlinx.android.synthetic.main.app_frag_jdgpu_single.*
 
 /**
