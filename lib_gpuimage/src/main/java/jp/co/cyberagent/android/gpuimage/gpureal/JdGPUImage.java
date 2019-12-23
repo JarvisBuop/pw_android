@@ -66,9 +66,15 @@ public class JdGPUImage {
     static final int SURFACE_TYPE_SURFACE_VIEW = 0;
     static final int SURFACE_TYPE_TEXTURE_VIEW = 1;
 
+    static final int RENDER_TYPE_IMG = 0;
+    static final int RENDER_TYPE_VIDEO = 1;
+
+    //-----------------------------------------
+    //-----------------------------------------
+    //-----------------------------------------
+
     private final Context context;
-//    private JdGPUImageRenderer renderer;
-    private JdGpuCameraRenderer renderer;
+    private JdGPUImageRenderer renderer;
     private int surfaceType = SURFACE_TYPE_SURFACE_VIEW;
     private GLSurfaceView glSurfaceView;
     private GLTextureView glTextureView;
@@ -78,7 +84,7 @@ public class JdGPUImage {
     private int scaleWidth, scaleHeight;
 
 
-    public JdGpuCameraRenderer getRenderer() {
+    public JdGPUImageRenderer getRenderer() {
         return renderer;
     }
 
@@ -94,14 +100,21 @@ public class JdGPUImage {
 
         this.context = context;
         filter = new GPUImageFilter();
-//        renderer = new JdGPUImageRenderer(filter);
-        renderer = new JdGpuCameraRenderer();
-        renderer.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
-            @Override
-            public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-                requestRender();
-            }
-        });
+        initRenderByType(RENDER_TYPE_IMG);
+    }
+
+    public void initRenderByType(int renderType) {
+        if (renderType == RENDER_TYPE_VIDEO) {
+            renderer = new JdGpuCameraRenderer();
+            ((JdGpuCameraRenderer) renderer).setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
+                @Override
+                public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+                    requestRender();
+                }
+            });
+        } else {
+            renderer = new JdGPUImageRenderer(filter);
+        }
     }
 
     /**
@@ -199,19 +212,21 @@ public class JdGPUImage {
         requestRender();
     }
 
-    /**
-     * todo 处理视频,将YUV数据转换成RGB数据,使用美颜相加代替;
-     *
-     * Update camera preview frame with YUV format data.
-     *
-     * @param data   Camera preview YUV data for frame.
-     * @param width  width of camera preview
-     * @param height height of camera preview
-     */
-    @Deprecated
-    public void updatePreviewFrame(final byte[] data, final int width, final int height) {
-        renderer.onPreviewFrame(data, width, height);
-    }
+//    /**
+//     * todo 处理视频,将YUV数据转换成RGB数据,使用美颜相加代替;
+//     * <p>
+//     * Update camera preview frame with YUV format data.
+//     *
+//     * @param data   Camera preview YUV data for frame.
+//     * @param width  width of camera preview
+//     * @param height height of camera preview
+//     */
+//    @Deprecated
+//    public void updatePreviewFrame(final byte[] data, final int width, final int height) {
+//        if (renderer instanceof JdGpuCameraRenderer) {
+//            ((JdGpuCameraRenderer) renderer).onPreviewFrame(data, width, height);
+//        }
+//    }
 
     /**
      * This sets the scale type of GPUImage. This has to be run before setting the image.
@@ -234,7 +249,7 @@ public class JdGPUImage {
      * @return array with width and height of bitmap image
      */
     public int[] getScaleSize() {
-        return new int[] {scaleWidth, scaleHeight};
+        return new int[]{scaleWidth, scaleHeight};
     }
 
     /**

@@ -91,7 +91,7 @@ public class JdGPUImageRenderer implements GLSurfaceView.Renderer, GLTextureView
     public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
         GLES20.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, 1);
         GLES20.glDisable(GLES20.GL_DEPTH_TEST);
-        onSurfaceCreatedExcute(unused,config);
+        onSurfaceCreatedExcute(unused, config);
     }
 
     protected void onSurfaceCreatedExcute(GL10 unused, EGLConfig config) {
@@ -161,9 +161,12 @@ public class JdGPUImageRenderer implements GLSurfaceView.Renderer, GLTextureView
             @Override
             public void run() {
                 final GPUImageFilter oldFilter = JdGPUImageRenderer.this.filter;
-                JdGPUImageRenderer.this.filter = filter;
                 if (oldFilter != null) {
                     oldFilter.destroy();
+                }
+                JdGPUImageRenderer.this.filter = filter;
+                if (JdGPUImageRenderer.this.filter == null) {
+                    JdGPUImageRenderer.this.filter = new GPUImageFilter();
                 }
                 JdGPUImageRenderer.this.filter.ifNeedInit();
                 GLES20.glUseProgram(JdGPUImageRenderer.this.filter.getProgram());
@@ -249,10 +252,10 @@ public class JdGPUImageRenderer implements GLSurfaceView.Renderer, GLTextureView
 
         float outputWidth = this.outputWidth;
         float outputHeight = this.outputHeight;
-        if (rotation == Rotation.ROTATION_270 || rotation == Rotation.ROTATION_90) {
-            outputWidth = this.outputHeight;
-            outputHeight = this.outputWidth;
-        }
+//        if (rotation == Rotation.ROTATION_270 || rotation == Rotation.ROTATION_90) {
+//            outputWidth = this.outputHeight;
+//            outputHeight = this.outputWidth;
+//        }
 
         float[] textureCords = TextureRotationUtil.getRotation(rotation, flipHorizontal, flipVertical);
         float[] cube = TextureRotationUtil.CUBE;

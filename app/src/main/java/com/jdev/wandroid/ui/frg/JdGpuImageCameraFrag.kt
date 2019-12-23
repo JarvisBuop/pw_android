@@ -90,10 +90,10 @@ class JdGpuImageCameraFrag : BaseViewStubFragment() {
         animator!!.duration = 500
         animator!!.repeatCount = ValueAnimator.INFINITE
 
-//        val params = glsurfaceview_camera.layoutParams as RelativeLayout.LayoutParams
+//        val params = displayView.layoutParams as ViewGroup.LayoutParams
 //        params.width = ScreenUtils.getScreenWidth()
 //        params.height = ScreenUtils.getScreenWidth() * 4 / 3
-//        glsurfaceview_camera.layoutParams = params
+//        displayView.layoutParams = params
     }
 
     private val onFilterChangeListener = object : FilterAdapter.onFilterChangeListener {

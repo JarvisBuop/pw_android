@@ -1,8 +1,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -11,8 +13,11 @@
 
         <jp.co.cyberagent.android.gpuimage.gpureal.JdGPUDisplayView
             android:id="@+id/displayView"
-            android:layout_width="280dp"
-            android:layout_height="280dp" />
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            app:display_media="render_video"
+            app:gpuimage_surface_type="surface_view" />
 
         <LinearLayout
             android:layout_width="wrap_content"

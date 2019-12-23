@@ -95,10 +95,10 @@ class GpuMagicCameraFrag : BaseViewStubFragment() {
         animator!!.duration = 500
         animator!!.repeatCount = ValueAnimator.INFINITE
 
-        val params = glsurfaceview_camera.layoutParams as RelativeLayout.LayoutParams
-        params.width = ScreenUtils.getScreenWidth()
-        params.height = ScreenUtils.getScreenWidth() * 4 / 3
-        glsurfaceview_camera.layoutParams = params
+//        val params = glsurfaceview_camera.layoutParams as RelativeLayout.LayoutParams
+//        params.width = ScreenUtils.getScreenWidth()
+//        params.height = ScreenUtils.getScreenWidth() * 4 / 3
+//        glsurfaceview_camera.layoutParams = params
     }
 
     private val onFilterChangeListener = object : FilterAdapter.onFilterChangeListener {

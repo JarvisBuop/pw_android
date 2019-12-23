@@ -12,7 +12,6 @@ import com.seu.magicfilter.filter.base.gpuimage.GPUImageFilter
 import com.seu.magicfilter.filter.helper.MagicFilterFactory
 import com.seu.magicfilter.utils.MagicParams
 import com.seu.magicfilter.utils.OpenGlUtils
-import jp.co.cyberagent.android.gpuimage.GPUImageNativeLibrary
 import java.io.File
 import java.io.IOException
 import java.nio.IntBuffer
@@ -25,7 +24,7 @@ import javax.microedition.khronos.opengles.GL10
  * @description:
  *
  */
-class JdGpuCameraRenderer() : JdGPUImageRenderer(null), Camera.PreviewCallback {
+class JdGpuCameraRenderer() : JdGPUImageRenderer(null)/*, Camera.PreviewCallback*/ {
 
     private var cameraInputFilter: MagicCameraInputFilter? = null
     private var beautyFilter: MagicBeautyFilter? = null
@@ -144,31 +143,6 @@ class JdGpuCameraRenderer() : JdGPUImageRenderer(null), Camera.PreviewCallback {
             cameraInputFilter?.destroyFramebuffers()
     }
 
-    @Deprecated("magic replace yuv ")
-    override fun onPreviewFrame(data: ByteArray, camera: Camera) {
-        val previewSize = camera.parameters.previewSize
-        onPreviewFrame(data, previewSize.width, previewSize.height)
-    }
-
-    @Deprecated("magic replace yuv ")
-    fun onPreviewFrame(data: ByteArray, width: Int, height: Int) {
-        if (glRgbBuffer == null) {
-            glRgbBuffer = IntBuffer.allocate(width * height)
-        }
-        if (runOnDraw.isEmpty()) {
-            runOnDraw {
-                GPUImageNativeLibrary.YUVtoRBGA(data, width, height, glRgbBuffer!!.array())
-                glTextureId = OpenGlUtils.loadTexture(glRgbBuffer, width, height, glTextureId)
-
-                if (imageWidth != width) {
-                    imageWidth = width
-                    imageHeight = height
-                    adjustSize()
-                }
-            }
-        }
-    }
-
     @Deprecated("gpuimage use")
     fun setUpSurfaceTexture(camera: Camera) {
         runOnDraw {
@@ -177,7 +151,7 @@ class JdGpuCameraRenderer() : JdGPUImageRenderer(null), Camera.PreviewCallback {
             surfaceTexture = SurfaceTexture(textures[0])
             try {
                 camera.setPreviewTexture(surfaceTexture)
-                camera.setPreviewCallback(this)
+                camera.setPreviewCallback(null)
                 camera.startPreview()
             } catch (e: IOException) {
                 e.printStackTrace()

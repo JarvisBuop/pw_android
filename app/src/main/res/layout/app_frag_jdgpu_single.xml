@@ -19,6 +19,7 @@
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_gravity="center"
+        app:display_media="render_img"
         app:gpuimage_surface_type="surface_view" />
 
     <TextView

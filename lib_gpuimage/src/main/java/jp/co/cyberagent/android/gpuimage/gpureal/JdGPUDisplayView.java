@@ -55,6 +55,7 @@ import jp.co.cyberagent.android.gpuimage.R;
 public class JdGPUDisplayView extends FrameLayout {
 
     private int surfaceType = JdGPUImage.SURFACE_TYPE_SURFACE_VIEW;
+    private int renderType = JdGPUImage.RENDER_TYPE_IMG;
     private View surfaceView;
     private JdGPUImage gpuImage;
     private boolean isShowLoading = true;
@@ -77,15 +78,18 @@ public class JdGPUDisplayView extends FrameLayout {
 
     private void init(Context context, AttributeSet attrs) {
         if (attrs != null) {
-            TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.GPUImageView, 0, 0);
+            TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.JdGPUDisplayView, 0, 0);
             try {
-                surfaceType = a.getInt(R.styleable.GPUImageView_gpuimage_surface_type, surfaceType);
-                isShowLoading = a.getBoolean(R.styleable.GPUImageView_gpuimage_show_loading, isShowLoading);
+                surfaceType = a.getInt(R.styleable.JdGPUDisplayView_gpuimage_surface_type, surfaceType);
+                renderType = a.getInt(R.styleable.JdGPUDisplayView_display_media, surfaceType);
+                isShowLoading = a.getBoolean(R.styleable.JdGPUDisplayView_gpuimage_show_loading, isShowLoading);
+
             } finally {
                 a.recycle();
             }
         }
         gpuImage = new JdGPUImage(context);
+        gpuImage.initRenderByType(renderType);
         if (surfaceType == JdGPUImage.SURFACE_TYPE_TEXTURE_VIEW) {
             surfaceView = new GPUImageGLTextureView(context, attrs);
             gpuImage.setGLTextureView((GLTextureView) surfaceView);
@@ -127,17 +131,6 @@ public class JdGPUDisplayView extends FrameLayout {
      */
     public JdGPUImage getGPUImage() {
         return gpuImage;
-    }
-
-    /**
-     * Update camera preview frame with YUV format data.
-     *
-     * @param data   Camera preview YUV data for frame.
-     * @param width  width of camera preview
-     * @param height height of camera preview
-     */
-    public void updatePreviewFrame(byte[] data, int width, int height) {
-        gpuImage.updatePreviewFrame(data, width, height);
     }
 
     /**
@@ -572,6 +565,8 @@ public class JdGPUDisplayView extends FrameLayout {
     }
 
     public void changeRecordingState(boolean isRecording) {
-        gpuImage.getRenderer().changeRecordingState(isRecording);
+        if (renderType == JdGPUImage.RENDER_TYPE_VIDEO) {
+            ((JdGpuCameraRenderer) gpuImage.getRenderer()).changeRecordingState(isRecording);
+        }
     }
 }
