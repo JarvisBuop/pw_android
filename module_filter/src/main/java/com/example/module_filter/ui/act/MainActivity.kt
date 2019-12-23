@@ -9,6 +9,7 @@ import com.jarvisdong.kotlindemo.ui.BaseActivity
 import com.jdev.kit.baseui.BaseFragment
 import com.jdev.module_video.R
 import com.jdev.wandroid.ui.frg.JdGpuImageCameraFrag
+import com.jdev.wandroid.ui.frg.JdGpuImageMultiFrag
 import com.jdev.wandroid.ui.frg.JdGpuImageSingleFrag
 import kotlinx.android.synthetic.main.act_main.*
 
@@ -21,8 +22,12 @@ import kotlinx.android.synthetic.main.act_main.*
 
 const val KEY_ANDROID_JDGPU_SINGLE = 10
 const val KEY_ANDROID_JDGPU_CAMERA = 11
+const val KEY_ANDROID_JDGPU_MULTI = 12
 
-class MainActivity :BaseActivity(){
+class MainActivity : BaseActivity() {
+    var intKey = KEY_ANDROID_JDGPU_SINGLE
+    var currentFrag: BaseFragment? = null
+
     override fun getViewStubId(): Int {
         return R.layout.act_main
     }
@@ -43,16 +48,16 @@ class MainActivity :BaseActivity(){
                 KEY_ANDROID_JDGPU_SINGLE -> {
                     return JdGpuImageSingleFrag()
                 }
-                KEY_ANDROID_JDGPU_CAMERA ->{
+                KEY_ANDROID_JDGPU_CAMERA -> {
                     return JdGpuImageCameraFrag()
+                }
+                KEY_ANDROID_JDGPU_MULTI -> {
+                    return JdGpuImageMultiFrag()
                 }
                 else -> return null
             }
         }
     }
-
-    var intKey = KEY_ANDROID_JDGPU_SINGLE
-    var currentFrag: BaseFragment? = null
 
     override fun initIntentData(): Boolean {
         intKey = intent.getIntExtra(EXTRA_KEY, intKey)
