@@ -229,7 +229,7 @@ object GPUImageFilterTools {
     }
 
 
-    fun FilterType2Name(filterType: MagicFilterType): String {
+    fun FilterType2Name(filterType: MagicFilterType?): String {
         when (filterType) {
             MagicFilterType.NONE -> return ResourceIdUtils.getStringById(R.string.filter_none)
             MagicFilterType.WHITECAT -> return ResourceIdUtils.getStringById(R.string.filter_whitecat)

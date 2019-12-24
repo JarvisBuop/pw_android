@@ -25,7 +25,8 @@ const val KEY_ANDROID_JDGPU_CAMERA = 11
 const val KEY_ANDROID_JDGPU_MULTI = 12
 
 class MainActivity : BaseActivity() {
-    var intKey = KEY_ANDROID_JDGPU_SINGLE
+    //当前入口;
+    var intKey = KEY_ANDROID_JDGPU_MULTI
     var currentFrag: BaseFragment? = null
 
     override fun getViewStubId(): Int {

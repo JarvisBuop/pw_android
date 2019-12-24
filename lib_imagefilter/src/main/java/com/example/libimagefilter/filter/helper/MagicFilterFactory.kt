@@ -7,7 +7,7 @@ class MagicFilterFactory {
 
     companion object {
 
-        var currentFilterType = MagicFilterType.NONE
+        var currentFilterType: MagicFilterType? = MagicFilterType.NONE
 
 //        fun createBlendFilter(
 //                filterClass: Class<out GPUImageTwoInputFilter>,
@@ -27,7 +27,7 @@ class MagicFilterFactory {
 //            }
 //        }
 
-        fun getFilterByType(type: MagicFilterType): GPUImageFilter? {
+        fun getFilterByType(type: MagicFilterType?): GPUImageFilter? {
             currentFilterType = type
             return when (type) {
                 MagicFilterType.NONE -> return GPUImageFilter()

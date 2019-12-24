@@ -1,26 +1,36 @@
 package com.example.module_filter.ui.frag
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
+import android.graphics.Rect
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.support.v4.view.PagerAdapter
+import android.support.v4.view.ViewPager
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.util.SparseArray
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.Toast
-import com.blankj.utilcode.util.ToastUtils
+import android.view.ViewGroup
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
+import com.blankj.utilcode.util.ConvertUtils
+import com.blankj.utilcode.util.StringUtils
+import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.BaseViewHolder
 import com.example.libimagefilter.filter.base.gpuimage.GPUImageFilter
-import com.example.libimagefilter.filter.helper.MagicFilterType
-import com.example.libimagefilter.widget.JdGPUDisplayView
-import com.example.module_filter.utils.GPUImageFilterTools
-import com.jdev.kit.baseui.BaseViewStubFragment
 import com.example.libimagefilter.filter.helper.FilterAdjuster
 import com.example.libimagefilter.filter.helper.MagicFilterFactory
+import com.example.libimagefilter.filter.helper.MagicFilterType
+import com.example.libimagefilter.widget.JdGPUDisplayView
 import com.example.module_filter.R
-import kotlinx.android.synthetic.main.app_frag_jdgpu_single.*
+import com.example.module_filter.utils.GPUImageFilterTools
+import com.example.module_filter.utils.KtHandlerSingleton
+import com.jdev.kit.baseui.BaseViewStubFragment
+import kotlinx.android.synthetic.main.frag_gpufilter.*
 
 /**
  * info: create by jd in 2019/12/20
@@ -28,151 +38,271 @@ import kotlinx.android.synthetic.main.app_frag_jdgpu_single.*
  * @description: 效果图;
  *
  */
-class JdGpuImageMultiFrag :BaseViewStubFragment(){
+class JdGpuImageMultiFrag : BaseViewStubFragment() {
+
+    private var viewpagePosition: Int = 0
+    private var mPagerAdapter: MyPagerAdapter? = null
+    val allFilters = arrayListOf<MagicFilterType>(
+            MagicFilterType.NONE,
+            //origin
+            MagicFilterType.CONTRAST,
+            MagicFilterType.BRIGHTNESS,
+            MagicFilterType.EXPOSURE,
+            MagicFilterType.HUE,
+            MagicFilterType.SATURATION,
+            MagicFilterType.SHARPEN,
+            MagicFilterType.IMAGE_ADJUST
+    )
+
+    //图片相关数据
+    var arrayFilters = arrayListOf<FilterData>(
+            FilterData(R.drawable.gpuimage_origin),
+            FilterData(R.drawable.gpuimage_icon_beauty),
+            FilterData(R.drawable.gpuiamge_icon_dragon)
+    )
+
+    data class FilterData(
+            var res: Int = R.drawable.gpuimage_origin,
+            var nameFilter: String? = "原图",
+            var filterType: MagicFilterType = MagicFilterType.NONE,
+            var filterAdjuster: FilterAdjuster? = null,
+            var seekBar: Int = 0
+    )
+
+    inner class MyPagerAdapter : PagerAdapter() {
+        var map = SparseArray<View>()
+
+        override fun isViewFromObject(view: View, `object`: Any): Boolean {
+            return `object` == view
+        }
+
+        override fun getCount(): Int {
+            return arrayFilters.size
+        }
+
+        override fun instantiateItem(container: ViewGroup, position: Int): Any {
+            var view = map.get(position)
+            if (view == null) {
+                view = LayoutInflater.from(mContext).inflate(R.layout.item_gpufilter_picture_main, container, false)
+                map.put(position, view)
+            }
+
+            var gpuImageView = view.findViewById<JdGPUDisplayView>(R.id.gpuImageView)
+            var i = arrayFilters[position]
+            gpuImageView.setImage(BitmapFactory.decodeResource(mContext!!.resources, i.res))
+            container.addView(view)
+            return view
+        }
+
+        override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
+            container.removeView(`object` as View)
+        }
+
+        override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
+            super.setPrimaryItem(container, position, `object`)
+        }
+    }
+
+
     override fun getViewStubId(): Int {
-        return R.layout.app_frag_jdgpu_single
+        return R.layout.frag_gpufilter
     }
 
     companion object {
-        private const val REQUEST_PHOTOPICKER = 1
+        //存储权限;
         private const val REQUEST_STORAGE_PERMISSION = 2
     }
 
-    private lateinit var filterType: MagicFilterType
-    var progress: Int = 50
-    var filterAdjuster: FilterAdjuster? = null
 
     override fun initIntentData(): Boolean = true
 
     override fun customOperate(savedInstanceState: Bundle?) {
-        layout_controller.visibility = View.VISIBLE
-        gpuImageView.setImage(BitmapFactory.decodeResource(mContext!!.resources, R.drawable.gpuimage_origin))
-
-        filterType = MagicFilterType.CUSTOM_丑颜
-        var filterName = filterType.name
-        var filter: GPUImageFilter? = MagicFilterFactory.getFilterByType(filterType)
-        filterAdjuster = FilterAdjuster(filter)
-        switchFilterTo(filter, gpuImageView, filterAdjuster, filterName)
-
-        txt_style_name.setOnClickListener {
-            GPUImageFilterTools.showDialog(mContext!!, txt_style_name.text.toString()) { filter, name ->
-
-                //设置filteradjuster , 切换filter;
-                filterAdjuster = FilterAdjuster(filter)
-                switchFilterTo(filter, gpuImageView, filterAdjuster, name)
-            }
+        if (!hasStoragePermission()) {
+            ActivityCompat.requestPermissions(
+                    activity!!,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
+                    REQUEST_STORAGE_PERMISSION
+            )
+            return
         }
-
-        txt_style_action.setOnClickListener {
-            if (filterAdjuster?.canAdjust() ?: false) {
-                progress += 10
-                if (progress > 100) {
-                    progress = 0
-                }
-                txt_style_action.text = "++ ${filterAdjuster?.canAdjust()} " + if (filterAdjuster?.canAdjust()
-                                ?: false) "$progress" else ""
-
-                //更新gpuimage;
-                filterAdjuster?.adjust(progress)
-                gpuImageView.requestRender()
-            }
-        }
-
-        txt_style_save.setOnClickListener {
-            if (!hasCameraPermission() || !hasStoragePermission()) {
-                ActivityCompat.requestPermissions(
-                        activity!!,
-                        arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA),
-                        REQUEST_STORAGE_PERMISSION
-                )
-            } else {
-                saveImage()
-            }
-        }
-
-        txt_style_select.setOnClickListener {
-            startPhotoPicker()
-        }
-
-        txt_style_custom.setOnClickListener {
-            GPUImageFilterTools.showCustomFilterDialog(mContext!!, txt_style_name.text.toString()) { filter, name ->
-                //设置filteradjuster , 切换filter;
-                filterAdjuster = FilterAdjuster(filter)
-                if (filterAdjuster?.adjuster == null) {
-                    filterAdjuster?.adjuster = GPUImageFilterTools.createCustomAdjusterByFilter(filter)
-                }
-                switchFilterTo(filter, gpuImageView, filterAdjuster, name)
-            }
-        }
-
+        initView()
     }
 
-    @SuppressLint("SetTextI18n")
-    private fun switchFilterTo(filter: GPUImageFilter?, gpuImageView: JdGPUDisplayView, filterAdjuster: FilterAdjuster?,
-                               name: String) {
-        //ui
-        txt_style_name.text = name
-        txt_style_action.text = "++ ${filterAdjuster?.canAdjust()} " + if (filterAdjuster?.canAdjust() == true) "$progress" else ""
+    fun initView() {
+        initViewPager()
+        initSeekBar()
+        initRecyclerView()
+    }
 
-        //logic
-        if (filter != null && (gpuImageView.filter == null || gpuImageView.filter.javaClass != filter.javaClass)) {
-            gpuImageView.filter = filter
-            if (filterAdjuster?.canAdjust() == true) {
-                filterAdjuster?.adjust(progress)
+    private fun initRecyclerView() {
+        mRecyclerView.layoutManager = LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false)
+        mRecyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
+
+            override fun getItemOffsets(outRect: Rect?, view: View?, parent: RecyclerView?, state: RecyclerView.State?) {
+                var viewLayoutPosition = (view?.layoutParams as RecyclerView.LayoutParams).viewLayoutPosition
+                if (viewLayoutPosition == (parent?.adapter?.itemCount ?: 0) - 1) {
+                    outRect?.set(ConvertUtils.dp2px(15f), 0, ConvertUtils.dp2px(15f), 0)
+                } else {
+                    outRect?.set(ConvertUtils.dp2px(15f), 0, 0, 0)
+                }
+            }
+        })
+        mRecyclerView.adapter = object : BaseQuickAdapter<MagicFilterType, BaseViewHolder>(R.layout.item_gpufilter_controll, allFilters) {
+            override fun convert(helper: BaseViewHolder?, item: MagicFilterType) {
+                helper?.apply {
+                    setText(R.id.filter_txt, if (!StringUtils.isEmpty(GPUImageFilterTools.FilterType2Name(item)))
+                        GPUImageFilterTools.FilterType2Name(item)
+                    else "原图")
+
+                    var indexOf = allFilters.indexOf(arrayFilters[viewpagePosition].filterType)
+                    if (helper.adapterPosition == indexOf) {
+                        helper.getView<View>(R.id.filter_selected).visibility = View.VISIBLE
+                    } else {
+                        helper.getView<View>(R.id.filter_selected).visibility = View.GONE
+                    }
+
+                    var view = getView<View>(R.id.filter_pic)
+
+                    view.setOnClickListener {
+                        var filterData = arrayFilters.get(viewpagePosition)
+                        filterData.filterType = item
+                        filterData.nameFilter = GPUImageFilterTools.FilterType2Name(item)
+                        notifyDataSetChanged()
+
+                        showMarkByType(name = filterData.nameFilter, type = 0)
+                        switchFilterForCurrentImage()
+                    }
+                }
             }
         }
+    }
 
+    private fun initSeekBar() {
+        mSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    var filterData = arrayFilters[viewpagePosition]
+                    filterData.seekBar = progress
+                    showMarkByType(percent = progress, type = 1)
+
+                    //更新gpuimage;
+                    filterData.filterAdjuster?.adjust(progress)
+                    getPrimaryView()?.requestRender()
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+
+        })
+    }
+
+    private fun initViewPager() {
+        mViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            override fun onPageScrollStateChanged(state: Int) {
+            }
+
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+            }
+
+            override fun onPageSelected(position: Int) {
+                viewpagePosition = position
+                mTxtCurrentTab.text = "${viewpagePosition + 1}/${arrayFilters.size}"
+                //滑动底部滤镜至选择  && seekbar 设置;
+                var filterData = arrayFilters.get(viewpagePosition)
+                var indexOf = allFilters.indexOf(filterData.filterType)
+
+                if (indexOf != -1) {
+                    mRecyclerView.adapter.notifyDataSetChanged()
+                    mRecyclerView.smoothScrollToPosition(indexOf)
+                    //fromUser attention;
+                    mSeekBar.progress = filterData.seekBar
+
+                }
+
+                switchFilterForCurrentImage()
+            }
+
+        })
+
+        mPagerAdapter = MyPagerAdapter()
+        mViewPager.adapter = mPagerAdapter
+        mViewPager.offscreenPageLimit = arrayFilters.size
+    }
+
+    private fun switchFilterForCurrentImage() {
+        var filterData = arrayFilters.get(viewpagePosition)
+        var gpuImageView = getPrimaryView()
+
+        var filter: GPUImageFilter? = MagicFilterFactory.getFilterByType(filterData.filterType)
+
+        if (filter != null && (gpuImageView.filter == null || gpuImageView.filter.javaClass != filter.javaClass)) {
+            gpuImageView.filter = filter
+            filterData.filterAdjuster = FilterAdjuster(filter)
+            if (filterData.filterAdjuster?.canAdjust() == true) {
+                mSeekBar.visibility = View.VISIBLE
+                filterData.filterAdjuster?.adjust(filterData.seekBar)
+            } else {
+                mSeekBar.visibility = View.INVISIBLE
+            }
+        }else if(filterData.filterAdjuster!=null){
+            if (filterData.filterAdjuster?.canAdjust() == true) {
+                mSeekBar.visibility = View.VISIBLE
+                filterData.filterAdjuster?.adjust(filterData.seekBar)
+            } else {
+                mSeekBar.visibility = View.INVISIBLE
+            }
+        }
         gpuImageView.requestRender()
     }
 
-    /**
-     * 保存文件至指定路径;
-     * 返回一个contentprovider的路径;
-     */
-    private fun saveImage() {
-        val fileName = System.currentTimeMillis().toString() + ".jpg"
-        gpuImageView.saveToPictures("GPUImage", fileName) { uri ->
-            Toast.makeText(mContext!!, "Saved: $uri", Toast.LENGTH_SHORT).show()
-        }
+    private fun getPrimaryView(): JdGPUDisplayView {
+//        return mViewPager.getChildAt(viewpagePosition).findViewById<JdGPUDisplayView>(R.id.gpuImageView)
+        return mPagerAdapter!!.map.get(viewpagePosition).findViewById<JdGPUDisplayView>(R.id.gpuImageView)
     }
 
-    private fun startPhotoPicker() {
-        val photoPickerIntent = Intent(Intent.ACTION_PICK)
-        photoPickerIntent.type = "image/*"
-        startActivityForResult(photoPickerIntent, REQUEST_PHOTOPICKER)
-    }
+    private fun showMarkByType(name: String? = null, percent: Int = -1, type: Int = 0) {
+        when (type) {
+            0 -> {
+                if (!StringUtils.isSpace(name)) {
+                    mTxtCenterName.text = name
+                }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            REQUEST_PHOTOPICKER -> if (resultCode == Activity.RESULT_OK) {
-                gpuImageView.setImage(data!!.data)
-                image_origin.setImageURI(data!!.data)
-            } else {
-                ToastUtils.showShort("error result")
+                mTxtCenterName.visibility = View.VISIBLE
+                KtHandlerSingleton.getInstance().setCallBackByHandler(1000, activity!!) {
+                    mTxtCenterName.visibility = View.GONE
+                }
             }
-            else -> super.onActivityResult(requestCode, resultCode, data)
+            1 -> {
+                if (percent != -1) {
+                    mTxtBottomPercent.text = "$percent%"
+                } else {
+                    mTxtBottomPercent.text = ""
+                }
+
+                mGroupLabel.visibility = View.VISIBLE
+                KtHandlerSingleton.getInstance().setCallBackByHandler(1000, activity!!) {
+                    mGroupLabel.visibility = View.GONE
+                }
+            }
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == REQUEST_STORAGE_PERMISSION && grantResults.size == 3
+        if (requestCode == REQUEST_STORAGE_PERMISSION && grantResults.size == 2
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED
                 && grantResults[1] == PackageManager.PERMISSION_GRANTED
-                && grantResults[2] == PackageManager.PERMISSION_GRANTED
         ) {
-            saveImage()
+            initView()
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 
-    //---------------------------
-    private fun hasCameraPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
-                activity!!,
-                Manifest.permission.CAMERA
-        ) == PackageManager.PERMISSION_GRANTED
-    }
 
     private fun hasStoragePermission(): Boolean {
         return ContextCompat.checkSelfPermission(
@@ -180,4 +310,5 @@ class JdGpuImageMultiFrag :BaseViewStubFragment(){
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
         ) == PackageManager.PERMISSION_GRANTED
     }
+
 }
