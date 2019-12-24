@@ -30,12 +30,16 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
+import com.blankj.utilcode.util.LogUtils;
 import com.example.libimagefilter.R;
 import com.example.libimagefilter.camera.CameraEngine;
 import com.example.libimagefilter.filter.base.gpuimage.GPUImageFilter;
@@ -60,6 +64,11 @@ public class JdGPUDisplayView extends FrameLayout {
     private GPUImageFilter filter;
     public Size forceSize = null;
     private float ratio = 0.0f;
+
+    private ScaleGestureDetector mScaleDetector;
+    private float mScale = 1.0f;
+    private int mWidth;
+    private int mHeight;
 
     public JdGPUDisplayView(Context context) {
         super(context);
@@ -89,10 +98,46 @@ public class JdGPUDisplayView extends FrameLayout {
 //            surfaceView = new GPUImageGLTextureView(context, attrs);
 //            gpuImage.setGLTextureView((GLTextureView) surfaceView);
 //        } else {
-            surfaceView = new GPUImageGLSurfaceView(context, attrs);
-            gpuImage.setGLSurfaceView((GLSurfaceView) surfaceView);
+        surfaceView = new GPUImageGLSurfaceView(context, attrs);
+        gpuImage.setGLSurfaceView((GLSurfaceView) surfaceView);
 //        }
         addView(surfaceView);
+
+        mScaleDetector = new ScaleGestureDetector(getContext(), mScaleListener);
+    }
+
+    private ScaleGestureDetector.OnScaleGestureListener mScaleListener = new ScaleGestureDetector.OnScaleGestureListener() {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            float scaleFactor = detector.getScaleFactor();
+
+            if (Float.isNaN(scaleFactor) || Float.isInfinite(scaleFactor))
+                return false;
+
+            mScale *= scaleFactor;
+
+            LogUtils.e("GPUDISPLAY", mScale);
+
+            setScaleX(mScale);
+            setScaleY(mScale);
+
+            return true;
+        }
+
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
+            return true;
+        }
+
+        public void onScaleEnd(ScaleGestureDetector detector) {
+
+        }
+    };
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        return mScaleDetector.onTouchEvent(event);
+//        return super.dispatchTouchEvent(ev);
+
     }
 
     @Override
@@ -148,7 +193,7 @@ public class JdGPUDisplayView extends FrameLayout {
      *
      * @param renderMode one of the RENDERMODE_X constants
      * @see GLSurfaceView#setRenderMode(int)
-//     * @see GLTextureView#setRenderMode(int)
+     * //     * @see GLTextureView#setRenderMode(int)
      */
     public void setRenderMode(int renderMode) {
         if (surfaceView instanceof GLSurfaceView) {
