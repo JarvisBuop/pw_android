@@ -30,6 +30,7 @@ class MagicFilterFactory {
         fun getFilterByType(type: MagicFilterType): GPUImageFilter? {
             currentFilterType = type
             return when (type) {
+                MagicFilterType.NONE -> return GPUImageFilter()
 //                MagicFilterType.WHITECAT -> return MagicWhiteCatFilter()
 //                MagicFilterType.BLACKCAT -> return MagicBlackCatFilter()
 //                MagicFilterType.SKINWHITEN -> return MagicSkinWhitenFilter()

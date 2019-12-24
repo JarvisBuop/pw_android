@@ -15,6 +15,7 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.androidVersion.minSdkVersion
         targetSdkVersion rootProject.ext.androidVersion.targetSdkVersion
+        applicationId "com.example.module_filter"
         versionCode 1
         versionName "1.0"
 
@@ -59,17 +60,6 @@ android {
                 }
             }
         }
-
-//        main {
-//            manifest.srcFile 'AndroidManifest.xml'
-//            java.srcDirs = ['src']
-//            resources.srcDirs = ['src']
-//            aidl.srcDirs = ['src']
-//            renderscript.srcDirs = ['src']
-//            res.srcDirs = ['res']
-//            assets.srcDirs = ['assets']
-//            jniLibs.srcDirs = ['libs']
-//        }
     }
 
     compileOptions {

@@ -28,7 +28,7 @@ import kotlinx.android.synthetic.main.app_frag_jdgpu_single.*
  * @description:
  *
  */
-class JdGpuImageSingleFrag :BaseViewStubFragment(){
+class JdGpuImageSingleFrag : BaseViewStubFragment() {
     override fun getViewStubId(): Int {
         return R.layout.app_frag_jdgpu_single
     }
@@ -121,7 +121,6 @@ class JdGpuImageSingleFrag :BaseViewStubFragment(){
                 filterAdjuster?.adjust(progress)
             }
         }
-
         gpuImageView.requestRender()
     }
 

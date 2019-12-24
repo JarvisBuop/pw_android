@@ -105,6 +105,7 @@ public class JdGPUImageRenderer implements GLSurfaceView.Renderer/*, GLTextureVi
         GLES20.glViewport(0, 0, width, height);
         outputWidth = width;
         outputHeight = height;
+        GLES20.glUseProgram(filter.getProgram());
         onFilterChanged();
         adjustSize();
         synchronized (surfaceChangedWaiter) {
@@ -252,10 +253,10 @@ public class JdGPUImageRenderer implements GLSurfaceView.Renderer/*, GLTextureVi
 
         float outputWidth = this.outputWidth;
         float outputHeight = this.outputHeight;
-//        if (rotation == Rotation.ROTATION_270 || rotation == Rotation.ROTATION_90) {
-//            outputWidth = this.outputHeight;
-//            outputHeight = this.outputWidth;
-//        }
+        if (rotation == Rotation.ROTATION_270 || rotation == Rotation.ROTATION_90) {
+            outputWidth = this.outputHeight;
+            outputHeight = this.outputWidth;
+        }
 
         float[] textureCords = TextureRotationUtil.getRotation(rotation, flipHorizontal, flipVertical);
         float[] cube = TextureRotationUtil.CUBE;
