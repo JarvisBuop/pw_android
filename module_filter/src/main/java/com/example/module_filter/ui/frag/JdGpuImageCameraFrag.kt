@@ -1,4 +1,4 @@
-package com.jdev.wandroid.ui.frg
+package com.example.module_filter.ui.frag
 
 import android.Manifest
 import android.animation.Animator
@@ -19,10 +19,10 @@ import android.widget.Toast
 import com.example.libimagefilter.camera.CameraEngine
 import com.example.libimagefilter.filter.helper.MagicFilterType
 import com.example.libimagefilter.utils.MagicParams
+import com.example.module_filter.R
 import com.example.module_filter.ui.adapter.FilterAdapter
 import com.example.module_filter.utils.GPUImageFilterTools
 import com.jdev.kit.baseui.BaseViewStubFragment
-import com.jdev.module_video.R
 import kotlinx.android.synthetic.main.app_filter_layout.*
 import kotlinx.android.synthetic.main.app_frag_jdgpucamera.*
 import java.io.File

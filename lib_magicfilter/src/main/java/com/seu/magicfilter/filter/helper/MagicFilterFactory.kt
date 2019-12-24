@@ -211,7 +211,7 @@ class MagicFilterFactory {
                 MagicFilterType.DILATION -> GPUImageDilationFilter()
                 MagicFilterType.KUWAHARA -> GPUImageKuwaharaFilter()
                 MagicFilterType.RGB_DILATION -> GPUImageRGBDilationFilter()
-//                MagicFilterType.SKETCH -> GPUImageSketchFilter()
+                MagicFilterType.SKETCH_GPU -> GPUImageSketchFilter()
                 MagicFilterType.TOON -> GPUImageToonFilter()
                 MagicFilterType.SMOOTH_TOON -> GPUImageSmoothToonFilter()
                 MagicFilterType.BULGE_DISTORTION -> GPUImageBulgeDistortionFilter()

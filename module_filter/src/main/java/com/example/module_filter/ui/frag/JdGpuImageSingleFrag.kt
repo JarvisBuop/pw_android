@@ -1,4 +1,4 @@
-package com.jdev.wandroid.ui.frg
+package com.example.module_filter.ui.frag
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -17,9 +17,9 @@ import com.example.libimagefilter.filter.helper.MagicFilterType
 import com.example.libimagefilter.widget.JdGPUDisplayView
 import com.example.module_filter.utils.GPUImageFilterTools
 import com.jdev.kit.baseui.BaseViewStubFragment
-import com.jdev.module_video.R
 import com.example.libimagefilter.filter.helper.FilterAdjuster
 import com.example.libimagefilter.filter.helper.MagicFilterFactory
+import com.example.module_filter.R
 import kotlinx.android.synthetic.main.app_frag_jdgpu_single.*
 
 /**

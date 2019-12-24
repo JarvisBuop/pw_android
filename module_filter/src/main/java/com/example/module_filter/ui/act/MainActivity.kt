@@ -5,12 +5,12 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.PermissionChecker
+import com.example.module_filter.R
 import com.jarvisdong.kotlindemo.ui.BaseActivity
 import com.jdev.kit.baseui.BaseFragment
-import com.jdev.module_video.R
-import com.jdev.wandroid.ui.frg.JdGpuImageCameraFrag
-import com.jdev.wandroid.ui.frg.JdGpuImageMultiFrag
-import com.jdev.wandroid.ui.frg.JdGpuImageSingleFrag
+import com.example.module_filter.ui.frag.JdGpuImageCameraFrag
+import com.example.module_filter.ui.frag.JdGpuImageMultiFrag
+import com.example.module_filter.ui.frag.JdGpuImageSingleFrag
 import kotlinx.android.synthetic.main.act_main.*
 
 /**

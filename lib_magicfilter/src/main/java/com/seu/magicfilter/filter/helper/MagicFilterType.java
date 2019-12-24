@@ -26,6 +26,7 @@ public enum  MagicFilterType {
     EVERGREEN,
     CRAYON,
     SKETCH,
+    SKETCH_GPU,
     AMARO,
     BRANNAN,
     BROOKLYN,

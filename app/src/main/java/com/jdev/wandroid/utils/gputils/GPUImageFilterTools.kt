@@ -225,7 +225,8 @@ object GPUImageFilterTools {
                 MagicFilterType.HALFTONE,
                 MagicFilterType.TRANSFORM2D,
                 MagicFilterType.SOLARIZE,
-                MagicFilterType.VIBRANCE
+                MagicFilterType.VIBRANCE,
+                MagicFilterType.SKETCH_GPU
         )
     }
 

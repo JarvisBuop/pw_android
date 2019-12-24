@@ -10,8 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.libimagefilter.filter.helper.MagicFilterType;
+import com.example.module_filter.R;
 import com.example.module_filter.ui.helper.FilterTypeHelper;
-import com.jdev.module_video.R;
 
 
 /**

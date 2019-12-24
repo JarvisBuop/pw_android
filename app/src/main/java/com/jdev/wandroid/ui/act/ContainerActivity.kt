@@ -79,12 +79,12 @@ class ContainerActivity : BaseActivity() {
                 KEY_ANDROID_GPU_TEST -> {
                     return GpuMagicSingleFrag()
                 }
-                KEY_ANDROID_JDGPU_SINGLE -> {
-                    return JdGpuImageSingleFrag()
-                }
-                KEY_ANDROID_JDGPU_CAMERA ->{
-                    return JdGpuImageCameraFrag()
-                }
+//                KEY_ANDROID_JDGPU_SINGLE -> {
+//
+//                }
+//                KEY_ANDROID_JDGPU_CAMERA ->{
+//
+//                }
                 else -> return null
             }
         }

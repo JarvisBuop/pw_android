@@ -18,6 +18,9 @@ package com.example.libimagefilter.filter.base.gpuimage;
 
 import android.opengl.GLES20;
 
+/**
+ * Hue: The adjusted hue (0 - 360, with 0.0 as the default)
+ */
 public class GPUImageHueFilter extends GPUImageFilter {
     public static final String HUE_FRAGMENT_SHADER = "" +
       "precision highp float;\n" +

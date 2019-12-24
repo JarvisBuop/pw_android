@@ -21,9 +21,9 @@ import android.content.Context
 import com.example.libimagefilter.filter.base.gpuimage.GPUImageFilter
 import com.example.libimagefilter.filter.helper.MagicFilterType
 import com.jarvisdong.kit.utils.ResourceIdUtils
-import com.jdev.module_video.R
 import com.example.libimagefilter.filter.helper.FilterAdjuster
 import com.example.libimagefilter.filter.helper.MagicFilterFactory
+import com.example.module_filter.R
 
 object GPUImageFilterTools {
     /**

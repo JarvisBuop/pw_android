@@ -159,14 +159,13 @@ dependencies {
 
 
 
-    api project(path: ':lib_imagefilter')
     api project(path: ':lib_kit')
     api project(path: ':lib_gpuimage')
 
 //    implementation 'androidx.appcompat:appcompat:1.0.2'
     //module import
-//    api project(path: ':module_welcome')
-//    api project(path: ':module_video')
+    api project(path: ':module_welcome')
+    api project(path: ':module_video')
 
 
 

@@ -81,6 +81,7 @@ public class MagicBaseGroupFilter extends GPUImageFilter {
     @Override
     public int onDrawFrame(final int textureId, final FloatBuffer cubeBuffer,
                            final FloatBuffer textureBuffer) {
+        runPendingOnDrawTasks();
         if (frameBuffers == null || frameBufferTextures == null) {
             return OpenGlUtils.NOT_INIT;
         }
@@ -106,6 +107,7 @@ public class MagicBaseGroupFilter extends GPUImageFilter {
 
     @Override
     public int onDrawFrame(final int textureId) {
+        runPendingOnDrawTasks();
         if (frameBuffers == null || frameBufferTextures == null) {
             return OpenGlUtils.NOT_INIT;
         }

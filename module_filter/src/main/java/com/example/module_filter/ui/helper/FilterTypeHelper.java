@@ -2,7 +2,7 @@ package com.example.module_filter.ui.helper;
 
 
 import com.example.libimagefilter.filter.helper.MagicFilterType;
-import com.jdev.module_video.R;
+import com.example.module_filter.R;
 
 public class FilterTypeHelper {
 	
