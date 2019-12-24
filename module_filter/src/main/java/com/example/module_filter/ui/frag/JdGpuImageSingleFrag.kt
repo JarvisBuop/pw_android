@@ -48,7 +48,7 @@ class JdGpuImageSingleFrag :BaseViewStubFragment(){
         layout_controller.visibility = View.VISIBLE
         gpuImageView.setImage(BitmapFactory.decodeResource(mContext!!.resources, R.drawable.gpuimage_origin))
 
-        filterType = MagicFilterType.CONTRAST
+        filterType = MagicFilterType.NONE
         var filterName = filterType.name
         var filter: GPUImageFilter? = MagicFilterFactory.getFilterByType(filterType)
         filterAdjuster = FilterAdjuster(filter)

@@ -32,8 +32,6 @@ const val KEY_ANDROID_GPUIMAGE_CAMERA = 6
 const val KEY_ANDROID_MAGIC_CAMERA = 7
 const val KEY_ANDROID_GPU_TEST = 9
 const val KEY_ANDROID_OPENGL_SIMGLE_DEMO = 8
-const val KEY_ANDROID_JDGPU_SINGLE = 10
-const val KEY_ANDROID_JDGPU_CAMERA = 11
 
 class ContainerActivity : BaseActivity() {
     var callback: (() -> Unit)? = null
@@ -79,12 +77,6 @@ class ContainerActivity : BaseActivity() {
                 KEY_ANDROID_GPU_TEST -> {
                     return GpuMagicSingleFrag()
                 }
-//                KEY_ANDROID_JDGPU_SINGLE -> {
-//
-//                }
-//                KEY_ANDROID_JDGPU_CAMERA ->{
-//
-//                }
                 else -> return null
             }
         }

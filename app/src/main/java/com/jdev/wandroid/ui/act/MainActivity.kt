@@ -61,15 +61,6 @@ class MainActivity : BaseActivity() {
                     clazz = ContainerActivity::class.java,
                     clazzCode = KEY_ANDROID_OPENGL_SIMGLE_DEMO),
 
-//            OrientVo("jdgpu_single_image_test",
-//                    "测试改变",
-//                    clazz = ContainerActivity::class.java,
-//                    clazzCode = KEY_ANDROID_JDGPU_SINGLE
-//            ),
-//            OrientVo("jdgpu_camera_test",
-//                    "desc",
-//                    clazz = ContainerActivity::class.java,
-//                    clazzCode = KEY_ANDROID_JDGPU_CAMERA),
             OrientVo("test",
                     "desc"),
             OrientVo("test",
