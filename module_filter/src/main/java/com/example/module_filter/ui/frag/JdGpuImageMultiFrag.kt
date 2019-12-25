@@ -58,6 +58,9 @@ class JdGpuImageMultiFrag : BaseViewStubFragment() {
     var arrayFilters = arrayListOf<FilterData>(
             FilterData(R.drawable.gpuimage_origin),
             FilterData(R.drawable.gpuimage_icon_beauty),
+            FilterData(R.drawable.gpuiamge_icon_dragon),
+            FilterData(R.drawable.gpuimage_origin),
+            FilterData(R.drawable.gpuimage_icon_beauty),
             FilterData(R.drawable.gpuiamge_icon_dragon)
     )
 
@@ -254,7 +257,7 @@ class JdGpuImageMultiFrag : BaseViewStubFragment() {
             } else {
                 mSeekBar.visibility = View.INVISIBLE
             }
-        }else if(filterData.filterAdjuster!=null){
+        } else if (filterData.filterAdjuster != null) {
             if (filterData.filterAdjuster?.canAdjust() == true) {
                 mSeekBar.visibility = View.VISIBLE
                 filterData.filterAdjuster?.adjust(filterData.seekBar)
