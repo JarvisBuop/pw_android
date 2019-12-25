@@ -29,6 +29,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -36,8 +37,10 @@ import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.Scroller;
 
 import com.blankj.utilcode.util.LogUtils;
 import com.example.libimagefilter.R;
@@ -65,10 +68,73 @@ public class JdGPUDisplayView extends FrameLayout {
     public Size forceSize = null;
     private float ratio = 0.0f;
 
+
+    //===================手势部分==================
     private ScaleGestureDetector mScaleDetector;
+    private GestureDetector mDetector;
     private float mScale = 1.0f;
-    private int mWidth;
-    private int mHeight;
+    private final static float MAX_SCALE = 1.5f;
+    private final static float MIN_SCALE = 0.8f;
+    // 当前是否处于放大状态
+    private boolean isZoonUp = false;
+    private boolean isEnable = true;
+    private Transform mTranslate = new Transform();
+
+    public void setScaleToOrigin(){
+        mTranslate.withScale(mScale, 1f);
+        mTranslate.start();
+    }
+
+    private class Transform implements Runnable{
+        boolean isRuning;
+        Scroller mScaleScroller;
+        int ANIMA_DURING = 320;
+
+        Transform(){
+            mScaleScroller = new Scroller(getContext(), new DecelerateInterpolator());
+        }
+
+        @Override
+        public void run() {
+            if (!isRuning) return;
+            boolean endAnima = true;
+
+            if (mScaleScroller.computeScrollOffset()) {
+                mScale = mScaleScroller.getCurrX() / 10000f;
+                endAnima = false;
+            }
+
+            if (!endAnima) {
+                setScaleX(mScale);
+                setScaleY(mScale);
+                postExecute();
+            } else {
+                isRuning = false;
+                invalidate();
+            }
+        }
+
+        void withScale(float form, float to) {
+            mScaleScroller.startScroll((int) (form * 10000), 0, (int) ((to - form) * 10000), 0, ANIMA_DURING);
+        }
+
+        void start() {
+            isRuning = true;
+            postExecute();
+        }
+
+        void stop(){
+            removeCallbacks(this);
+            mScaleScroller.abortAnimation();
+            isRuning = false;
+        }
+
+        private void postExecute() {
+            if (isRuning) post(this);
+        }
+    }
+    //===================手势部分==================
+
 
     public JdGPUDisplayView(Context context) {
         super(context);
@@ -104,24 +170,26 @@ public class JdGPUDisplayView extends FrameLayout {
         addView(surfaceView);
 
         mScaleDetector = new ScaleGestureDetector(getContext(), mScaleListener);
+        mDetector = new GestureDetector(getContext(), mGestureListener);
     }
 
     private ScaleGestureDetector.OnScaleGestureListener mScaleListener = new ScaleGestureDetector.OnScaleGestureListener() {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             float scaleFactor = detector.getScaleFactor();
-
             if (Float.isNaN(scaleFactor) || Float.isInfinite(scaleFactor))
                 return false;
 
+            float lastScale = mScale;
             mScale *= scaleFactor;
 
-            LogUtils.e("GPUDISPLAY", mScale);
+            LogUtils.e("GPUDISPLAY ", lastScale + "/" + mScale + " / " + scaleFactor + "/" + detector.getCurrentSpan());
 
             setScaleX(mScale);
             setScaleY(mScale);
-
-            return true;
+            //return true 表示不重新计算scaleFactor,值保持不变 0.5->0.5
+            //return false 表示重新计算scaleFactor,值重新变化 0.5->1.0
+            return false;
         }
 
         public boolean onScaleBegin(ScaleGestureDetector detector) {
@@ -129,15 +197,78 @@ public class JdGPUDisplayView extends FrameLayout {
         }
 
         public void onScaleEnd(ScaleGestureDetector detector) {
+        }
+    };
 
+    private GestureDetector.OnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            return super.onFling(e1, e2, velocityX, velocityY);
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            return false;
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            mTranslate.stop();
+
+            float from = 1;
+            float to = 1;
+
+            if (isZoonUp) {
+                from = mScale;
+                to = 1;
+            } else {
+                from = mScale;
+                to = MAX_SCALE;
+            }
+            isZoonUp = !isZoonUp;
+            mTranslate.withScale(from, to);
+            mTranslate.start();
+            return false;
         }
     };
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        return mScaleDetector.onTouchEvent(event);
-//        return super.dispatchTouchEvent(ev);
+        if (isEnable) {
+            mDetector.onTouchEvent(event);
+            mScaleDetector.onTouchEvent(event);
+            if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)
+                onFitEvent(event);
+            return true;
+        } else {
+            return super.dispatchTouchEvent(event);
+        }
+    }
 
+    private void onFitEvent(MotionEvent event) {
+        if (mTranslate.isRuning) return;
+
+        float scale = mScale;
+
+        if (mScale < MIN_SCALE) {
+            scale = MIN_SCALE;
+            mTranslate.withScale(mScale, scale);
+        } else if (mScale > MAX_SCALE) {
+            scale = MAX_SCALE;
+            mTranslate.withScale(mScale, scale);
+        }
+        mTranslate.start();
     }
 
     @Override

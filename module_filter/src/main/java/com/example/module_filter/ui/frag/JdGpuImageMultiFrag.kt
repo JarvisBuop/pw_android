@@ -210,6 +210,10 @@ class JdGpuImageMultiFrag : BaseViewStubFragment() {
             }
 
             override fun onPageSelected(position: Int) {
+                //上一个还原scale
+                var primaryView = getPrimaryView()
+                primaryView?.setScaleToOrigin()
+
                 viewpagePosition = position
                 mTxtCurrentTab.text = "${viewpagePosition + 1}/${arrayFilters.size}"
                 //滑动底部滤镜至选择  && seekbar 设置;
@@ -236,12 +240,13 @@ class JdGpuImageMultiFrag : BaseViewStubFragment() {
 
     private fun switchFilterForCurrentImage() {
         var filterData = arrayFilters.get(viewpagePosition)
+
         var gpuImageView = getPrimaryView()
 
         var filter: GPUImageFilter? = MagicFilterFactory.getFilterByType(filterData.filterType)
 
-        if (filter != null && (gpuImageView.filter == null || gpuImageView.filter.javaClass != filter.javaClass)) {
-            gpuImageView.filter = filter
+        if (filter != null && (gpuImageView?.filter == null || gpuImageView.filter.javaClass != filter.javaClass)) {
+            gpuImageView?.filter = filter
             filterData.filterAdjuster = FilterAdjuster(filter)
             if (filterData.filterAdjuster?.canAdjust() == true) {
                 mSeekBar.visibility = View.VISIBLE
@@ -257,12 +262,12 @@ class JdGpuImageMultiFrag : BaseViewStubFragment() {
                 mSeekBar.visibility = View.INVISIBLE
             }
         }
-        gpuImageView.requestRender()
+        gpuImageView?.requestRender()
     }
 
-    private fun getPrimaryView(): JdGPUDisplayView {
+    private fun getPrimaryView(): JdGPUDisplayView? {
 //        return mViewPager.getChildAt(viewpagePosition).findViewById<JdGPUDisplayView>(R.id.gpuImageView)
-        return mPagerAdapter!!.map.get(viewpagePosition).findViewById<JdGPUDisplayView>(R.id.gpuImageView)
+        return mPagerAdapter?.map?.get(viewpagePosition)?.findViewById<JdGPUDisplayView>(R.id.gpuImageView)
     }
 
     private fun showMarkByType(name: String? = null, percent: Int = -1, type: Int = 0) {
