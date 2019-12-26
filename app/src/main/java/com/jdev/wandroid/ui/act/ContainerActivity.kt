@@ -33,6 +33,9 @@ const val KEY_ANDROID_MAGIC_CAMERA = 7
 const val KEY_ANDROID_GPU_TEST = 9
 const val KEY_ANDROID_OPENGL_SIMGLE_DEMO = 8
 
+//------------window-------------
+const val KEY_ANDROID_FLOAT_WINDOW = 10
+
 class ContainerActivity : BaseActivity() {
     var callback: (() -> Unit)? = null
     var permission = Manifest.permission.CAMERA
@@ -77,6 +80,10 @@ class ContainerActivity : BaseActivity() {
                 KEY_ANDROID_GPU_TEST -> {
                     return GpuMagicSingleFrag()
                 }
+                KEY_ANDROID_FLOAT_WINDOW ->{
+                    return FloatWindowFrag()
+                }
+
                 else -> return null
             }
         }

@@ -1,5 +1,7 @@
 package com.jdev.kit.baseui
 
+import android.view.View
+import android.view.ViewGroup
 import android.view.ViewStub
 import com.jdev.kit.R
 
@@ -22,6 +24,11 @@ abstract class BaseViewStubFragment : BaseFragment() {
             stubView.layoutResource = viewStubId
             stubView.inflate()
         }
+        var viewStub = getViewStubDefault()
+        if (viewStub != null) {
+            var rootViewGroup = findView(R.id.root_coor_layout) as ViewGroup
+            rootViewGroup.addView(viewStub)
+        }
     }
 
     override fun getLayoutId(): Int {
@@ -31,6 +38,8 @@ abstract class BaseViewStubFragment : BaseFragment() {
     /**
      * abstract class;
      */
-    abstract fun getViewStubId(): Int
+    open fun getViewStubId(): Int = 0
+
+    open fun getViewStubDefault(): View? = null
 
 }

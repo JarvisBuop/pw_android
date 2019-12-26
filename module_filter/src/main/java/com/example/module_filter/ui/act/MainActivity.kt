@@ -25,7 +25,7 @@ const val KEY_ANDROID_JDGPU_CAMERA = 11
 const val KEY_ANDROID_JDGPU_MULTI = 12
 
 class MainActivity : BaseActivity() {
-    //todo  当前入口;
+    //todo 当前入口;
     var intKey = KEY_ANDROID_JDGPU_MULTI
     var currentFrag: BaseFragment? = null
 

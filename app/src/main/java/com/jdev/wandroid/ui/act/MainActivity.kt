@@ -61,8 +61,11 @@ class MainActivity : BaseActivity() {
                     clazz = ContainerActivity::class.java,
                     clazzCode = KEY_ANDROID_OPENGL_SIMGLE_DEMO),
 
-            OrientVo("test",
-                    "desc"),
+            OrientVo("自定义悬浮框 仿微信",
+                    "window manager",
+                    clazz = ContainerActivity::class.java,
+                    clazzCode = KEY_ANDROID_FLOAT_WINDOW
+            ),
             OrientVo("test",
                     "desc"),
             OrientVo("test",
