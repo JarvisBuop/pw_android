@@ -308,25 +308,6 @@ public class JdGPUDisplayView extends FrameLayout {
         }
     };
 
-//    public boolean canScrollHorizontallySelf(float direction) {
-//        if (mImgRect.width() <= mWidgetRect.width()) return false;
-//        if (direction < 0 && Math.round(mImgRect.left) - direction >= mWidgetRect.left)
-//            return false;
-//        if (direction > 0 && Math.round(mImgRect.right) - direction <= mWidgetRect.right)
-//            return false;
-//        return true;
-//    }
-//
-//    public boolean canScrollVerticallySelf(float direction) {
-//        if (mImgRect.height() <= mWidgetRect.height()) return false;
-//        if (direction < 0 && Math.round(mImgRect.top) - direction >= mWidgetRect.top)
-//            return false;
-//        if (direction > 0 && Math.round(mImgRect.bottom) - direction <= mWidgetRect.bottom)
-//            return false;
-//        return true;
-//    }
-
-
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         if (isEnable) {
