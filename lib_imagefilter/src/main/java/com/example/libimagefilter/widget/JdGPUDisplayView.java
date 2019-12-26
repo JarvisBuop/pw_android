@@ -35,10 +35,10 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
+import android.widget.OverScroller;
 import android.widget.ProgressBar;
 import android.widget.Scroller;
 
@@ -46,10 +46,10 @@ import com.blankj.utilcode.util.LogUtils;
 import com.example.libimagefilter.R;
 import com.example.libimagefilter.camera.CameraEngine;
 import com.example.libimagefilter.filter.base.gpuimage.GPUImageFilter;
+import com.example.libimagefilter.filter.helper.MagicFilterFactory;
 import com.example.libimagefilter.filter.helper.MagicFilterType;
 import com.example.libimagefilter.nativecall.GPUImageNativeLibrary;
 import com.example.libimagefilter.utils.Rotation;
-import com.example.libimagefilter.filter.helper.MagicFilterFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -58,6 +58,8 @@ import java.util.concurrent.Semaphore;
 
 
 public class JdGPUDisplayView extends FrameLayout {
+    private final String TAG = "JdGPUDisplayView";
+    private final boolean isDebug = true;
 
     private int surfaceType = JdGPUImage.SURFACE_TYPE_SURFACE_VIEW;
     private int renderType = JdGPUImage.RENDER_TYPE_IMG;
@@ -73,40 +75,68 @@ public class JdGPUDisplayView extends FrameLayout {
     private ScaleGestureDetector mScaleDetector;
     private GestureDetector mDetector;
     private float mScale = 1.0f;
-    private final static float MAX_SCALE = 1.5f;
+    private final static float MAX_SCALE = 2.5f;
     private final static float MIN_SCALE = 0.8f;
     // 当前是否处于放大状态
     private boolean isZoonUp = false;
     private boolean isEnable = true;
-    private Transform mTranslate = new Transform();
+    //translate
+    private int mTranslateX;
+    private int mTranslateY;
+    private int mLastTranslateX;
+    private int mLastTranslateY;
 
-    public void setScaleToOrigin(){
+    private Transform mTranslate = new Transform();
+    private boolean hasMultiTouch = false;
+
+    public void setScaleToOrigin() {
         mTranslate.withScale(mScale, 1f);
+        mTranslate.withTranslate(0, 0, -mTranslateX, -mTranslateY);
         mTranslate.start();
     }
 
-    private class Transform implements Runnable{
+    private class Transform implements Runnable {
         boolean isRuning;
         Scroller mScaleScroller;
+        OverScroller mTranslateScroller;
         int ANIMA_DURING = 320;
 
-        Transform(){
-            mScaleScroller = new Scroller(getContext(), new DecelerateInterpolator());
+        Transform() {
+            DecelerateInterpolator i = new DecelerateInterpolator();
+            mScaleScroller = new Scroller(getContext(), i);
+            mTranslateScroller = new OverScroller(getContext(), i);
         }
 
         @Override
         public void run() {
             if (!isRuning) return;
-            boolean endAnima = true;
+            boolean endAnima1 = true;
+            boolean endAnima2 = true;
 
             if (mScaleScroller.computeScrollOffset()) {
                 mScale = mScaleScroller.getCurrX() / 10000f;
-                endAnima = false;
+                endAnima1 = false;
             }
 
-            if (!endAnima) {
-                setScaleX(mScale);
-                setScaleY(mScale);
+            if (mTranslateScroller.computeScrollOffset()) {
+                int tx = mTranslateScroller.getCurrX() - mLastTranslateX;
+                int ty = mTranslateScroller.getCurrY() - mLastTranslateY;
+                mTranslateX += tx;
+                mTranslateY += ty;
+                mLastTranslateX = mTranslateScroller.getCurrX();
+                mLastTranslateY = mTranslateScroller.getCurrY();
+                endAnima2 = false;
+            }
+
+            if (!(endAnima1 && endAnima2)) {
+                if (!endAnima1) {
+                    setScaleX(mScale);
+                    setScaleY(mScale);
+                }
+                if (!endAnima2) {
+                    setScrollX(mTranslateX);
+                    setScrollY(mTranslateY);
+                }
                 postExecute();
             } else {
                 isRuning = false;
@@ -118,13 +148,20 @@ public class JdGPUDisplayView extends FrameLayout {
             mScaleScroller.startScroll((int) (form * 10000), 0, (int) ((to - form) * 10000), 0, ANIMA_DURING);
         }
 
+        void withTranslate(int startX, int startY, int deltaX, int deltaY) {
+            mLastTranslateX = 0;
+            mLastTranslateY = 0;
+            mTranslateScroller.startScroll(0, 0, deltaX, deltaY, ANIMA_DURING);
+        }
+
         void start() {
             isRuning = true;
             postExecute();
         }
 
-        void stop(){
+        void stop() {
             removeCallbacks(this);
+            mTranslateScroller.abortAnimation();
             mScaleScroller.abortAnimation();
             isRuning = false;
         }
@@ -183,7 +220,9 @@ public class JdGPUDisplayView extends FrameLayout {
             float lastScale = mScale;
             mScale *= scaleFactor;
 
-            LogUtils.e("GPUDISPLAY ", lastScale + "/" + mScale + " / " + scaleFactor + "/" + detector.getCurrentSpan());
+            if (isDebug) {
+                LogUtils.eTag(TAG, lastScale + "/" + mScale + " / " + scaleFactor + "/ wh:" + getMeasuredWidth() + "/" + getMeasuredHeight());
+            }
 
             setScaleX(mScale);
             setScaleY(mScale);
@@ -197,6 +236,8 @@ public class JdGPUDisplayView extends FrameLayout {
         }
 
         public void onScaleEnd(ScaleGestureDetector detector) {
+            //需要双击还原;
+            isZoonUp = mScale < 1 || mScale >= MAX_SCALE;
         }
     };
 
@@ -204,17 +245,38 @@ public class JdGPUDisplayView extends FrameLayout {
 
         @Override
         public boolean onDown(MotionEvent e) {
+            hasMultiTouch = false;
             return false;
         }
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if (isDebug) {
+                LogUtils.eTag(TAG, "velocityX: " + velocityX + " velocityY:" + velocityY);
+            }
             return super.onFling(e1, e2, velocityX, velocityY);
         }
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            return false;
+            if (hasMultiTouch) return false;
+            if (mTranslate.isRuning) {
+                mTranslate.stop();
+            }
+
+            mTranslateX += distanceX;
+            mTranslateY += distanceY;
+
+            if (isDebug) {
+                LogUtils.eTag(TAG, "distanceX: " + distanceX + " distanceY:" + distanceY
+                        + "\n transX " + mTranslateX + " transY " + mTranslateY
+                        + "\n scrollX " + getScrollX() + " scrollY " + getScrollY()
+                );
+            }
+
+            setScrollX(mTranslateX);
+            setScrollY(mTranslateY);
+            return true;
         }
 
         @Override
@@ -236,20 +298,48 @@ public class JdGPUDisplayView extends FrameLayout {
                 from = mScale;
                 to = MAX_SCALE;
             }
+
             isZoonUp = !isZoonUp;
+            mTranslate.withTranslate(0, 0, -mTranslateX, -mTranslateY);
             mTranslate.withScale(from, to);
+
             mTranslate.start();
             return false;
         }
     };
 
+//    public boolean canScrollHorizontallySelf(float direction) {
+//        if (mImgRect.width() <= mWidgetRect.width()) return false;
+//        if (direction < 0 && Math.round(mImgRect.left) - direction >= mWidgetRect.left)
+//            return false;
+//        if (direction > 0 && Math.round(mImgRect.right) - direction <= mWidgetRect.right)
+//            return false;
+//        return true;
+//    }
+//
+//    public boolean canScrollVerticallySelf(float direction) {
+//        if (mImgRect.height() <= mWidgetRect.height()) return false;
+//        if (direction < 0 && Math.round(mImgRect.top) - direction >= mWidgetRect.top)
+//            return false;
+//        if (direction > 0 && Math.round(mImgRect.bottom) - direction <= mWidgetRect.bottom)
+//            return false;
+//        return true;
+//    }
+
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         if (isEnable) {
+            if (event.getPointerCount() >= 2) hasMultiTouch = true;
             mDetector.onTouchEvent(event);
             mScaleDetector.onTouchEvent(event);
             if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)
                 onFitEvent(event);
+            if (mScale > 1) {
+                getParent().requestDisallowInterceptTouchEvent(true);
+            } else {
+                getParent().requestDisallowInterceptTouchEvent(false);
+            }
             return true;
         } else {
             return super.dispatchTouchEvent(event);
@@ -260,13 +350,15 @@ public class JdGPUDisplayView extends FrameLayout {
         if (mTranslate.isRuning) return;
 
         float scale = mScale;
-
         if (mScale < MIN_SCALE) {
             scale = MIN_SCALE;
             mTranslate.withScale(mScale, scale);
         } else if (mScale > MAX_SCALE) {
             scale = MAX_SCALE;
             mTranslate.withScale(mScale, scale);
+        }
+        if (mScale < 1) {
+            mTranslate.withTranslate(0, 0, -mTranslateX, -mTranslateY);
         }
         mTranslate.start();
     }
