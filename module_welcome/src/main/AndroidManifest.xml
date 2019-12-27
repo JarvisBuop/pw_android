@@ -1,10 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jdev.module_welcome">
 
     <application>
-
         <activity
-            android:name=".WelcomeActivity"
+            android:name=".ui.act.FullscreenActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
+        <activity
+            android:name=".ui.act.WelcomeActivity"
             android:screenOrientation="portrait" />
     </application>
+
 </manifest>

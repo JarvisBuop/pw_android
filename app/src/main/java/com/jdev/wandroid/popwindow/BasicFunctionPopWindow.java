@@ -124,7 +124,7 @@ public class BasicFunctionPopWindow extends BasePopWindow {
 
     @Override
     public int getLayoutId() {
-        return R.layout.pop_basic_function;
+        return R.layout.app_pop_basic_function;
     }
 
     @Override

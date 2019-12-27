@@ -7,13 +7,13 @@ buildscript {
 
     repositories {
         jcenter()
-        mavenCentral()
 
         maven { url "https://jitpack.io" }
         maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
         maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
         maven { url 'http://maven.aliyun.com/nexus/content/repositories/google' }
         maven { url 'http://maven.aliyun.com/nexus/content/repositories/gradle-plugin' }
+        mavenCentral()
 
         google()
     }
@@ -31,15 +31,35 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
-        mavenCentral()
 
         maven { url "https://jitpack.io" }
         maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
         maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
         maven { url 'http://maven.aliyun.com/nexus/content/repositories/google' }
         maven { url 'http://maven.aliyun.com/nexus/content/repositories/gradle-plugin' }
+        mavenCentral()
 
         google()
+    }
+}
+
+subprojects {
+    //设置统一的配置
+    afterEvaluate { Project project ->
+        ext.pluginContainer = project.getPlugins()
+        def hasAppPlugin = ext.pluginContainer.hasPlugin("com.android.application")
+        def hasLibPlugin = ext.pluginContainer.hasPlugin("com.android.library")
+
+        if (hasAppPlugin || hasLibPlugin) {
+            android {
+                lintOptions {
+                    //关闭MissingTranslation
+                    abortOnError false
+                    // 防止在发布的时候出现因MissingTranslation导致Build Failed!
+                    disable 'MissingTranslation'
+                }
+            }
+        }
     }
 }
 

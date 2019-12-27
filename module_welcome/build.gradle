@@ -6,7 +6,7 @@ if (isModule.toBoolean()) {
 
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-//apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-kapt'
 
 def static getGitVersion() {
     def cmd = 'git rev-list HEAD --count'
@@ -20,6 +20,7 @@ def static getGitVersion() {
 android {
     compileSdkVersion rootProject.ext.androidVersion.compileSdkVersion
     buildToolsVersion rootProject.ext.androidVersion.buildToolsVersion
+    resourcePrefix "mw_"
 
     defaultConfig {
         minSdkVersion rootProject.ext.androidVersion.minSdkVersion
@@ -35,6 +36,8 @@ android {
 //                arguments = [moduleName: project.getName()]
 //            }
 //        }
+
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -97,7 +100,7 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    api project(path: ':kit')
+    api project(path: ':lib_kit')
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
@@ -108,12 +111,12 @@ dependencies {
      *
      * exclude 引用,使用`,` 分开,或者使用括号
      */
-//    implementation (rootProject.ext.dependencies.lottie_lib) {
-//        exclude group: 'com.android.support', module: 'support-v4'
-//    }
-//    compile 'com.android.support:support-v4:23.1.1'
+    implementation(rootProject.ext.dependencies.lottie_lib) {
+        exclude group: 'com.android.support'
+    }
 
-    implementation rootProject.ext.dependencies.flycotablayout_lib
+    //已扩展源码;
+//    implementation rootProject.ext.dependencies.flycotablayout_lib
     implementation rootProject.ext.dependencies.smartrefresh_lib
     implementation rootProject.ext.dependencies.smartrefresh_header_lib//没有使用特殊Header，可以不加这行
 }

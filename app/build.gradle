@@ -2,8 +2,7 @@ apply plugin: 'com.android.application'
 //kotlin relation
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-//apply plugin: 'kotlin-kapt'
-
+apply plugin: 'kotlin-kapt'
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file("local.properties").newDataInputStream())
@@ -28,6 +27,7 @@ def static getBuildTime() {
 android {
     compileSdkVersion rootProject.ext.androidVersion.compileSdkVersion
     buildToolsVersion rootProject.ext.androidVersion.buildToolsVersion
+    resourcePrefix "app_"
 
     defaultConfig {
 
@@ -39,7 +39,7 @@ android {
 
 //        vectorDrawables.useSupportLibrary = true
 
-//        multiDexEnabled true
+        multiDexEnabled true
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -146,19 +146,26 @@ android {
         preDexLibraries = false
         javaMaxHeapSize "8g"
     }
+
+
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    api project(path: ':kit')
-//    api project(path: ':module_welcome')
-
-
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-//    implementation  rootProject.ext.dependencies.android_multidex
+
+
+    api project(path: ':lib_kit')
+    api project(path: ':lib_gpuimage')
+//    implementation 'androidx.appcompat:appcompat:1.0.2'
+    //module import
+    api project(path: ':module_welcome')
+    api project(path: ':module_video')
+
+
 
 }

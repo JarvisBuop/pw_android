@@ -20,7 +20,7 @@ ext {
             lottie_version            : "2.7.0",
             blackjutil_version        : "1.26.0",
             glide_lib_version         : "4.7.1",
-            facebook_webp_version     : "1.9.0",
+            facebook_webp_version     : "2.0.0",
             okhttp_version            : "3.10.0",
             okhttp_integration_version: "4.6.1",
             ijkplayer_java_version    : "0.8.8",
@@ -50,7 +50,7 @@ ext {
             kotlin_stdlib_common   : "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version",
 
             //multidex support
-//            android_multidex       : "com.android.support:multidex:${dependencyVersion.multidex_version}",
+            android_multidex       : "com.android.support:multidex:${dependencyVersion.multidex_version}",
 
             //rxjava support
             rxjava2_core           : "io.reactivex.rxjava2:rxjava:${dependencyVersion.rxjava_version}",
@@ -70,7 +70,7 @@ ext {
 //            compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'//对Call对象的转化为Observe对象
 
             //animation
-//            lottie_lib          : "com.airbnb.android:lottie:${dependencyVersion.lottie_version}",
+            lottie_lib          : "com.airbnb.android:lottie:${dependencyVersion.lottie_version}",
 
             //commonutil
             blackj_util            : "com.blankj:utilcode:${dependencyVersion.blackjutil_version}",

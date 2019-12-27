@@ -1,68 +1,116 @@
 package com.jdev.module_welcome.ui.frag
 
 import android.os.Bundle
+import android.os.ProxyFileDescriptorCallback
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.StaggeredGridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.blankj.utilcode.util.ConvertUtils
-import com.jdev.module_welcome.R
+import com.blankj.utilcode.util.LogUtils
+import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.BaseViewHolder
 import com.jdev.kit.helper.HeaderScrollHelper
-import kotlinx.android.synthetic.main.item_page.*
-import kotlinx.android.synthetic.main.item_sample_view.view.*
+import com.jdev.module_welcome.R
 
 /**
  * Created by JarvisDong on 2019/07/03.
  * @Description:
  * @see:
+ *
+ * 基类 fragment;
  */
-class KtChildBaseFragment : Fragment() , HeaderScrollHelper.ScrollableContainer{
-    override fun getScrollableView(): View {
+class KtChildBaseFragment : Fragment(), HeaderScrollHelper.ScrollableContainer {
+
+    private var position: Int = 0
+    var callback: ((position: Int) -> Unit)? = null
+
+    companion object {
+        val KEY_TAB_POSITION = "position"
+        fun newInstance(position: Int, callback: ((position: Int) -> Unit)?): KtChildBaseFragment {
+            var childFragment = KtChildBaseFragment()
+            var bundle = Bundle()
+            bundle.putInt(KEY_TAB_POSITION, position)
+            childFragment.arguments = bundle
+            childFragment.callback = callback
+            return childFragment
+        }
+    }
+
+    var mDataList: ArrayList<String> = ArrayList()
+    var mChildAdapter: ChildBaseAdapter<String>? = null
+    protected var isInitView: Boolean = false
+    protected var recyclerview: RecyclerView? = null
+
+    override fun getScrollableView(): View? {
+//        LogUtils.e(TAG, "getScrollableView $recyclerview")
         return recyclerview
     }
 
-    var mData = arrayListOf<Int>(
-            R.drawable.icon1, R.drawable.icon2,
-            R.drawable.icon3, R.drawable.icon4,
-            R.drawable.icon1, R.drawable.icon2)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        var view = inflater.inflate(R.layout.item_page, container, false)
+        var view = inflater.inflate(R.layout.mw_item_page, container, false)
+        bindView(view)
+        isInitView = true
+        initArgsData()
+        callback?.invoke(position)
         return view
+    }
+
+    fun bindView(view: View) {
+        recyclerview = view.findViewById(R.id.recyclerview)
+    }
+
+    fun initRecyclerView() {
+        mDataList = ArrayList()
+        recyclerview?.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+        mChildAdapter = ChildBaseAdapter(R.layout.mw_item_sample_view, mDataList)
+        mChildAdapter?.setOnLoadMoreListener({
+            recyclerview?.postDelayed({
+                fetchListDataByTabName(false)
+            }, 10)
+        }, recyclerview)
+        recyclerview?.adapter = mChildAdapter
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recyclerview.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-        recyclerview.adapter = MyAdapter()
+        initRecyclerView()
+        fetchListDataByTabName(true)
     }
 
-    inner class MyAdapter : RecyclerView.Adapter<MyHolder>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyHolder {
-            var inflate = LayoutInflater.from(activity).inflate(R.layout.item_sample_view, parent, false)
-            return MyHolder(inflate)
-        }
+    open fun initArgsData() {
+        position = arguments?.getInt(KEY_TAB_POSITION, 0)?:0
+    }
 
-        override fun getItemCount(): Int {
-            return mData.size
-        }
+    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+        super.setUserVisibleHint(isVisibleToUser)
+        LogUtils.e(" fragment: " + this::class.java.name + " show: " + isVisibleToUser)
+    }
 
-        override fun onBindViewHolder(holder: MyHolder, position: Int) {
-            if (holder is MyHolder) {
-                holder.itemView.item_image.setImageResource(mData[position])
-                var layoutParams = holder.itemView.item_image.layoutParams
-                if (position.rem(2) == 0) {
-                    layoutParams.height = ConvertUtils.dp2px(300f)
-                } else {
-                    layoutParams.height = ConvertUtils.dp2px(150f)
-                }
-                holder.itemView.item_image.layoutParams = layoutParams
+    class ChildBaseAdapter<T>(layoutResId: Int, data: List<T>) : BaseQuickAdapter<T, BaseViewHolder>(layoutResId, data) {
+
+        override fun convert(helper: BaseViewHolder?, item: T) {
+            if (helper != null) {
+                fillItem(helper, item, helper.layoutPosition)
             }
         }
 
+        fun fillItem(holder: BaseViewHolder, item: T, position: Int) {
+            holder.setText(R.id.item_text, item.toString())
+        }
+
+    }
+    //--------------------------fetch data--------------------------------
+    /**
+     * 刷新当前list;
+     */
+    open fun fetchListDataByTabName(refreshFlag: Boolean) {
+        for (i in 0..10) {
+            mDataList.add("test $i")
+        }
+        mChildAdapter?.notifyDataSetChanged()
     }
 
-    class MyHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 }

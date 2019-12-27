@@ -13,23 +13,19 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity
-            android:name="com.jdev.module_welcome.WelcomeActivity"
-            android:label="@string/app_name_module_welcome"
+            android:name=".ui.act.WelcomeActivity"
             android:theme="@style/AppTheme.NoActionBar">
-            <!--<intent-filter>-->
-            <!--<action android:name="android.intent.action.MAIN" />-->
-
-            <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
-        </activity>
-
-        <activity android:name=".ui.act.MainPageActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ui.act.FullscreenActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
+
     </application>
 
 </manifest>

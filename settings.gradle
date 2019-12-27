@@ -1,6 +1,8 @@
 include ':app',
-        ':kit',
         ':module_welcome',
-        ':jiaozivideoplayer',
-        ':adapter-library',
-        ':module_video'
+        ':module_video',
+        ':lib_kit',
+        ':lib_jiaozivideoplayer',
+        ':lib_adapter',
+        ':lib_gpuimage',
+        ':lib_magicfilter'

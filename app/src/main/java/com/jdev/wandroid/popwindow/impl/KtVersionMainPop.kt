@@ -19,7 +19,7 @@ import com.blankj.utilcode.util.ScreenUtils
 import com.jarvisdong.kit.utils.ResourceIdUtils
 import com.jdev.wandroid.popwindow.BasicFunctionPopWindow
 import com.jdev.wandroid.utils.ViewUtils
-
+import com.jdev.wandroid.R
 
 /**
  * info: create by jd in 2019/6/14
@@ -48,7 +48,7 @@ class KtVersionMainPop(context: Context, var callback: ViewUtils.OnCallback<*>) 
 
     var offsetMargin: Int = ConvertUtils.dp2px(10f)
 
-    override fun getLayoutId(): Int = com.jdev.wandroid.R.layout.pop_version_main
+    override fun getLayoutId(): Int = R.layout.app_pop_version_main
 
     override fun isSupportBGDismiss(): Boolean {
         return true
@@ -56,14 +56,14 @@ class KtVersionMainPop(context: Context, var callback: ViewUtils.OnCallback<*>) 
 
     override fun initialViews() {
         super.initialViews()
-        image1 = mRootView.findViewById(com.jdev.wandroid.R.id.version_icon_1)
-        image2 = mRootView.findViewById(com.jdev.wandroid.R.id.version_icon_2)
-        image3 = mRootView.findViewById(com.jdev.wandroid.R.id.version_icon_3)
-        image4 = mRootView.findViewById(com.jdev.wandroid.R.id.version_icon_4)
-        image5 = mRootView.findViewById(com.jdev.wandroid.R.id.version_icon_5)
-        tipsView = mRootView.findViewById(com.jdev.wandroid.R.id.version_icon4)
-        tipsTxt = mRootView.findViewById(com.jdev.wandroid.R.id.version_name)
-        layoutMenu = mRootView.findViewById(com.jdev.wandroid.R.id.layout_root_menu)
+        image1 = mRootView.findViewById(R.id.version_icon_1)
+        image2 = mRootView.findViewById(R.id.version_icon_2)
+        image3 = mRootView.findViewById(R.id.version_icon_3)
+        image4 = mRootView.findViewById(R.id.version_icon_4)
+        image5 = mRootView.findViewById(R.id.version_icon_5)
+        tipsView = mRootView.findViewById(R.id.version_icon4)
+        tipsTxt = mRootView.findViewById(R.id.version_name)
+        layoutMenu = mRootView.findViewById(R.id.layout_root_menu)
 
         var makeMeasureSpecW = View.MeasureSpec.makeMeasureSpec(ConvertUtils.dp2px(215f), View.MeasureSpec.EXACTLY)
         var makeMeasureSpecH = View.MeasureSpec.makeMeasureSpec(ConvertUtils.dp2px(90f), View.MeasureSpec.EXACTLY)
@@ -94,8 +94,8 @@ class KtVersionMainPop(context: Context, var callback: ViewUtils.OnCallback<*>) 
     private fun createAnimatorForVersion() {
         tipsView.postDelayed({
             tipsView.visibility = View.GONE
-            ViewUtils.setImageRes(image2, com.jdev.wandroid.R.drawable.menu_icon_search)
-            ViewUtils.setImageRes(image4, com.jdev.wandroid.R.drawable.menu_icon_mem)
+            ViewUtils.setImageRes(image2, R.drawable.menu_icon_search)
+            ViewUtils.setImageRes(image4, R.drawable.menu_icon_mem)
 
             createAnimatorForFirst(image4, AnimatorSet())
         }, 1000)
@@ -111,7 +111,7 @@ class KtVersionMainPop(context: Context, var callback: ViewUtils.OnCallback<*>) 
                 super.onAnimationEnd(animation)
 
                 tipsView.visibility = View.VISIBLE
-                ViewUtils.setMsgIntoView(ResourceIdUtils.getStringById(com.jdev.wandroid.R.string.version_main_1), tipsTxt)
+                ViewUtils.setMsgIntoView(ResourceIdUtils.getStringById(R.string.app_version_main_1), tipsTxt)
                 var layoutParams = tipsView.layoutParams as ViewGroup.MarginLayoutParams
                 layoutParams.leftMargin = targetView.x.toInt() - markWidth / 2
                 layoutParams.topMargin = getHeightForAnim(targetView)
@@ -138,7 +138,7 @@ class KtVersionMainPop(context: Context, var callback: ViewUtils.OnCallback<*>) 
             override fun onAnimationStart(animation: Animator?) {
                 super.onAnimationStart(animation)
                 image4.visibility = View.VISIBLE
-                ViewUtils.setImageRes(image4, com.jdev.wandroid.R.drawable.menu_icon_mem)
+                ViewUtils.setImageRes(image4, R.drawable.menu_icon_mem)
                 revertImage(image4)
                 image4.bringToFront()
             }
@@ -173,7 +173,7 @@ class KtVersionMainPop(context: Context, var callback: ViewUtils.OnCallback<*>) 
                 super.onAnimationEnd(animation)
 
                 tipsView.visibility = View.VISIBLE
-                ViewUtils.setMsgIntoView(ResourceIdUtils.getStringById(com.jdev.wandroid.R.string.version_main_2), tipsTxt)
+                ViewUtils.setMsgIntoView(ResourceIdUtils.getStringById(R.string.app_version_main_2), tipsTxt)
                 var layoutParams = tipsView.layoutParams as ViewGroup.MarginLayoutParams
                 layoutParams.leftMargin = ScreenUtils.getScreenWidth() - markWidth
                 layoutParams.topMargin = (ScreenUtils.getScreenHeight() - BarUtils.getStatusBarHeight() - (layoutMenu.measuredHeight + markHeight) - offsetMargin).toInt()
@@ -188,7 +188,7 @@ class KtVersionMainPop(context: Context, var callback: ViewUtils.OnCallback<*>) 
             override fun onAnimationStart(animation: Animator?) {
                 super.onAnimationStart(animation)
                 image2.visibility = View.VISIBLE
-                ViewUtils.setImageRes(image2, com.jdev.wandroid.R.drawable.menu_icon_search)
+                ViewUtils.setImageRes(image2, R.drawable.menu_icon_search)
                 revertImage(image2)
                 image2.bringToFront()
             }
@@ -199,7 +199,7 @@ class KtVersionMainPop(context: Context, var callback: ViewUtils.OnCallback<*>) 
 
 
                 image4.visibility = View.VISIBLE
-                ViewUtils.setImageRes(image4, com.jdev.wandroid.R.drawable.menu_icon_search)
+                ViewUtils.setImageRes(image4, R.drawable.menu_icon_search)
                 revertImage(image4)
 
                 createAnimatorForThird(image2, AnimatorSet())
@@ -226,7 +226,7 @@ class KtVersionMainPop(context: Context, var callback: ViewUtils.OnCallback<*>) 
                 super.onAnimationEnd(animation)
 
                 tipsView.visibility = View.VISIBLE
-                ViewUtils.setMsgIntoView(ResourceIdUtils.getStringById(com.jdev.wandroid.R.string.version_main_3), tipsTxt)
+                ViewUtils.setMsgIntoView(ResourceIdUtils.getStringById(R.string.app_version_main_3), tipsTxt)
                 var layoutParams = tipsView.layoutParams as ViewGroup.MarginLayoutParams
                 layoutParams.leftMargin = 0
                 layoutParams.topMargin = getHeightForAnim(targetView)
@@ -242,7 +242,7 @@ class KtVersionMainPop(context: Context, var callback: ViewUtils.OnCallback<*>) 
             override fun onAnimationStart(animation: Animator?) {
                 super.onAnimationStart(animation)
                 image2.visibility = View.VISIBLE
-                ViewUtils.setImageRes(image2, com.jdev.wandroid.R.drawable.menu_icon_resource)
+                ViewUtils.setImageRes(image2, R.drawable.menu_icon_resource)
                 revertImage(image2, -animX, -maxTranY)
                 image2.bringToFront()
             }

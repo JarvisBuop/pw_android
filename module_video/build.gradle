@@ -6,7 +6,7 @@ if (isModule.toBoolean()) {
 
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-//apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-kapt'
 
 def static getGitVersion() {
     def cmd = 'git rev-list HEAD --count'
@@ -20,6 +20,7 @@ def static getGitVersion() {
 android {
     compileSdkVersion rootProject.ext.androidVersion.compileSdkVersion
     buildToolsVersion rootProject.ext.androidVersion.buildToolsVersion
+    resourcePrefix "mv_"
 
     defaultConfig {
         minSdkVersion rootProject.ext.androidVersion.minSdkVersion
@@ -35,6 +36,8 @@ android {
 //                arguments = [moduleName: project.getName()]
 //            }
 //        }
+
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -106,8 +109,9 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    api project(path: ':kit')
-    api project(path: ':jiaozivideoplayer')
+    api project(path: ':lib_kit')
+    api project(path: ':lib_jiaozivideoplayer')
+
 
     implementation rootProject.ext.dependencies.ijkplayer_java
     implementation rootProject.ext.dependencies.ijkplayer_armv7a

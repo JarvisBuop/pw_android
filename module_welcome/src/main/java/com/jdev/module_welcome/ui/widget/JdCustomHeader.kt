@@ -40,7 +40,7 @@ class JdCustomHeader : ConstraintLayout, RefreshHeader {
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.custom_refresh_header, this, true)
+        LayoutInflater.from(context).inflate(R.layout.mw_custom_refresh_header, this, true)
         bgView = findViewById<ImageView>(R.id.img_bg_view)
         bgPicView = findViewById<View>(R.id.img_person_view)
         txtTips = findViewById<TextView>(R.id.text_tips)
