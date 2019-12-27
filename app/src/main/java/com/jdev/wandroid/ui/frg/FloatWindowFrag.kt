@@ -5,6 +5,7 @@ import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.PixelFormat
 import android.net.Uri
 import android.os.Build
@@ -37,7 +38,7 @@ class FloatWindowFrag : BaseViewStubFragment() {
         btn.setOnClickListener {
             if (commonROMPermissionCheck(mContext!!)) {
                 doFiveWindow()
-            }else {
+            } else {
                 requestAlertWindowPermission()
             }
         }
@@ -59,14 +60,10 @@ class FloatWindowFrag : BaseViewStubFragment() {
     private fun doFiveWindow() {
         wm = mContext!!.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         floatButton = TextView(mContext)
-//        var layoutParams1 = floatButton.layoutParams
-//        layoutParams1.height = ConvertUtils.dp2px(50f)
-//        layoutParams1.width = ConvertUtils.dp2px(50f)
-//        floatButton.layoutParams = layoutParams1
-
         floatButton.setText("点我")
+        floatButton.setBackgroundColor(Color.GREEN)
         floatButton.setTextColor(resources.getColor(R.color.black))
-        floatButton.setBackgroundResource(R.drawable.ic_camera_beauty)
+        floatButton.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_camera_beauty, 0, 0)
         layoutParams = WindowManager.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0, 0, PixelFormat.RGBA_8888)
         layoutParams!!.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED//锁屏;
@@ -74,10 +71,10 @@ class FloatWindowFrag : BaseViewStubFragment() {
 //        layoutParams!!.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             //Android 8.0
-            layoutParams!!.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+            layoutParams!!.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
         } else {
             //其他版本
-            layoutParams!!.type = WindowManager.LayoutParams.TYPE_PHONE;
+            layoutParams!!.type = WindowManager.LayoutParams.TYPE_PHONE
         }
         layoutParams!!.gravity = Gravity.LEFT or Gravity.TOP
         layoutParams!!.x = 500

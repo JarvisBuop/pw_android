@@ -95,7 +95,7 @@ abstract class BaseFragment : Fragment() {
      */
     protected abstract fun getLayoutId(): Int
 
-    protected abstract fun initIntentData(): Boolean
+    protected open fun initIntentData(): Boolean = true
 
     protected abstract fun customOperate(savedInstanceState: Bundle?)
 }

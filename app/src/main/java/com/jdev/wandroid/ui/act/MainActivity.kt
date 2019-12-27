@@ -66,8 +66,11 @@ class MainActivity : BaseActivity() {
                     clazz = ContainerActivity::class.java,
                     clazzCode = KEY_ANDROID_FLOAT_WINDOW
             ),
-            OrientVo("test",
-                    "desc"),
+            OrientVo("pip test",
+                    "PictureInPicture Mode",
+                    clazz = ContainerActivity::class.java,
+                    clazzCode = KEY_ANDROID_PIP
+            ),
             OrientVo("test",
                     "desc")
     )

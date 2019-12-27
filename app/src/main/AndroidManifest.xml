@@ -33,9 +33,17 @@
             </intent-filter>
         </activity>
 
+        <!--支持画中画效果配置
+        <activity android:name="VideoActivity"
+    android:supportsPictureInPicture="true"
+    android:configChanges=
+        "screenSize|smallestScreenSize|screenLayout|orientation"
+        -->
         <activity
             android:name=".ui.act.ContainerActivity"
-            android:screenOrientation="portrait" />
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+            android:screenOrientation="portrait"
+            android:supportsPictureInPicture="true" />
 
     </application>
 

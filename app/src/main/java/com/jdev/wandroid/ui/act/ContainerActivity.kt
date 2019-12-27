@@ -36,6 +36,9 @@ const val KEY_ANDROID_OPENGL_SIMGLE_DEMO = 8
 //------------window-------------
 const val KEY_ANDROID_FLOAT_WINDOW = 10
 
+//---------------pip-----------------
+const val KEY_ANDROID_PIP = 11
+
 class ContainerActivity : BaseActivity() {
     var callback: (() -> Unit)? = null
     var permission = Manifest.permission.CAMERA
@@ -82,6 +85,9 @@ class ContainerActivity : BaseActivity() {
                 }
                 KEY_ANDROID_FLOAT_WINDOW ->{
                     return FloatWindowFrag()
+                }
+                KEY_ANDROID_PIP ->{
+                    return Pip26ApiFrag()
                 }
 
                 else -> return null
