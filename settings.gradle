@@ -7,4 +7,4 @@ include ':app',
         ':lib_jiaozivideoplayer',
         ':lib_adapter',
         ':lib_gpuimage',
-        ':lib_magicfilter'
+        ':lib_magicfilter', ':lib_floatwindow'
