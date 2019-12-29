@@ -207,6 +207,7 @@ public class IFloatWindowImpl extends IFloatWindow {
                                 changeY = event.getRawY() - lastY;
                                 newX = (int) (mFloatView.getX() + changeX);
                                 newY = (int) (mFloatView.getY() + changeY);
+                                retrictXY(v);
                                 mFloatView.updateXY(newX, newY);
                                 if (mB.mViewStateListener != null) {
                                     mB.mViewStateListener.onPositionUpdate(newX, newY);
@@ -262,6 +263,21 @@ public class IFloatWindowImpl extends IFloatWindow {
                                 break;
                         }
                         return mClick;
+                    }
+
+                    private void retrictXY(View v) {
+                        //retrict
+                        if(newX + v.getWidth() > Util.getScreenWidth(mB.mApplicationContext)){
+                            newX = Util.getScreenWidth(mB.mApplicationContext) - v.getWidth();
+                        }else if(newX < 0){
+                            newX = 0;
+                        }
+
+                        if(newY + v.getHeight() > Util.getScreenHeight(mB.mApplicationContext)){
+                            newY = Util.getScreenHeight(mB.mApplicationContext) - v.getHeight();
+                        }else if(newY < 0){
+                            newY = 0;
+                        }
                     }
                 });
         }
