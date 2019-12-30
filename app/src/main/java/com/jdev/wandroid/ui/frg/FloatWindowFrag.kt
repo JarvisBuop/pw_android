@@ -112,6 +112,8 @@ class FloatWindowFrag : BaseViewStubFragment() {
                 count = intent!!.getIntExtra(PROGRESSBAR_EXTRA, count)
                 pb!!.setProgress(count)
 
+
+                img!!.animate().rotation(count.toFloat()).start()
                 if (count >= 100) {
                     (img!!.getDrawable() as AnimationDrawable).stop()
                     mContext!!.unregisterReceiver(this)
