@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
  * https://github.com/yhaolpz
  */
 
-class Util {
+public class Util {
 
 
     static View inflate(Context applicationContext, int layoutId) {
@@ -28,7 +28,7 @@ class Util {
 
     private static Point sPoint;
 
-    static int getScreenWidth(Context context) {
+    public static int getScreenWidth(Context context) {
         if (sPoint == null) {
             sPoint = new Point();
             WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -37,7 +37,7 @@ class Util {
         return sPoint.x;
     }
 
-    static int getScreenHeight(Context context) {
+    public static int getScreenHeight(Context context) {
         if (sPoint == null) {
             sPoint = new Point();
             WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -46,7 +46,7 @@ class Util {
         return sPoint.y;
     }
 
-    static boolean isViewVisible(View view) {
+    public static boolean isViewVisible(View view) {
         return view.getGlobalVisibleRect(new Rect());
     }
 }

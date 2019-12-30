@@ -91,7 +91,7 @@ android {
                 }
                 if (outputFile != null && outputFile.name.endsWith('.apk')) {
                     def fileName = "pw-"
-                    fileName += getBuildTime() + "-"
+//                    fileName += getBuildTime() + "-"
                     if (!(variant.flavorName != null && variant.flavorName.equals(""))) {
                         fileName += variant.flavorName
                     }

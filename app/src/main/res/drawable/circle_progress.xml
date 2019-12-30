@@ -2,16 +2,17 @@
 <rotate xmlns:android="http://schemas.android.com/apk/res/android"
     android:fromDegrees="270"
     android:toDegrees="270">
+
     <shape
-        android:innerRadiusRatio="2.5"
+        android:innerRadiusRatio="2.17"
         android:shape="ring"
         android:thickness="2dp"
         android:useLevel="true">
 
         <gradient
             android:angle="0"
-            android:endColor="#4285f4"
-            android:startColor="#4285f4"
+            android:endColor="#FFFF7C7C"
+            android:startColor="#FFFF7C7C"
             android:type="sweep"
             android:useLevel="false" />
     </shape>
