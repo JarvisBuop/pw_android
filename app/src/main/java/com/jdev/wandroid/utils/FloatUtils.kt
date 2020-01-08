@@ -11,13 +11,18 @@ import android.graphics.drawable.AnimationDrawable
 import android.os.Handler
 import android.os.Message
 import android.support.v4.view.animation.LinearOutSlowInInterpolator
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
 import com.blankj.utilcode.util.ConvertUtils
+import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.StringUtils
+import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.BaseViewHolder
 import com.jarvisdong.kit.baseui.BaseApp
 import com.jdev.wandroid.R
 import com.jdev.wandroid.ui.act.ContainerActivity
@@ -50,6 +55,8 @@ class FloatUtils {
         var img: ImageView? = null
         var imgPlay: ImageView? = null
         var rootCircle: View? = null
+        var rootViewGroup: View? = null
+        var recyclerView: RecyclerView? = null
         private var receiver: BroadcastReceiver? = null
         private var isLocationLeft: Boolean = false
 
@@ -103,8 +110,9 @@ class FloatUtils {
                 FloatWindow
                         .with(BaseApp.getApp())
                         .setView(mFloatRootView!!)
-                        .setWidth(ConvertUtils.dp2px(60f)) //设置悬浮控件宽高
-                        .setHeight(ConvertUtils.dp2px(60f))
+//                        .setWidth(ConvertUtils.dp2px(60f)) //设置悬浮控件宽高
+//                        .setHeight(ConvertUtils.dp2px(60f))
+
                         .setX(Util.getScreenWidth(BaseApp.getApp()) - ConvertUtils.dp2px(60f))
                         .setY(Screen.height, 0.3f)
                         .setMoveType(MoveType.slide, 0, 0)
@@ -124,19 +132,64 @@ class FloatUtils {
             img = mFloatRootView!!.findViewById(R.id.float_img)
             imgPlay = mFloatRootView!!.findViewById(R.id.float_play)
             rootCircle = mFloatRootView!!.findViewById(R.id.float_circle)
+            rootViewGroup = mFloatRootView!!.findViewById(R.id.float_viewgroup)
+            recyclerView = mFloatRootView!!.findViewById<RecyclerView>(R.id.float_recyclerview)
 
             (img!!.drawable as AnimationDrawable).start()
-            mFloatRootView!!.setOnClickListener {
-                /**
-                 * 浮窗落地页;
-                 */
+
+            //触摸关闭列表;
+            rootViewGroup?.setOnTouchListener { v, event ->
                 var floatImplByTag = getFloatImplByTag(currentTag)
                 if (floatImplByTag != null) {
-                    rotateAnimator?.resume()
-                    bindReceiver()
+                    //动画;
+                    rootCircle?.visibility = View.VISIBLE
+                    rootViewGroup?.visibility = View.GONE
 
-                    goLocationAct(BaseApp.getApp().applicationContext, floatImplByTag)
+                    if (floatImplByTag is IFloatWindowImpl) {
+                        floatImplByTag.mB.setMoveType(MoveType.slide)
+                    }
                 }
+                return@setOnTouchListener true
+            }
+
+            mFloatRootView!!.setOnClickListener {
+                LogUtils.e(TAG, "float view is click1 !!!")
+
+                var floatImplByTag = getFloatImplByTag(currentTag)
+                if (floatImplByTag != null) {
+                    /**
+                     * 浮窗落地页 -> 弹出页;
+                     *
+                     * 方式一: 跳入一个新的activity页面;
+                     */
+//                    rotateAnimator?.resume()
+//                    bindReceiver()
+//
+//                    goLocationAct(BaseApp.getApp().applicationContext, floatImplByTag)
+
+
+                    /**
+                     * 方式二: 同一个浮窗控制不同view;
+                     */
+
+                    if (floatImplByTag is IFloatWindowImpl) {
+                        floatImplByTag.mB.setMoveType(MoveType.inactive)
+                        floatImplByTag.updateX(0)
+                        floatImplByTag.updateY(0)
+                    }
+
+                    //显示列表项,并设置布局属性和是否能够滑动,设置列表加载动画;
+                    rootCircle?.visibility = View.GONE
+                    rootViewGroup?.visibility = View.VISIBLE
+                    var datas = arrayListOf<String>("1", "2", "3")
+                    recyclerView?.layoutManager = LinearLayoutManager(recyclerView?.context)
+                    recyclerView?.adapter = object : BaseQuickAdapter<String, BaseViewHolder>(R.layout.app_float_item_include, datas) {
+                        override fun convert(helper: BaseViewHolder?, item: String?) {
+
+                        }
+                    }
+                }
+
             }
         }
 

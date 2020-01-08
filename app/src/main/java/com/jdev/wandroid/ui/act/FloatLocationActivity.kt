@@ -16,7 +16,9 @@ import java.io.Serializable
 /**
  * info: create by jd in 2019/12/30
  * @see:
- * @description:
+ * @description: 点击定位的activity
+ *
+ * [仿微信方式一]
  *
  */
 class FloatLocationActivity : BaseActivity() {
@@ -51,15 +53,15 @@ class FloatLocationActivity : BaseActivity() {
 
         //location-margin
         left = locationParams?.isLeft ?: false
-        var layoutParams = float_rootview.layoutParams as ViewGroup.MarginLayoutParams
+        var layoutParams = float_playview.layoutParams as ViewGroup.MarginLayoutParams
         if (left) {
             layoutParams.rightMargin = margin
-            float_rootview.setBackgroundResource(R.drawable.bg_float_rightcorner)
+            float_playview.setBackgroundResource(R.drawable.bg_float_rightcorner)
         } else {
             layoutParams.leftMargin = margin
-            float_rootview.setBackgroundResource(R.drawable.bg_float_leftcorner)
+            float_playview.setBackgroundResource(R.drawable.bg_float_leftcorner)
         }
-        float_rootview.layoutParams = layoutParams
+        float_playview.layoutParams = layoutParams
 
         //location-Y
         var targetY = 0f
@@ -68,7 +70,7 @@ class FloatLocationActivity : BaseActivity() {
         } else {
             targetY = locationParams!!.y.toFloat() + offsetVertical
         }
-        float_rootview.y = targetY
+        float_playview.y = targetY
 
         startAnimator()
     }
@@ -85,7 +87,7 @@ class FloatLocationActivity : BaseActivity() {
             endX = 0f
         }
 
-        var ofFloat = ObjectAnimator.ofFloat(float_rootview, "translationX", startX, endX)
+        var ofFloat = ObjectAnimator.ofFloat(float_playview, "translationX", startX, endX)
         ofFloat.start()
     }
 

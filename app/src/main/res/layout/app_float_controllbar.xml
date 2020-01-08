@@ -1,32 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/float_circle"
-    android:layout_width="60dp"
-    android:layout_height="60dp"
-    android:background="@drawable/bg_float_leftcorner">
+    android:id="@+id/float_rootview"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <ProgressBar
-        android:id="@+id/float_pb"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
-        android:layout_gravity="center"
-        android:progressDrawable="@drawable/circle_progress"
+    <FrameLayout
+        android:id="@+id/float_circle"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:background="@drawable/bg_float_leftcorner"
         android:visibility="visible"
-        tools:max="100"
-        tools:progress="80" />
+        tools:visibility="visible">
 
-    <ImageView
-        android:id="@+id/float_img"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_gravity="center"
-        android:src="@drawable/audio_title_playbar"/>
+        <ProgressBar
+            android:id="@+id/float_pb"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_gravity="center"
+            android:progressDrawable="@drawable/circle_progress"
+            android:visibility="visible"
+            tools:max="100"
+            tools:progress="80" />
 
-    <ImageView
-        android:id="@+id/float_play"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_gravity="center" />
+        <ImageView
+            android:id="@+id/float_img"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:src="@drawable/audio_title_playbar" />
+
+        <ImageView
+            android:id="@+id/float_play"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/float_viewgroup"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparent"
+        android:gravity="right"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/float_recyclerview"
+            android:layout_width="280dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="200dp"
+            tools:itemCount="4"
+            tools:listitem="@layout/app_float_item_include" />
+    </LinearLayout>
+
+
 </FrameLayout>
