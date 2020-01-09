@@ -8,6 +8,7 @@ import android.view.View;
  */
 
 public abstract class IFloatWindow {
+
     public abstract void show();
 
     public abstract void hide();
@@ -29,4 +30,8 @@ public abstract class IFloatWindow {
     public abstract View getView();
 
     abstract void dismiss();
+
+    public abstract FloatWindow.B getConfig();
+
+    public abstract void setConfig(FloatWindow.B mB);
 }

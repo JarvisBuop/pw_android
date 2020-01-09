@@ -139,5 +139,9 @@ class FloatLifecycle extends BroadcastReceiver implements Application.ActivityLi
 
     }
 
+    public void setShowParams(boolean showFlag, Class[] activities){
+        this.showFlag = showFlag;
+        this.activities = activities;
+    }
 
 }

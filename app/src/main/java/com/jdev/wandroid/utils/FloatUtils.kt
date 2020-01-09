@@ -146,7 +146,7 @@ class FloatUtils {
                     rootViewGroup?.visibility = View.GONE
 
                     if (floatImplByTag is IFloatWindowImpl) {
-                        floatImplByTag.mB.setMoveType(MoveType.slide)
+                        floatImplByTag.config.setMoveType(MoveType.slide)
                     }
                 }
                 return@setOnTouchListener true
@@ -173,14 +173,16 @@ class FloatUtils {
                      */
 
                     if (floatImplByTag is IFloatWindowImpl) {
-                        floatImplByTag.mB.setMoveType(MoveType.inactive)
+                        var config = floatImplByTag.config
                         floatImplByTag.updateX(0)
                         floatImplByTag.updateY(0)
+                        config.setMoveType(MoveType.inactive)
                     }
 
                     //显示列表项,并设置布局属性和是否能够滑动,设置列表加载动画;
                     rootCircle?.visibility = View.GONE
                     rootViewGroup?.visibility = View.VISIBLE
+
                     var datas = arrayListOf<String>("1", "2", "3")
                     recyclerView?.layoutManager = LinearLayoutManager(recyclerView?.context)
                     recyclerView?.adapter = object : BaseQuickAdapter<String, BaseViewHolder>(R.layout.app_float_item_include, datas) {

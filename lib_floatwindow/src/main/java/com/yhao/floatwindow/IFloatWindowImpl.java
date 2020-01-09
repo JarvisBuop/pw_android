@@ -11,7 +11,6 @@ import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 
 /**
@@ -21,19 +20,13 @@ import android.view.animation.DecelerateInterpolator;
 
 public class IFloatWindowImpl extends IFloatWindow {
 
-
-    public FloatWindow.B mB;
+    private FloatWindow.B mB;
     private FloatView mFloatView;
     private FloatLifecycle mFloatLifecycle;
     private boolean isShow;
     private boolean once = true;
     private ValueAnimator mAnimator;
     private TimeInterpolator mDecelerateInterpolator;
-    private float downX;
-    private float downY;
-    private float upX;
-    private float upY;
-//    private boolean mClick = false;
     private int mSlop;
 
 
@@ -41,42 +34,58 @@ public class IFloatWindowImpl extends IFloatWindow {
 
     }
 
-    IFloatWindowImpl(FloatWindow.B b) {
-        mB = b;
-        if (mB.mMoveType == MoveType.fixed) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                mFloatView = new FloatPhone(b.mApplicationContext, mB.mPermissionListener);
-            } else {
-                mFloatView = new FloatToast(b.mApplicationContext);
-            }
-        } else {
-            mFloatView = new FloatPhone(b.mApplicationContext, mB.mPermissionListener);
-            initTouchEvent();
-        }
+    IFloatWindowImpl(FloatWindow.B mB) {
+        setConfig(mB);
+    }
+
+    private void initWindowImplByConfig() {
+        createFloatView();
+        initTouchEvent();
         mFloatView.setSize(mB.mWidth, mB.mHeight);
         mFloatView.setGravity(mB.gravity, mB.xOffset, mB.yOffset);
         mFloatView.setView(mB.mView);
-        mFloatLifecycle = new FloatLifecycle(mB.mApplicationContext, mB.mShow, mB.mActivities, new LifecycleListener() {
-            @Override
-            public void onShow() {
-                show();
-            }
+        registerLifecycle();
+    }
 
-            @Override
-            public void onHide() {
-                hide();
-            }
+    private void registerLifecycle() {
+        if (mFloatLifecycle == null) {
+            mFloatLifecycle = new FloatLifecycle(mB.mApplicationContext, mB.mShow, mB.mActivities, new LifecycleListener() {
+                @Override
+                public void onShow() {
+                    show();
+                }
 
-            @Override
-            public void onBackToDesktop() {
-                if (!mB.mDesktopShow) {
+                @Override
+                public void onHide() {
                     hide();
                 }
-                if (mB.mViewStateListener != null) {
-                    mB.mViewStateListener.onBackToDesktop();
+
+                @Override
+                public void onBackToDesktop() {
+                    if (!mB.mDesktopShow) {
+                        hide();
+                    }
+                    if (mB.mViewStateListener != null) {
+                        mB.mViewStateListener.onBackToDesktop();
+                    }
                 }
+            });
+        } else {
+            mFloatLifecycle.setShowParams(mB.mShow, mB.mActivities);
+        }
+    }
+
+    private void createFloatView() {
+        if (mFloatView != null) return;
+        if (mB.mMoveType == MoveType.fixed) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                mFloatView = new FloatPhone(mB.mApplicationContext, mB.mPermissionListener);
+            } else {
+                mFloatView = new FloatToast(mB.mApplicationContext);
             }
-        });
+        } else {
+            mFloatView = new FloatPhone(mB.mApplicationContext, mB.mPermissionListener);
+        }
     }
 
     @Override
@@ -121,6 +130,17 @@ public class IFloatWindowImpl extends IFloatWindow {
         if (mB.mViewStateListener != null) {
             mB.mViewStateListener.onDismiss();
         }
+    }
+
+    @Override
+    public FloatWindow.B getConfig() {
+        return mB;
+    }
+
+    @Override
+    public void setConfig(FloatWindow.B mB) {
+        this.mB = mB;
+        initWindowImplByConfig();
     }
 
     @Override
@@ -185,6 +205,8 @@ public class IFloatWindowImpl extends IFloatWindow {
     private void initTouchEvent() {
         switch (mB.mMoveType) {
             case MoveType.inactive:
+            case MoveType.fixed:
+                getView().setOnTouchListener(null);
                 break;
             default:
                 getView().setOnTouchListener(new DefaultTouchListener());
@@ -194,13 +216,18 @@ public class IFloatWindowImpl extends IFloatWindow {
     class DefaultTouchListener implements View.OnTouchListener {
         float lastX, lastY, changeX, changeY;
         int newX, newY;
+        private float downX;
+        private float downY;
+        private float upX;
+        private float upY;
+        //防止微小位移不能点击;
         boolean isDrag = false;
 
         @SuppressLint("ClickableViewAccessibility")
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             LogUtil.e("ontouch:  " + event.getAction());
-            if(mB.mMoveType == MoveType.inactive) return false;
+            if (mB.mMoveType == MoveType.inactive) return false;
 
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
@@ -228,10 +255,9 @@ public class IFloatWindowImpl extends IFloatWindow {
                     lastY = event.getRawY();
                     break;
                 case MotionEvent.ACTION_UP:
-                    if(!isDrag) return false;
+                    if (!isDrag) return false;
                     upX = event.getRawX();
                     upY = event.getRawY();
-//                    mClick = (Math.abs(upX - downX) > mSlop) || (Math.abs(upY - downY) > mSlop);
                     switch (mB.mMoveType) {
                         case MoveType.slide:
                             int startX = mFloatView.getX();
