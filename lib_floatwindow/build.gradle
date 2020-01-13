@@ -28,4 +28,5 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly rootProject.ext.dependencies.appcompatV7
     compileOnly rootProject.ext.dependencies.support_recyclerview
+    compileOnly rootProject.ext.dependencies.constraint_layout
 }

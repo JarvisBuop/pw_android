@@ -39,4 +39,9 @@ public class ViewStateListenerAdapter implements ViewStateListener{
     public void onBackToDesktop() {
 
     }
+
+    @Override
+    public void onSpecialEvent(String reason) {
+
+    }
 }

@@ -23,6 +23,7 @@ class FloatLifecycle extends BroadcastReceiver implements Application.ActivityLi
 
     private static final String SYSTEM_DIALOG_REASON_KEY = "reason";
     private static final String SYSTEM_DIALOG_REASON_HOME_KEY = "homekey";
+    private static final String SYSTEM_DIALOG_REASON_RECENT_APPS_KEY = "recentapps";
     private static final long delay = 300;
     private Handler mHandler;
     private Class[] activities;
@@ -42,7 +43,8 @@ class FloatLifecycle extends BroadcastReceiver implements Application.ActivityLi
         mLifecycleListener = lifecycleListener;
         mHandler = new Handler();
         ((Application) applicationContext).registerActivityLifecycleCallbacks(this);
-        applicationContext.registerReceiver(this, new IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+        applicationContext.registerReceiver(this, intentFilter);
     }
 
     public static void setResumedListener(ResumedListener resumedListener) {
@@ -118,6 +120,8 @@ class FloatLifecycle extends BroadcastReceiver implements Application.ActivityLi
             String reason = intent.getStringExtra(SYSTEM_DIALOG_REASON_KEY);
             if (SYSTEM_DIALOG_REASON_HOME_KEY.equals(reason)) {
                 mLifecycleListener.onBackToDesktop();
+            }else if(SYSTEM_DIALOG_REASON_RECENT_APPS_KEY.equals(reason)){
+                mLifecycleListener.onSpecialEvent(reason);
             }
         }
     }

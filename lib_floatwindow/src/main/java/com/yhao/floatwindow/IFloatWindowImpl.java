@@ -69,6 +69,13 @@ public class IFloatWindowImpl extends IFloatWindow {
                         mB.mViewStateListener.onBackToDesktop();
                     }
                 }
+
+                @Override
+                public void onSpecialEvent(String reason) {
+                    if (mB.mViewStateListener != null) {
+                        mB.mViewStateListener.onSpecialEvent(reason);
+                    }
+                }
             });
         } else {
             mFloatLifecycle.setShowParams(mB.mShow, mB.mActivities);

@@ -18,4 +18,7 @@ public interface ViewStateListener {
     void onMoveAnimEnd();
 
     void onBackToDesktop();
+
+    //多任务键,返回键 ,需要回到初始状态;
+    void onSpecialEvent(String reason);
 }

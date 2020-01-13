@@ -9,16 +9,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.media.Image
 import android.os.Handler
 import android.os.Message
 import android.support.v4.view.animation.LinearOutSlowInInterpolator
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -102,12 +100,12 @@ class FloatUtils {
         }
 
 
-        fun destroy(tag: String? = currentTag) {
+        fun destroyFloatViewByTag(tag: String? = currentTag) {
             FloatWindow.destroy(tag)
             currentTag = null
             rotateAnimator?.cancel()
 
-
+            rootView = null
             mFloatDetailView = null
             floatDetailRecyclerView = null
             pb = null
@@ -150,6 +148,15 @@ class FloatUtils {
             initFloatCircleView(rootView!!)
             initFloatDetailView(rootView!!)
 
+            rootView?.isFocusableInTouchMode = true
+            rootView?.requestFocus()
+            rootView?.setOnKeyListener { v, keyCode, event ->
+                if(keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP){
+                    exit2CircleFloat()
+                    return@setOnKeyListener true
+                }
+                return@setOnKeyListener false
+            }
         }
 
         private fun initFloatDetailView(mFloatView: View) {
@@ -160,25 +167,7 @@ class FloatUtils {
 
 //            触摸关闭列表;
             mFloatDetailView?.setOnTouchListener { v, event ->
-                var floatImplByTag = getFloatImplByTag(currentTag)
-                if (floatImplByTag != null) {
-
-                    mFloatDetailView?.visibility = View.GONE
-                    mFloatCircleView?.visibility = View.VISIBLE
-                    mFloatCircleView?.alpha = 1f
-
-                    if (floatImplByTag is IFloatWindowImpl) {
-
-                        var config = floatImplByTag.config
-                        config.setMoveType(MoveType.slide)
-                        config.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT)
-                        config.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT)
-                        floatImplByTag.config = config
-
-                        floatImplByTag.updateX(tempX)
-                        floatImplByTag.updateY(tempY)
-                    }
-                }
+                exit2CircleFloat()
                 return@setOnTouchListener true
             }
 
@@ -187,19 +176,63 @@ class FloatUtils {
             mAdapter = object : BaseQuickAdapter<String, BaseViewHolder>(R.layout.app_float_item_include, mDetailDatas) {
                 override fun convert(helper: BaseViewHolder?, item: String?) {
                     helper?.apply {
-                        var view = getView<View>(R.id.float_playview)
-                        if(isLocationLeft){
-                            view.setBackgroundResource(R.drawable.bg_float_rightcorner)
-                        }else {
-                            view.setBackgroundResource(R.drawable.bg_float_leftcorner)
+                        var playView = getView<View>(R.id.float_playview)
+                        if (isLocationLeft) {
+                            playView.setBackgroundResource(R.drawable.bg_float_rightcorner)
+                        } else {
+                            playView.setBackgroundResource(R.drawable.bg_float_leftcorner)
                         }
+                        var playState = getView<ImageView>(R.id.float_img_playstate)
+                        playState.setImageResource(R.drawable.ic_float_play)
+                        playState.setOnClickListener {
+                            playState.setImageResource(R.drawable.ic_float_pause)
+                        }
+
+                        var position = layoutPosition
+                        getView<View>(R.id.float_img_close).setOnClickListener {
+                            var removeAt = mDetailDatas.remove(item)
+                            if (removeAt) {
+                                mAdapter?.notifyDataSetChanged()
+                            }
+
+                            if (mDetailDatas.size == 0) {
+                                destroyFloatViewByTag(currentTag)
+                            }
+                        }
+
+                        setText(R.id.float_txt_title, "title main")
+                        setText(R.id.float_txt_subtitle, "subtitle main")
+
+                        getView<ImageView>(R.id.float_img).setImageResource(R.drawable.icon2)
                     }
                 }
             }
 
             mAdapter?.isFirstOnly(false)
-            mAdapter?.setDuration(200)
+            mAdapter?.setDuration(80)
             floatDetailRecyclerView?.adapter = mAdapter
+        }
+
+        private fun exit2CircleFloat() {
+            var floatImplByTag = getFloatImplByTag(currentTag)
+            if (floatImplByTag != null) {
+
+                mFloatDetailView?.visibility = View.GONE
+                mFloatCircleView?.visibility = View.VISIBLE
+                mFloatCircleView?.alpha = 1f
+
+                if (floatImplByTag is IFloatWindowImpl) {
+
+                    var config = floatImplByTag.config
+                    config.setMoveType(MoveType.slide)
+                    config.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT)
+                    config.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT)
+                    floatImplByTag.config = config
+
+                    floatImplByTag.updateX(tempX)
+                    floatImplByTag.updateY(tempY)
+                }
+            }
         }
 
         private fun initFloatCircleView(mFloatView: View) {
@@ -292,6 +325,7 @@ class FloatUtils {
             }
             mDetailDatas.clear()
             mDetailDatas.add("1")
+            mDetailDatas.add("1")
             mAdapter?.notifyDataSetChanged()
         }
 
@@ -361,6 +395,11 @@ class FloatUtils {
         }
 
         private val mViewStateListener = object : ViewStateListener {
+            override fun onSpecialEvent(reason: String?) {
+                Log.d(TAG, "onSpecialEvent: $reason")
+                exit2CircleFloat()
+            }
+
             override fun onPositionUpdate(x: Int, y: Int) {
                 Log.d(TAG, "onPositionUpdate: x=$x y=$y")
                 var floatImplByTag = getFloatImplByTag(currentTag)
@@ -399,6 +438,7 @@ class FloatUtils {
 
             override fun onBackToDesktop() {
                 Log.d(TAG, "onBackToDesktop")
+                exit2CircleFloat()
             }
         }
     }

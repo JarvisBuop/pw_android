@@ -12,4 +12,6 @@ interface LifecycleListener {
     void onHide();
 
     void onBackToDesktop();
+
+    void onSpecialEvent(String reason);
 }

@@ -36,7 +36,7 @@ class FloatWindowFrag : BaseViewStubFragment() {
         var textView2 = Button(mContext)
         textView2.text = "btn_destroy"
         textView2.setOnClickListener {
-            FloatWindow.destroy("multi")
+            FloatUtils.destroyFloatViewByTag()
         }
 
         linearLayout.addView(textView)

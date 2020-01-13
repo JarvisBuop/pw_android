@@ -5,6 +5,7 @@
     android:id="@+id/float_playview"
     android:layout_width="match_parent"
     android:layout_height="60dp"
+    android:layout_marginBottom="12dp"
     android:orientation="horizontal"
     tools:background="@drawable/bg_float_leftcorner"
     tools:layout_marginRight="0dp"
@@ -22,9 +23,12 @@
 
     <ImageView
         android:id="@+id/float_img_close"
-        android:layout_width="13dp"
-        android:layout_height="13dp"
-        android:layout_marginRight="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:paddingTop="22dp"
+        android:paddingBottom="22dp"
+        android:paddingRight="20dp"
+        android:paddingLeft="20dp"
         android:src="@drawable/icon_float_close"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -34,8 +38,7 @@
         android:id="@+id/float_img_playstate"
         android:layout_width="38dp"
         android:layout_height="38dp"
-        android:layout_marginRight="18dp"
-        android:src="@drawable/ic_float_play"
+        tools:src="@drawable/ic_float_play"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/float_img_close"
         app:layout_constraintTop_toTopOf="parent" />
