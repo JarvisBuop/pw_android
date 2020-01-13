@@ -11,7 +11,7 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:background="@drawable/bg_float_leftcorner"
-        android:visibility="visible"
+        android:visibility="gone"
         tools:visibility="visible">
 
         <ProgressBar
@@ -29,8 +29,7 @@
             android:id="@+id/float_img"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_gravity="center"
-            android:src="@drawable/audio_title_playbar" />
+            android:layout_gravity="center" />
 
         <ImageView
             android:id="@+id/float_play"
@@ -43,11 +42,11 @@
         android:id="@+id/float_viewgroup"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/transparent"
+        android:background="#e0e0e0"
         android:gravity="right"
         android:orientation="vertical"
         android:visibility="gone"
-        tools:visibility="visible">
+        tools:visibility="gone">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/float_recyclerview"

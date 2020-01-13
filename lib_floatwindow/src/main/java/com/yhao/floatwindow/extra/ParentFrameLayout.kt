@@ -20,4 +20,9 @@ class ParentFrameLayout : FrameLayout {
                 @AttrRes defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
 
     }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+
+    }
 }

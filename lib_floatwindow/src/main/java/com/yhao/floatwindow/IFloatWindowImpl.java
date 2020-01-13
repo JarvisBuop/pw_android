@@ -178,6 +178,12 @@ public class IFloatWindowImpl extends IFloatWindow {
     }
 
     @Override
+    public void updateParams() {
+        checkMoveType();
+        mFloatView.updateParams();
+    }
+
+    @Override
     public int getX() {
         return mFloatView.getX();
     }

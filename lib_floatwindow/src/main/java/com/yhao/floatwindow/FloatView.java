@@ -28,6 +28,10 @@ abstract class FloatView {
     void updateY(int y) {
     }
 
+    void updateParams(){
+
+    }
+
     int getX() {
         return 0;
     }

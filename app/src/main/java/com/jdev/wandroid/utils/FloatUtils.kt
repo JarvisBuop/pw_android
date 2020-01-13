@@ -16,6 +16,7 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
 import com.blankj.utilcode.util.ConvertUtils
@@ -59,6 +60,9 @@ class FloatUtils {
         var recyclerView: RecyclerView? = null
         private var receiver: BroadcastReceiver? = null
         private var isLocationLeft: Boolean = false
+
+        var tempX:Int = 0
+        var tempY:Int = 0
 
 
         private var countSend = 0
@@ -135,8 +139,9 @@ class FloatUtils {
             rootViewGroup = mFloatRootView!!.findViewById(R.id.float_viewgroup)
             recyclerView = mFloatRootView!!.findViewById<RecyclerView>(R.id.float_recyclerview)
 
-            (img!!.drawable as AnimationDrawable).start()
+//            (img!!.drawable as AnimationDrawable).start()
 
+            rootCircle?.visibility = View.VISIBLE
             //触摸关闭列表;
             rootViewGroup?.setOnTouchListener { v, event ->
                 var floatImplByTag = getFloatImplByTag(currentTag)
@@ -146,7 +151,16 @@ class FloatUtils {
                     rootViewGroup?.visibility = View.GONE
 
                     if (floatImplByTag is IFloatWindowImpl) {
-                        floatImplByTag.config.setMoveType(MoveType.slide)
+                        var config = floatImplByTag.config
+
+                        config.setMoveType(MoveType.slide)
+                        floatImplByTag.config.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT)
+                        floatImplByTag.config.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT)
+                        floatImplByTag.config = config
+
+                        floatImplByTag.updateX(tempX)
+                        floatImplByTag.updateY(tempY)
+                        floatImplByTag.updateParams()
                     }
                 }
                 return@setOnTouchListener true
@@ -170,18 +184,34 @@ class FloatUtils {
 
                     /**
                      * 方式二: 同一个浮窗控制不同view;
+                     *
+                     * updatex 瞬移view,体验不好;
                      */
+                    //显示列表项,并设置布局属性和是否能够滑动,设置列表加载动画;
+                    rootViewGroup?.visibility = View.VISIBLE
+                    rootCircle?.visibility = View.GONE
 
                     if (floatImplByTag is IFloatWindowImpl) {
                         var config = floatImplByTag.config
+                        tempX = floatImplByTag.x
+                        tempY = floatImplByTag.y
+
+                        config.setMoveType(MoveType.inactive)
+                        floatImplByTag.config.setWidth(ViewGroup.LayoutParams.MATCH_PARENT)
+                        floatImplByTag.config.setHeight(ViewGroup.LayoutParams.MATCH_PARENT)
+                        floatImplByTag.config = config
+
+                        floatImplByTag.updateParams()
                         floatImplByTag.updateX(0)
                         floatImplByTag.updateY(0)
-                        config.setMoveType(MoveType.inactive)
                     }
 
-                    //显示列表项,并设置布局属性和是否能够滑动,设置列表加载动画;
-                    rootCircle?.visibility = View.GONE
-                    rootViewGroup?.visibility = View.VISIBLE
+                    /**
+                     * 方式三: 多浮窗添加;
+                     */
+
+
+
 
                     var datas = arrayListOf<String>("1", "2", "3")
                     recyclerView?.layoutManager = LinearLayoutManager(recyclerView?.context)
@@ -195,18 +225,18 @@ class FloatUtils {
             }
         }
 
-        private fun goLocationAct(mContext: Context, floatImplByTag: IFloatWindow) {
-            var intent = Intent(mContext, FloatLocationActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            intent.putExtra(FloatLocationActivity.KEY_LOCATION_PARAMS, FloatLocationActivity.MyLocation(
-                    floatImplByTag.x,
-                    floatImplByTag.y,
-                    mFloatRootView?.width ?: 0,
-                    mFloatRootView?.height ?: 0,
-                    isLocationLeft
-            ))
-            mContext.startActivity(intent)
-        }
+//        private fun goLocationAct(mContext: Context, floatImplByTag: IFloatWindow) {
+//            var intent = Intent(mContext, FloatLocationActivity::class.java)
+//            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+//            intent.putExtra(FloatLocationActivity.KEY_LOCATION_PARAMS, FloatLocationActivity.MyLocation(
+//                    floatImplByTag.x,
+//                    floatImplByTag.y,
+//                    mFloatRootView?.width ?: 0,
+//                    mFloatRootView?.height ?: 0,
+//                    isLocationLeft
+//            ))
+//            mContext.startActivity(intent)
+//        }
 
         private fun bindReceiver() {
             receiver = object : BroadcastReceiver() {
@@ -219,7 +249,7 @@ class FloatUtils {
 
 
                     if (count >= 100) {
-                        (img!!.drawable as AnimationDrawable).stop()
+//                        (img!!.drawable as AnimationDrawable).stop()
                         rotateAnimator?.pause()
                         if (receiver != null) {
                             BaseApp.getApp().unregisterReceiver(receiver)
