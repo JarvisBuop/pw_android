@@ -157,6 +157,10 @@ public class IFloatWindowImpl extends IFloatWindow {
         mFloatView.updateY(y);
     }
 
+    public void updateParams(){
+        mFloatView.updateParams();
+    }
+
     @Override
     public void updateX(int screenType, float ratio) {
         checkMoveType();
@@ -177,11 +181,6 @@ public class IFloatWindowImpl extends IFloatWindow {
 
     }
 
-    @Override
-    public void updateParams() {
-        checkMoveType();
-        mFloatView.updateParams();
-    }
 
     @Override
     public int getX() {
@@ -210,7 +209,6 @@ public class IFloatWindowImpl extends IFloatWindow {
 
     private void initTouchEvent() {
         switch (mB.mMoveType) {
-            case MoveType.inactive:
             case MoveType.fixed:
                 getView().setOnTouchListener(null);
                 break;

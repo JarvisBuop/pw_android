@@ -218,7 +218,11 @@ class MainActivity : BaseActivity() {
         main_container.setDisableDoubleScroll(false)
 
         mAdapterTop = MyAdapter(R.layout.app_item_normalitem)
+        mAdapterTop.openLoadAnimation(BaseQuickAdapter.SLIDEIN_LEFT)
+        mAdapterTop.isFirstOnly(false)
         mAdapterBottom = MyAdapter(R.layout.app_item_normalitem_reverse)
+        mAdapterBottom.openLoadAnimation(BaseQuickAdapter.SLIDEIN_RIGHT)
+        mAdapterBottom.isFirstOnly(false)
         mAdapterTop.setOnItemClickListener { adapter, view, position ->
             clickItemByClazz(mAdapterTop.getItem(position), mAdapterTop.getItem(position)?.clazzCode)
         }
