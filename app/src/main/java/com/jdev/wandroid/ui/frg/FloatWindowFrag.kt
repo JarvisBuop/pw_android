@@ -1,19 +1,13 @@
 package com.jdev.wandroid.ui.frg
 
-import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Message
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
-import com.jarvisdong.kit.baseui.BaseApp
 import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
 import com.jdev.wandroid.utils.FloatUtils
-import com.yhao.floatwindow.FloatWindow
 
 
 /**

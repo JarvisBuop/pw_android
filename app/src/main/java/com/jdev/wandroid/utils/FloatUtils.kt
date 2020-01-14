@@ -199,7 +199,7 @@ class FloatUtils {
                 }
             }
 
-            mAdapter?.isFirstOnly(true)
+            mAdapter?.isFirstOnly(false)
             mAdapter?.setDuration(80)
             floatDetailRecyclerView?.adapter = mAdapter
         }
