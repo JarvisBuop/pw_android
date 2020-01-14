@@ -136,7 +136,7 @@ class FloatUtils {
                         .setFilter(true, ContainerActivity::class.java, MainActivity::class.java)
                         .setViewStateListener(mViewStateListener)
                         .setPermissionListener(mPermissionListener)
-                        .setDesktopShow(true)
+                        .setDesktopShow(false)
                         .setTag(currentTag)
                         .build()
             }
@@ -148,15 +148,6 @@ class FloatUtils {
             initFloatCircleView(rootView!!)
             initFloatDetailView(rootView!!)
 
-            rootView?.isFocusableInTouchMode = true
-            rootView?.requestFocus()
-            rootView?.setOnKeyListener { v, keyCode, event ->
-                if(keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP){
-                    exit2CircleFloat()
-                    return@setOnKeyListener true
-                }
-                return@setOnKeyListener false
-            }
         }
 
         private fun initFloatDetailView(mFloatView: View) {
@@ -208,7 +199,7 @@ class FloatUtils {
                 }
             }
 
-            mAdapter?.isFirstOnly(false)
+            mAdapter?.isFirstOnly(true)
             mAdapter?.setDuration(80)
             floatDetailRecyclerView?.adapter = mAdapter
         }
@@ -228,6 +219,11 @@ class FloatUtils {
                     config.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT)
                     config.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT)
                     floatImplByTag.config = config
+
+                    if (tempX == 0 && tempY == 0) {
+                        tempX = floatImplByTag.x
+                        tempY = floatImplByTag.y
+                    }
 
                     floatImplByTag.updateX(tempX)
                     floatImplByTag.updateY(tempY)
@@ -402,22 +398,15 @@ class FloatUtils {
 
             override fun onPositionUpdate(x: Int, y: Int) {
                 Log.d(TAG, "onPositionUpdate: x=$x y=$y")
-                var floatImplByTag = getFloatImplByTag(currentTag)
-                if (floatImplByTag != null) {
-                    if (x <= 0) {
-                        mFloatCircleView?.setBackgroundResource(R.drawable.bg_float_rightcorner)
-                        isLocationLeft = true
-                    } else if (x >= Util.getScreenWidth(BaseApp.getApp()) - mFloatCircleView?.width!!) {
-                        mFloatCircleView?.setBackgroundResource(R.drawable.bg_float_leftcorner)
-                        isLocationLeft = false
-                    } else {
-                        mFloatCircleView?.setBackgroundResource(R.drawable.bg_float_nocorner)
-                    }
-                }
+                updateViewBg(x)
             }
 
             override fun onShow() {
                 Log.d(TAG, "onShow")
+                var floatImplByTag = getFloatImplByTag(currentTag)
+                if (floatImplByTag != null) {
+                    updateViewBg(floatImplByTag.x)
+                }
             }
 
             override fun onHide() {
@@ -439,6 +428,21 @@ class FloatUtils {
             override fun onBackToDesktop() {
                 Log.d(TAG, "onBackToDesktop")
                 exit2CircleFloat()
+            }
+        }
+
+        private fun updateViewBg(x: Int) {
+            var floatImplByTag = getFloatImplByTag(currentTag)
+            if (floatImplByTag != null) {
+                if (x <= 0) {
+                    mFloatCircleView?.setBackgroundResource(R.drawable.bg_float_rightcorner)
+                    isLocationLeft = true
+                } else if (x >= Util.getScreenWidth(BaseApp.getApp()) - mFloatCircleView?.width!!) {
+                    mFloatCircleView?.setBackgroundResource(R.drawable.bg_float_leftcorner)
+                    isLocationLeft = false
+                } else {
+                    mFloatCircleView?.setBackgroundResource(R.drawable.bg_float_nocorner)
+                }
             }
         }
     }
