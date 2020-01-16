@@ -215,7 +215,7 @@ class JdGpuImageMultiFrag : BaseViewStubFragment() {
             override fun onPageSelected(position: Int) {
                 //上一个还原scale
                 var primaryView = getPrimaryView()
-                primaryView?.setScaleToOrigin()
+                primaryView?.setUpOrigin()
 
                 viewpagePosition = position
                 mTxtCurrentTab.text = "${viewpagePosition + 1}/${arrayFilters.size}"
