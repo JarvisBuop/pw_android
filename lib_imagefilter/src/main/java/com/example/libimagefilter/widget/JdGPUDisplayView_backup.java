@@ -1,0 +1,824 @@
+///*
+// * Copyright (C) 2018 CyberAgent, Inc.
+// *
+// * Licensed under the Apache License, Version 2.0 (the "License");
+// * you may not use this file except in compliance with the License.
+// * You may obtain a copy of the License at
+// *
+// * http://www.apache.org/licenses/LICENSE-2.0
+// *
+// * Unless required by applicable law or agreed to in writing, software
+// * distributed under the License is distributed on an "AS IS" BASIS,
+// * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// * See the License for the specific language governing permissions and
+// * limitations under the License.
+// */
+//
+//package com.example.libimagefilter.widget;
+//
+//import android.content.Context;
+//import android.content.res.TypedArray;
+//import android.graphics.Bitmap;
+//import android.graphics.Color;
+//import android.media.MediaScannerConnection;
+//import android.net.Uri;
+//import android.opengl.GLSurfaceView;
+//import android.os.AsyncTask;
+//import android.os.Build;
+//import android.os.Environment;
+//import android.os.Handler;
+//import android.os.Looper;
+//import android.util.AttributeSet;
+//import android.view.GestureDetector;
+//import android.view.Gravity;
+//import android.view.MotionEvent;
+//import android.view.ScaleGestureDetector;
+//import android.view.SurfaceHolder;
+//import android.view.ViewTreeObserver;
+//import android.view.animation.DecelerateInterpolator;
+//import android.widget.FrameLayout;
+//import android.widget.OverScroller;
+//import android.widget.ProgressBar;
+//import android.widget.Scroller;
+//
+//import com.blankj.utilcode.util.LogUtils;
+//import com.example.libimagefilter.R;
+//import com.example.libimagefilter.camera.CameraEngine;
+//import com.example.libimagefilter.filter.base.gpuimage.GPUImageFilter;
+//import com.example.libimagefilter.filter.helper.MagicFilterFactory;
+//import com.example.libimagefilter.filter.helper.MagicFilterType;
+//import com.example.libimagefilter.nativecall.GPUImageNativeLibrary;
+//import com.example.libimagefilter.utils.Rotation;
+//
+//import java.io.File;
+//import java.io.FileNotFoundException;
+//import java.io.FileOutputStream;
+//import java.util.concurrent.Semaphore;
+//
+//
+//public class JdGPUDisplayView_backup extends FrameLayout {
+//    private final String TAG = "JdGPUDisplayView";
+//    private final boolean isDebug = true;
+//
+//    private int surfaceType = JdGPUImage.SURFACE_TYPE_SURFACE_VIEW;
+//    private int renderType = JdGPUImage.RENDER_TYPE_IMG;
+//    private GLSurfaceView surfaceView;
+//    private JdGPUImage gpuImage;
+//    private boolean isShowLoading = true;
+//    private GPUImageFilter filter;
+//    public Size forceSize = null;
+//    private float ratio = 0.0f;
+//
+//
+//    //===================手势部分==================
+//    private ScaleGestureDetector mScaleDetector;
+//    private GestureDetector mDetector;
+//    private float mScale = 1.0f;
+//    private final static float MAX_SCALE = 2.5f;
+//    private final static float MIN_SCALE = 1f;
+//    // 当前是否处于放大状态
+//    private boolean isZoonUp = false;
+//    private boolean isEnable = true;
+//    //translate
+//    private int mTranslateX;
+//    private int mTranslateY;
+//    private int mLastTranslateX;
+//    private int mLastTranslateY;
+//
+//    private Transform mTranslate = new Transform();
+//    private boolean hasMultiTouch = false;
+//
+//    public void setScaleToOrigin() {
+//        mTranslate.withScale(mScale, 1f);
+//        mTranslate.withTranslate(0, 0, -mTranslateX, -mTranslateY);
+//        mTranslate.start();
+//    }
+//
+//    private class Transform implements Runnable {
+//        boolean isRuning;
+//        Scroller mScaleScroller;
+//        OverScroller mTranslateScroller;
+//        int ANIMA_DURING = 320;
+//
+//        Transform() {
+//            DecelerateInterpolator i = new DecelerateInterpolator();
+//            mScaleScroller = new Scroller(getContext(), i);
+//            mTranslateScroller = new OverScroller(getContext(), i);
+//        }
+//
+//        @Override
+//        public void run() {
+//            if (!isRuning) return;
+//            boolean endAnima1 = true;
+//            boolean endAnima2 = true;
+//
+//            if (mScaleScroller.computeScrollOffset()) {
+//                mScale = mScaleScroller.getCurrX() / 10000f;
+//                endAnima1 = false;
+//            }
+//
+//            if (mTranslateScroller.computeScrollOffset()) {
+//                int tx = mTranslateScroller.getCurrX() - mLastTranslateX;
+//                int ty = mTranslateScroller.getCurrY() - mLastTranslateY;
+//                mTranslateX += tx;
+//                mTranslateY += ty;
+//                mLastTranslateX = mTranslateScroller.getCurrX();
+//                mLastTranslateY = mTranslateScroller.getCurrY();
+//                endAnima2 = false;
+//            }
+//
+//            if (!(endAnima1 && endAnima2)) {
+//                if (!endAnima1) {
+//                    setScaleX(mScale);
+//                    setScaleY(mScale);
+//                }
+//                if (!endAnima2) {
+//                    setScrollX(mTranslateX);
+//                    setScrollY(mTranslateY);
+//                }
+//                postExecute();
+//            } else {
+//                isRuning = false;
+//                invalidate();
+//            }
+//        }
+//
+//        void withScale(float form, float to) {
+//            mScaleScroller.startScroll((int) (form * 10000), 0, (int) ((to - form) * 10000), 0, ANIMA_DURING);
+//        }
+//
+//        void withTranslate(int startX, int startY, int deltaX, int deltaY) {
+//            mLastTranslateX = 0;
+//            mLastTranslateY = 0;
+//            mTranslateScroller.startScroll(0, 0, deltaX, deltaY, ANIMA_DURING);
+//        }
+//
+//        void start() {
+//            isRuning = true;
+//            postExecute();
+//        }
+//
+//        void stop() {
+//            removeCallbacks(this);
+//            mTranslateScroller.abortAnimation();
+//            mScaleScroller.abortAnimation();
+//            isRuning = false;
+//        }
+//
+//        private void postExecute() {
+//            if (isRuning) post(this);
+//        }
+//    }
+//    //===================手势部分==================
+//
+//
+//    public JdGPUDisplayView_backup(Context context) {
+//        super(context);
+//        init(context, null);
+//    }
+//
+//    public JdGPUDisplayView_backup(Context context, AttributeSet attrs) {
+//        super(context, attrs);
+//        init(context, attrs);
+//    }
+//
+//    private void init(Context context, AttributeSet attrs) {
+//        if (attrs != null) {
+//            TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.JdGPUDisplayView, 0, 0);
+//            try {
+//                surfaceType = a.getInt(R.styleable.JdGPUDisplayView_filter_surface_type, surfaceType);
+//                renderType = a.getInt(R.styleable.JdGPUDisplayView_filter_display_media, surfaceType);
+//                isShowLoading = a.getBoolean(R.styleable.JdGPUDisplayView_filter_show_loading, isShowLoading);
+//
+//            } finally {
+//                a.recycle();
+//            }
+//        }
+//        gpuImage = new JdGPUImage(context);
+//        gpuImage.initRenderByType(renderType);
+////        if (surfaceType == JdGPUImage.SURFACE_TYPE_TEXTURE_VIEW) {
+////            surfaceView = new GPUImageGLTextureView(context, attrs);
+////            gpuImage.setGLTextureView((GLTextureView) surfaceView);
+////        } else {
+//        surfaceView = new GPUImageGLSurfaceView(context, attrs);
+//        gpuImage.setGLSurfaceView((GLSurfaceView) surfaceView);
+////        }
+//        addView(surfaceView);
+//
+//        mScaleDetector = new ScaleGestureDetector(getContext(), mScaleListener);
+//        mDetector = new GestureDetector(getContext(), mGestureListener);
+//    }
+//
+//    private ScaleGestureDetector.OnScaleGestureListener mScaleListener = new ScaleGestureDetector.OnScaleGestureListener() {
+//        @Override
+//        public boolean onScale(ScaleGestureDetector detector) {
+//            float scaleFactor = detector.getScaleFactor();
+//            if (Float.isNaN(scaleFactor) || Float.isInfinite(scaleFactor))
+//                return false;
+//
+//            float lastScale = mScale;
+//            mScale *= scaleFactor;
+//
+//            if (isDebug) {
+//                LogUtils.eTag(TAG, lastScale + "/" + mScale + " / " + scaleFactor + "/ wh:" + getMeasuredWidth() + "/" + getMeasuredHeight());
+//            }
+//
+//            setScaleX(mScale);
+//            setScaleY(mScale);
+//            //return true 表示不重新计算scaleFactor,值保持不变 0.5->0.5 可能抖动;
+//            //return false 表示重新计算scaleFactor,值重新变化 0.5->1.0
+//            return false;
+//        }
+//
+//        public boolean onScaleBegin(ScaleGestureDetector detector) {
+//            return true;
+//        }
+//
+//        public void onScaleEnd(ScaleGestureDetector detector) {
+//            //需要双击还原;
+//            isZoonUp = mScale < 1 || mScale >= MAX_SCALE;
+//        }
+//    };
+//
+//    private GestureDetector.OnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
+//
+//        @Override
+//        public boolean onDown(MotionEvent e) {
+//            LogUtils.eTag(TAG, "mGestureListener down " + e.getPointerCount());
+//            return false;
+//        }
+//
+//        @Override
+//        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+//            if (isDebug) {
+//                LogUtils.eTag(TAG, "velocityX: " + velocityX + " velocityY:" + velocityY);
+//            }
+//            return false;
+//        }
+//
+//        @Override
+//        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+//            if (hasMultiTouch) return false;
+//            if (mTranslate.isRuning) {
+//                mTranslate.stop();
+//            }
+//
+//            mTranslateX += distanceX;
+//            mTranslateY += distanceY;
+//
+//            if (isDebug) {
+//                LogUtils.eTag(TAG, "distanceX: " + distanceX + " distanceY:" + distanceY
+//                        + "\n transX " + mTranslateX + " transY " + mTranslateY
+//                        + "\n scrollX " + getScrollX() + " scrollY " + getScrollY()
+//                        + "\n pointcount: " + e1.getPointerCount() + "   " + e2.getPointerCount()
+//                );
+//            }
+//
+//            setScrollX(mTranslateX);
+//            setScrollY(mTranslateY);
+//            return true;
+//        }
+//
+//        @Override
+//        public boolean onSingleTapUp(MotionEvent e) {
+//            return false;
+//        }
+//
+//        @Override
+//        public boolean onDoubleTap(MotionEvent e) {
+//            mTranslate.stop();
+//
+//            float from = 1;
+//            float to = 1;
+//
+//            if (isZoonUp) {
+//                from = mScale;
+//                to = 1;
+//            } else {
+//                from = mScale;
+//                to = MAX_SCALE;
+//            }
+//
+//            isZoonUp = !isZoonUp;
+//
+//            mTranslate.withTranslate(0, 0, -mTranslateX, -mTranslateY);
+//            mTranslate.withScale(from, to);
+//
+//            mTranslate.start();
+//            return false;
+//        }
+//    };
+//
+//    @Override
+//    public boolean dispatchTouchEvent(MotionEvent event) {
+//        if (isEnable) {
+//            LogUtils.eTag(TAG, "dispatchTouchEvent: " + event.getPointerCount());
+//            if (event.getPointerCount() >= 2) {
+//                hasMultiTouch = true;
+//            } else {
+//                hasMultiTouch = false;
+//            }
+//            mDetector.onTouchEvent(event);
+//            mScaleDetector.onTouchEvent(event);
+//            if (mScale > 1) {
+//                getParent().requestDisallowInterceptTouchEvent(true);
+//            } else {
+//                getParent().requestDisallowInterceptTouchEvent(false);
+//            }
+//            if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)
+//                onFitEvent(event);
+//            return true;
+//        } else {
+//            return super.dispatchTouchEvent(event);
+//        }
+//    }
+//
+//    private void onFitEvent(MotionEvent event) {
+//        if (mTranslate.isRuning) return;
+//
+//        float scale = mScale;
+//        if (mScale < MIN_SCALE) {
+//            scale = MIN_SCALE;
+//            mTranslate.withScale(mScale, scale);
+//        } else if (mScale > MAX_SCALE) {
+//            scale = MAX_SCALE;
+//            mTranslate.withScale(mScale, scale);
+//        }
+//        if (mScale <= 1) {
+//            mTranslate.withTranslate(0, 0, -mTranslateX, -mTranslateY);
+//        }
+//        mTranslate.start();
+//    }
+//
+//    @Override
+//    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+//        if (ratio != 0.0f) {
+//            int width = MeasureSpec.getSize(widthMeasureSpec);
+//            int height = MeasureSpec.getSize(heightMeasureSpec);
+//
+//            int newHeight;
+//            int newWidth;
+//            if (width / ratio < height) {
+//                newWidth = width;
+//                newHeight = Math.round(width / ratio);
+//            } else {
+//                newHeight = height;
+//                newWidth = Math.round(height * ratio);
+//            }
+//
+//            int newWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
+//            int newHeightSpec = MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY);
+//            super.onMeasure(newWidthSpec, newHeightSpec);
+//        } else {
+//            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+//        }
+//    }
+//
+//    /**
+//     * Retrieve the JdGPUImage instance used by this view.
+//     *
+//     * @return used JdGPUImage instance
+//     */
+//    public JdGPUImage getGPUImage() {
+//        return gpuImage;
+//    }
+//
+//    /**
+//     * Sets the background color
+//     *
+//     * @param red   red color value
+//     * @param green green color value
+//     * @param blue  red color value
+//     */
+//    public void setBackgroundColor(float red, float green, float blue) {
+//        gpuImage.setBackgroundColor(red, green, blue);
+//    }
+//
+//    /**
+//     * Set the rendering mode. When renderMode is
+//     * RENDERMODE_CONTINUOUSLY, the renderer is called
+//     * repeatedly to re-render the scene. When renderMode
+//     * is RENDERMODE_WHEN_DIRTY, the renderer only rendered when the surface
+//     * is created, or when {@link #requestRender} is called. Defaults to RENDERMODE_CONTINUOUSLY.
+//     *
+//     * @param renderMode one of the RENDERMODE_X constants
+//     * @see GLSurfaceView#setRenderMode(int)
+//     * //     * @see GLTextureView#setRenderMode(int)
+//     */
+//    public void setRenderMode(int renderMode) {
+//        if (surfaceView instanceof GLSurfaceView) {
+//            ((GLSurfaceView) surfaceView).setRenderMode(renderMode);
+//        }
+////        else if (surfaceView instanceof GLTextureView) {
+////            ((GLTextureView) surfaceView).setRenderMode(renderMode);
+////        }
+//    }
+//
+//    // TODO Should be an xml attribute. But then JdGPUImage can not be distributed as .jar anymore.
+//    public void setRatio(float ratio) {
+//        this.ratio = ratio;
+//        surfaceView.requestLayout();
+//        gpuImage.deleteImage();
+//    }
+//
+//    /**
+//     * Set the scale type of JdGPUImage.
+//     *
+//     * @param scaleType the new ScaleType
+//     */
+//    public void setScaleType(JdGPUImage.ScaleType scaleType) {
+//        gpuImage.setScaleType(scaleType);
+//    }
+//
+//    /**
+//     * Sets the rotation of the displayed image.
+//     *
+//     * @param rotation new rotation
+//     */
+//    public void setRotation(Rotation rotation) {
+//        gpuImage.setRotation(rotation);
+//        requestRender();
+//    }
+//
+//    /**
+//     * Set the filter to be applied on the image.
+//     *
+//     * @param filter Filter that should be applied on the image.
+//     */
+//    public void setFilter(GPUImageFilter filter) {
+//        this.filter = filter;
+//        gpuImage.setFilter(filter);
+//        requestRender();
+//    }
+//
+//    public void setFilter(MagicFilterType filterType) {
+//        this.filter = MagicFilterFactory.Companion.getFilterByType(filterType);
+//        gpuImage.setFilter(filter);
+//        requestRender();
+//    }
+//
+//    /**
+//     * Get the current applied filter.
+//     *
+//     * @return the current filter
+//     */
+//    public GPUImageFilter getFilter() {
+//        return filter;
+//    }
+//
+//    /**
+//     * Sets the image on which the filter should be applied.
+//     *
+//     * @param bitmap the new image
+//     */
+//    public void setImage(final Bitmap bitmap) {
+//        gpuImage.setImage(bitmap);
+//    }
+//
+//    /**
+//     * Sets the image on which the filter should be applied from a Uri.
+//     *
+//     * @param uri the uri of the new image
+//     */
+//    public void setImage(final Uri uri) {
+//        gpuImage.setImage(uri);
+//    }
+//
+//    /**
+//     * Sets the image on which the filter should be applied from a File.
+//     *
+//     * @param file the file of the new image
+//     */
+//    public void setImage(final File file) {
+//        gpuImage.setImage(file);
+//    }
+//
+//    public void requestRender() {
+//        if (surfaceView instanceof GLSurfaceView) {
+//            ((GLSurfaceView) surfaceView).requestRender();
+//        }
+////        else if (surfaceView instanceof GLTextureView) {
+////            ((GLTextureView) surfaceView).requestRender();
+////        }
+//    }
+//
+//    /**
+//     * Save current image with applied filter to Pictures. It will be stored on
+//     * the default Picture folder on the phone below the given folderName and
+//     * fileName. <br>
+//     * This method is async and will notify when the image was saved through the
+//     * listener.
+//     *
+//     * @param folderName the folder name
+//     * @param fileName   the file name
+//     * @param listener   the listener
+//     */
+//    public void saveToPictures(final String folderName, final String fileName,
+//                               final OnPictureSavedListener listener) {
+//        new SaveTask(folderName, fileName, listener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//    }
+//
+//    /**
+//     * Save current image with applied filter to Pictures. It will be stored on
+//     * the default Picture folder on the phone below the given folderName and
+//     * fileName. <br>
+//     * This method is async and will notify when the image was saved through the
+//     * listener.
+//     *
+//     * @param folderName the folder name
+//     * @param fileName   the file name
+//     * @param width      requested output width
+//     * @param height     requested output height
+//     * @param listener   the listener
+//     */
+//    public void saveToPictures(final String folderName, final String fileName,
+//                               int width, int height,
+//                               final OnPictureSavedListener listener) {
+//        new SaveTask(folderName, fileName, width, height, listener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//    }
+//
+//    /**
+//     * Retrieve current image with filter applied and given size as Bitmap.
+//     *
+//     * @param width  requested Bitmap width
+//     * @param height requested Bitmap height
+//     * @return Bitmap of picture with given size
+//     * @throws InterruptedException
+//     */
+//    public Bitmap capture(final int width, final int height) throws InterruptedException {
+//        // This method needs to run on a background thread because it will take a longer time
+//        if (Looper.myLooper() == Looper.getMainLooper()) {
+//            throw new IllegalStateException("Do not call this method from the UI thread!");
+//        }
+//
+//        forceSize = new Size(width, height);
+//
+//        final Semaphore waiter = new Semaphore(0);
+//
+//        // Layout with new size
+//        getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//            @Override
+//            public void onGlobalLayout() {
+//                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+//                    getViewTreeObserver().removeGlobalOnLayoutListener(this);
+//                } else {
+//                    getViewTreeObserver().removeOnGlobalLayoutListener(this);
+//                }
+//                waiter.release();
+//            }
+//        });
+//
+//        post(new Runnable() {
+//            @Override
+//            public void run() {
+//                // Optionally, show loading view:
+//                if (isShowLoading) {
+//                    addView(new LoadingView(getContext()));
+//                }
+//                // Request layout to release waiter:
+//                surfaceView.requestLayout();
+//            }
+//        });
+//
+//        waiter.acquire();
+//
+//        // Run one render pass
+//        gpuImage.runOnGLThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                waiter.release();
+//            }
+//        });
+//        requestRender();
+//        waiter.acquire();
+//        Bitmap bitmap = capture();
+//
+//
+//        forceSize = null;
+//        post(new Runnable() {
+//            @Override
+//            public void run() {
+//                surfaceView.requestLayout();
+//            }
+//        });
+//        requestRender();
+//
+//        if (isShowLoading) {
+//            postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    // Remove loading view
+//                    removeViewAt(1);
+//                }
+//            }, 300);
+//        }
+//
+//        return bitmap;
+//    }
+//
+//    /**
+//     * Capture the current image with the size as it is displayed and retrieve it as Bitmap.
+//     *
+//     * @return current output as Bitmap
+//     * @throws InterruptedException
+//     */
+//    public Bitmap capture() throws InterruptedException {
+//        final Semaphore waiter = new Semaphore(0);
+//
+//        final int width = surfaceView.getMeasuredWidth();
+//        final int height = surfaceView.getMeasuredHeight();
+//
+//        // Take picture on OpenGL thread
+//        final Bitmap resultBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+//        gpuImage.runOnGLThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                GPUImageNativeLibrary.adjustBitmap(resultBitmap);
+//                waiter.release();
+//            }
+//        });
+//        requestRender();
+//        waiter.acquire();
+//
+//        return resultBitmap;
+//    }
+//
+//    /**
+//     * Pauses the Surface.
+//     */
+//    public void onPause() {
+//        if (surfaceView instanceof GLSurfaceView) {
+//            ((GLSurfaceView) surfaceView).onPause();
+//        }
+////        else if (surfaceView instanceof GLTextureView) {
+////            ((GLTextureView) surfaceView).onPause();
+////        }
+//    }
+//
+//    /**
+//     * Resumes the Surface.
+//     */
+//    public void onResume() {
+//        if (surfaceView instanceof GLSurfaceView) {
+//            ((GLSurfaceView) surfaceView).onResume();
+//        }
+////        else if (surfaceView instanceof GLTextureView) {
+////            ((GLTextureView) surfaceView).onResume();
+////        }
+//    }
+//
+//    public static class Size {
+//        int width;
+//        int height;
+//
+//        public Size(int width, int height) {
+//            this.width = width;
+//            this.height = height;
+//        }
+//    }
+//
+//    private class GPUImageGLSurfaceView extends GLSurfaceView {
+//        public GPUImageGLSurfaceView(Context context) {
+//            super(context);
+//        }
+//
+//        public GPUImageGLSurfaceView(Context context, AttributeSet attrs) {
+//            super(context, attrs);
+//        }
+//
+//        @Override
+//        public void surfaceDestroyed(SurfaceHolder holder) {
+//            super.surfaceDestroyed(holder);
+//            CameraEngine.releaseCamera();
+//        }
+//
+//        @Override
+//        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+//            if (forceSize != null) {
+//                super.onMeasure(MeasureSpec.makeMeasureSpec(forceSize.width, MeasureSpec.EXACTLY),
+//                        MeasureSpec.makeMeasureSpec(forceSize.height, MeasureSpec.EXACTLY));
+//            } else {
+//                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+//            }
+//        }
+//    }
+//
+////    private class GPUImageGLTextureView extends GLTextureView {
+////        public GPUImageGLTextureView(Context context) {
+////            super(context);
+////        }
+////
+////        public GPUImageGLTextureView(Context context, AttributeSet attrs) {
+////            super(context, attrs);
+////        }
+////
+////        @Override
+////        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+////            if (forceSize != null) {
+////                super.onMeasure(MeasureSpec.makeMeasureSpec(forceSize.width, MeasureSpec.EXACTLY),
+////                        MeasureSpec.makeMeasureSpec(forceSize.height, MeasureSpec.EXACTLY));
+////            } else {
+////                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+////            }
+////        }
+////    }
+//
+//    private class LoadingView extends FrameLayout {
+//        public LoadingView(Context context) {
+//            super(context);
+//            init();
+//        }
+//
+//        public LoadingView(Context context, AttributeSet attrs) {
+//            super(context, attrs);
+//            init();
+//        }
+//
+//        public LoadingView(Context context, AttributeSet attrs, int defStyle) {
+//            super(context, attrs, defStyle);
+//            init();
+//        }
+//
+//        private void init() {
+//            ProgressBar view = new ProgressBar(getContext());
+//            view.setLayoutParams(
+//                    new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+//            addView(view);
+//            setBackgroundColor(Color.BLACK);
+//        }
+//    }
+//
+//    private class SaveTask extends AsyncTask<Void, Void, Void> {
+//        private final String folderName;
+//        private final String fileName;
+//        private final int width;
+//        private final int height;
+//        private final OnPictureSavedListener listener;
+//        private final Handler handler;
+//
+//        public SaveTask(final String folderName, final String fileName,
+//                        final OnPictureSavedListener listener) {
+//            this(folderName, fileName, 0, 0, listener);
+//        }
+//
+//        public SaveTask(final String folderName, final String fileName, int width, int height,
+//                        final OnPictureSavedListener listener) {
+//            this.folderName = folderName;
+//            this.fileName = fileName;
+//            this.width = width;
+//            this.height = height;
+//            this.listener = listener;
+//            handler = new Handler();
+//        }
+//
+//        @Override
+//        protected Void doInBackground(final Void... params) {
+//            try {
+//                Bitmap result = width != 0 ? capture(width, height) : capture();
+//                saveImage(folderName, fileName, result);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            return null;
+//        }
+//
+//        private void saveImage(final String folderName, final String fileName, final Bitmap image) {
+//            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+//            File file = new File(path, folderName + "/" + fileName);
+//            try {
+//                file.getParentFile().mkdirs();
+//                image.compress(Bitmap.CompressFormat.JPEG, 80, new FileOutputStream(file));
+//                MediaScannerConnection.scanFile(getContext(),
+//                        new String[]{
+//                                file.toString()
+//                        }, null,
+//                        new MediaScannerConnection.OnScanCompletedListener() {
+//                            @Override
+//                            public void onScanCompleted(final String path, final Uri uri) {
+//                                if (listener != null) {
+//                                    handler.post(new Runnable() {
+//
+//                                        @Override
+//                                        public void run() {
+//                                            listener.onPictureSaved(uri);
+//                                        }
+//                                    });
+//                                }
+//                            }
+//                        });
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+//
+//    public interface OnPictureSavedListener {
+//        void onPictureSaved(Uri uri);
+//    }
+//
+//    public void changeRecordingState(boolean isRecording) {
+//        if (renderType == JdGPUImage.RENDER_TYPE_VIDEO) {
+//            ((JdGpuCameraRenderer) gpuImage.getRenderer()).changeRecordingState(isRecording);
+//        }
+//    }
+//}

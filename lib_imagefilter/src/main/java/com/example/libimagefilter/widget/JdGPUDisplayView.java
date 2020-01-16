@@ -19,7 +19,12 @@ package com.example.libimagefilter.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
@@ -63,7 +68,7 @@ public class JdGPUDisplayView extends FrameLayout {
 
     private int surfaceType = JdGPUImage.SURFACE_TYPE_SURFACE_VIEW;
     private int renderType = JdGPUImage.RENDER_TYPE_IMG;
-    private View surfaceView;
+    private GLSurfaceView surfaceView;
     private JdGPUImage gpuImage;
     private boolean isShowLoading = true;
     private GPUImageFilter filter;
@@ -76,7 +81,7 @@ public class JdGPUDisplayView extends FrameLayout {
     private GestureDetector mDetector;
     private float mScale = 1.0f;
     private final static float MAX_SCALE = 2.5f;
-    private final static float MIN_SCALE = 0.8f;
+    private final static float MIN_SCALE = 1f;
     // 当前是否处于放大状态
     private boolean isZoonUp = false;
     private boolean isEnable = true;
@@ -226,7 +231,7 @@ public class JdGPUDisplayView extends FrameLayout {
 
             setScaleX(mScale);
             setScaleY(mScale);
-            //return true 表示不重新计算scaleFactor,值保持不变 0.5->0.5
+            //return true 表示不重新计算scaleFactor,值保持不变 0.5->0.5 可能抖动;
             //return false 表示重新计算scaleFactor,值重新变化 0.5->1.0
             return false;
         }
@@ -245,7 +250,7 @@ public class JdGPUDisplayView extends FrameLayout {
 
         @Override
         public boolean onDown(MotionEvent e) {
-            hasMultiTouch = false;
+            LogUtils.eTag(TAG, "mGestureListener down " + e.getPointerCount());
             return false;
         }
 
@@ -254,7 +259,7 @@ public class JdGPUDisplayView extends FrameLayout {
             if (isDebug) {
                 LogUtils.eTag(TAG, "velocityX: " + velocityX + " velocityY:" + velocityY);
             }
-            return super.onFling(e1, e2, velocityX, velocityY);
+            return false;
         }
 
         @Override
@@ -271,6 +276,7 @@ public class JdGPUDisplayView extends FrameLayout {
                 LogUtils.eTag(TAG, "distanceX: " + distanceX + " distanceY:" + distanceY
                         + "\n transX " + mTranslateX + " transY " + mTranslateY
                         + "\n scrollX " + getScrollX() + " scrollY " + getScrollY()
+                        + "\n pointcount: " + e1.getPointerCount() + "   " + e2.getPointerCount()
                 );
             }
 
@@ -300,6 +306,7 @@ public class JdGPUDisplayView extends FrameLayout {
             }
 
             isZoonUp = !isZoonUp;
+
             mTranslate.withTranslate(0, 0, -mTranslateX, -mTranslateY);
             mTranslate.withScale(from, to);
 
@@ -311,16 +318,21 @@ public class JdGPUDisplayView extends FrameLayout {
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         if (isEnable) {
-            if (event.getPointerCount() >= 2) hasMultiTouch = true;
+            LogUtils.eTag(TAG, "dispatchTouchEvent: " + event.getPointerCount());
+            if (event.getPointerCount() >= 2) {
+                hasMultiTouch = true;
+            } else {
+                hasMultiTouch = false;
+            }
             mDetector.onTouchEvent(event);
             mScaleDetector.onTouchEvent(event);
-            if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)
-                onFitEvent(event);
             if (mScale > 1) {
                 getParent().requestDisallowInterceptTouchEvent(true);
             } else {
                 getParent().requestDisallowInterceptTouchEvent(false);
             }
+            if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)
+                onFitEvent(event);
             return true;
         } else {
             return super.dispatchTouchEvent(event);
@@ -338,7 +350,7 @@ public class JdGPUDisplayView extends FrameLayout {
             scale = MAX_SCALE;
             mTranslate.withScale(mScale, scale);
         }
-        if (mScale < 1) {
+        if (mScale <= 1) {
             mTranslate.withTranslate(0, 0, -mTranslateX, -mTranslateY);
         }
         mTranslate.start();
