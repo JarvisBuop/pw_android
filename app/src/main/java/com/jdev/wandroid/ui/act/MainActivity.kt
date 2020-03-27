@@ -35,6 +35,10 @@ class MainActivity : BaseActivity() {
     //----------------DATA CODE---------------------
     //top recyclerview datas
     var mTopDatas = arrayListOf<OrientVo>(
+            OrientVo("kotlin",
+                    "kotlin 协程",
+                    clazz = ContainerActivity::class.java,
+                    clazzCode = KEY_KOTLIN_TEST),
             OrientVo("gpuimage 滤镜列表测试 (有问题)",
                     "Android filters based on OpenGL (idea from GPUImage for iOS)",
                     clazz = ContainerActivity::class.java,

@@ -24,6 +24,7 @@ const val KEY_GESTURE = 0
 const val KEY_PHOTOVIEW = 1
 const val KEY_SHADOW = 2
 const val KEY_WEBP = 3
+const val KEY_KOTLIN_TEST = 12
 
 //-------gpuimage---------
 const val KEY_ANDROID_GPUIMAGE = 4
@@ -52,44 +53,20 @@ class ContainerActivity : BaseActivity() {
         const val EXTRA_KEY = "KEY"
 
         fun getFragmentByKey(code: Int): BaseFragment? {
-            when (code) {
-                KEY_GESTURE -> {
-                    return GestureTestFrag()
-                }
-                KEY_PHOTOVIEW -> {
-                    return PhotoViewTestFrag()
-                }
-                KEY_SHADOW -> {
-                    return ShadowTestFrag()
-                }
-                KEY_WEBP -> {
-                    return WebPTestFrag()
-                }
-                KEY_ANDROID_GPUIMAGE -> {
-                    return GpuImageMultiImageFrag()
-                }
-                KEY_ANDROID_GPUIMAGE_SIMPLE -> {
-                    return GpuImageSingleImageFrag()
-                }
-                KEY_ANDROID_GPUIMAGE_CAMERA -> {
-                    return GpuImageCameraFrag()
-                }
-                KEY_ANDROID_MAGIC_CAMERA -> {
-                    return GpuMagicCameraFrag()
-                }
-                KEY_ANDROID_OPENGL_SIMGLE_DEMO -> {
-                    return SimpleOpenglDemoFrag()
-                }
-                KEY_ANDROID_GPU_TEST -> {
-                    return GpuMagicSingleFrag()
-                }
-                KEY_ANDROID_FLOAT_WINDOW ->{
-                    return FloatWindowFrag()
-                }
-                KEY_ANDROID_PIP ->{
-                    return Pip26ApiFrag()
-                }
-
+            return when (code) {
+                KEY_GESTURE -> GestureTestFrag()
+                KEY_PHOTOVIEW -> PhotoViewTestFrag()
+                KEY_SHADOW -> ShadowTestFrag()
+                KEY_WEBP -> WebPTestFrag()
+                KEY_ANDROID_GPUIMAGE -> GpuImageMultiImageFrag()
+                KEY_ANDROID_GPUIMAGE_SIMPLE -> GpuImageSingleImageFrag()
+                KEY_ANDROID_GPUIMAGE_CAMERA -> GpuImageCameraFrag()
+                KEY_ANDROID_MAGIC_CAMERA -> GpuMagicCameraFrag()
+                KEY_ANDROID_OPENGL_SIMGLE_DEMO -> SimpleOpenglDemoFrag()
+                KEY_ANDROID_GPU_TEST -> GpuMagicSingleFrag()
+                KEY_ANDROID_FLOAT_WINDOW -> FloatWindowFrag()
+                KEY_ANDROID_PIP -> Pip26ApiFrag()
+                KEY_KOTLIN_TEST -> KotlinTestFrag()
                 else -> return null
             }
         }
