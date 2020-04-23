@@ -147,6 +147,11 @@ android {
         javaMaxHeapSize "8g"
     }
 
+    //支持mvvm;
+    dataBinding {
+        enabled = true
+    }
+
 
 }
 
