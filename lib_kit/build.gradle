@@ -24,7 +24,7 @@ android {
         versionName rootProject.ext.androidVersion.versionName
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
+        multiDexEnabled true
     }
 
     compileOptions {
