@@ -25,6 +25,7 @@ const val KEY_PHOTOVIEW = 1
 const val KEY_SHADOW = 2
 const val KEY_WEBP = 3
 const val KEY_KOTLIN_TEST = 12
+const val KEY_MVVM_TEST = 13
 
 //-------gpuimage---------
 const val KEY_ANDROID_GPUIMAGE = 4
@@ -67,6 +68,7 @@ class ContainerActivity : BaseActivity() {
                 KEY_ANDROID_FLOAT_WINDOW -> FloatWindowFrag()
                 KEY_ANDROID_PIP -> Pip26ApiFrag()
                 KEY_KOTLIN_TEST -> KotlinTestFrag()
+                KEY_MVVM_TEST -> MvvmTestFrag.newInstance()
                 else -> return null
             }
         }

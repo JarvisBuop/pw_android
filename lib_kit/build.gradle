@@ -88,7 +88,7 @@ dependencies {
     /**
      * utils
      */
-    api (rootProject.ext.dependencies.blackj_util) {
+    api(rootProject.ext.dependencies.blackj_util) {
         exclude group: 'org.jetbrains.kotlin'
     }
 
@@ -96,6 +96,7 @@ dependencies {
      * webp support
      */
     api rootProject.ext.dependencies.glide_lib
+//    annotationProcessor rootProject.ext.dependencies.glide_compiler_lib
     api rootProject.ext.dependencies.facebook_webp
     api rootProject.ext.dependencies.okhttp3_core
     api rootProject.ext.dependencies.okhttp3_integration
@@ -103,5 +104,5 @@ dependencies {
     /**
      * multidex support
      */
-    api  rootProject.ext.dependencies.android_multidex
+    api rootProject.ext.dependencies.android_multidex
 }

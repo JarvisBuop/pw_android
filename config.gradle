@@ -19,7 +19,9 @@ ext {
             rxandroid_version         : "2.0.1",
             lottie_version            : "2.7.0",
             blackjutil_version        : "1.26.0",
-            glide_lib_version         : "4.7.1",
+//            glide_core_version         : "4.7.1",
+            glide_core_version        : "4.11.0",
+            glide_compiler_version    : "4.11.0",
             facebook_webp_version     : "2.0.0",
             okhttp_version            : "3.10.0",
             okhttp_integration_version: "4.6.1",
@@ -78,7 +80,8 @@ ext {
             blackj_util             : "com.blankj:utilcode:${dependencyVersion.blackjutil_version}",
 
             //webp support
-            glide_lib               : "com.github.bumptech.glide:glide:${dependencyVersion.glide_lib_version}",
+            glide_lib               : "com.github.bumptech.glide:glide:${dependencyVersion.glide_core_version}",
+            glide_compiler_lib      : "com.github.bumptech.glide:compiler:${dependencyVersion.glide_compiler_version}",
             facebook_webp           : "com.facebook.fresco:animated-webp:${dependencyVersion.facebook_webp_version}",
 
             //videoplayer support
