@@ -1,0 +1,1 @@
+## android 视频播放器框架 [饺子播放器](https://github.com/Jzvd/JiaoZiVideoPlayer) 源码解析与评估 
