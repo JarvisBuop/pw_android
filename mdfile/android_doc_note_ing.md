@@ -1,6 +1,6 @@
 # android 官网系统知识查漏补缺
 
-## 引言
+-------------------
 
 ## 官方网站 [android gov](https://developer.android.com/)
 
@@ -27,11 +27,11 @@ Android 系统实现了`最小权限原则`,每个应用只能访问执行其工
 - 广播接收器 BoardCaseReceiver
 - 内容提供程序 ContentProvider
 
-> [Activity](https://developer.android.google.cn/reference/android/app/Activity)
+### [Activity](https://developer.android.google.cn/reference/android/app/Activity)
 
 Activity 是与用户交互的入口点,拥有界面的单个屏幕;
 
->[Service](https://developer.android.google.cn/reference/android/app/Service)
+###[Service](https://developer.android.google.cn/reference/android/app/Service)
 
 服务是一个通用入口点，用于因各种原因使应用在后台保持运行状态。它是一种在后台运行的组件，用于执行长时间运行的操作或为**远程进程**执行作业;服务不提供界面。
 
@@ -42,23 +42,48 @@ Activity 是与用户交互的入口点,拥有界面的单个屏幕;
 JobScheduler 的优势在于，它能通过优化作业调度来降低功耗，以及使用 [Doze API](https://developer.android.google.cn/training/monitoring-device-state/doze-standby)，从而达到省电目的。如需了解有关使用此类的更多信息，请参阅 [JobScheduler](https://developer.android.google.cn/reference/android/app/job/JobScheduler) 参考文档。
 
 ```
->[BroadcastReceiver](https://developer.android.google.cn/reference/android/content/BroadcastReceiver)
+###[BroadcastReceiver](https://developer.android.google.cn/reference/android/content/BroadcastReceiver)
 
 借助广播接收器组件，系统能够在常规用户流之外向应用传递事件，从而允许应用响应系统范围内的广播通知。
 
->[ContentProvider](https://developer.android.google.cn/reference/android/content/ContentProvider)
+###[ContentProvider](https://developer.android.google.cn/reference/android/content/ContentProvider)
 
 内容提供程序管理一组共享的应用数据，您可以将这些数据存储在文件系统、SQLite 数据库、网络中或者您的应用可访问的任何其他持久化存储位置。
 
->[Intent](hhttps://developer.android.google.cn/guide/components/intents-filters)
+###[Intent](hhttps://developer.android.google.cn/guide/components/intents-filters)
 
 `Activity,Service,BroadcastReceiver` 均通过异步消息 Intent 进行启动。 Intent 会在运行时对各个组件进行互相绑定,可向android系统传递消息,系统会启动其他组件。
 
-> 清单文件
+### 清单文件
 
-声明应用要求: 
+>软件包名称和应用 ID
+
+在将应用构建为最终的应用软件包 (APK) 时，Android 构建工具会使用 package 属性完成两件事情：
+
+- 将此名称用作应用所生成 R.java 类（用于访问应用资源）的命名空间。
+- 使用此名称解析清单文件中声明的任何相关类名称。
+
+APK 编译完成后，package 属性还可表示应用的通用唯一应用 ID。关于`package`与`项目 build.gradle applicationId `的区别: 
+
+- 如果一致,则无需担心任何问题;
+- 软件包名称（由项目目录结构定义）应始终与 AndroidManifest.xml 文件中的 package 属性匹配; 
+
+>应用组件
+
+四大组件的注册;
+
+>权限
+
+6.0 运行时权限;
+
+>设备兼容性
+
+清单文件也可用于声明应用所需的硬件或软件功能类型，以及应用兼容的设备类型。 Google Play 商店不允许在未提供应用所需功能或系统版本的设备上安装应用。
 
 [设备兼容性](https://developer.android.google.cn/guide/practices/compatibility)
+
+- `<uses-feature>` 允许您声明应用所需的硬件和软件功能。 
+- `<uses-sdk>` <uses-sdk> 元素中的这些属性会被 build.gradle 文件中的相应属性覆盖。
 
 ```
 
@@ -72,6 +97,12 @@ JobScheduler 的优势在于，它能通过优化作业调度来降低功耗，�
 
 ```
 
+[activity xml元素](https://developer.android.google.cn/guide/topics/manifest/activity-element)
+
+
+
+
+
 ## 应用资源
 
 ### 备用资源
@@ -83,7 +114,7 @@ JobScheduler 的优势在于，它能通过优化作业调度来降低功耗，�
 
 2.将相应的备用资源保存在此新目录下。这些资源文件必须与默认资源文件完全同名。
 
-### [常用限定符配置及顺序](https://developer.android.google.cn/guide/topics/resources/providing-resources)
+#### [常用限定符配置及顺序](https://developer.android.google.cn/guide/topics/resources/providing-resources)
 
 - `语言和区域 ` 
 	- `en`,`fr`,`en-rUS`加区域码,`b+en`
@@ -139,18 +170,22 @@ JobScheduler 的优势在于，它能通过优化作业调度来降低功耗，�
 	
 	相关计算公式
 	
-	dpi(每英寸像素) = Math.hypot(w,y)/size
+	dpi(每英寸像素,屏幕密度) = Math.hypot(w,y)/size
 	
 	density = dpi /160;
 	
 	px = dp * density;
+
+	dp(密度无关像素) - 基于屏幕物理密度的抽象单位。这些单位相对于 160 dpi（每英寸点数）屏幕确立，在该屏幕上 1dp 大致等于 1px。
+
+	sp(缩放无关像素) - 这和 dp 单位类似，但它也会根据用户的字体大小偏好设置进行缩放。
 
 ```
 
 - 平台版本（API 级别） 设备支持的 API 级别。
 	- `v3`
 
->限定符命名规则
+####限定符命名规则
 
 - 您可以为单组资源指定多个限定符，并使用短划线分隔。例如，drawable-en-rUS-land 适用于屏幕方向为横向的美国英语设备。
 - 这些限定符必须遵循表 2 中列出的顺序。例如：
@@ -208,4 +243,71 @@ tips: 在根据屏幕尺寸限定符选择资源时，如果没有更好的匹�
 
 ### 资源类型
 
+#### 可绘制对象
 
+- [属性动画|视图动画](https://developer.android.google.cn/guide/topics/resources/animation-resource)  以及使用方式和属性详解;
+- [ColorStateList ](https://developer.android.google.cn/guide/topics/resources/color-list-resource) 颜色状态信息,跟据View的状态匹配不同颜色,系统将应用状态列表中与对象的当前状态匹配的第一项
+- [可绘制对象资源](https://developer.android.google.cn/guide/topics/resources/drawable-resource)
+	- 位图文件 BitmapDrawable 
+		- 在构建过程中，可通过 aapt 工具自动优化位图文件，对图像进行无损压缩。
+		- 如果需要以比特流形式读取图片,不需要系统对其优化,改为将图像放在 res/raw/ 文件夹中;
+		- xml位图, 将 `<bitmap>` 元素用作 `<item>` 元素的子项。可指定位图的其他属性;
+	- 九宫格文件 NinePatchDrawable
+		- 可伸缩区域,wrap_content
+		- xml九宫格, `<nine-patch>`,可设置图像抖动;
+	- 图层列表 LayerDrawable 可绘制对象阵列
+		- `<layer-list>`
+	- 状态列表  StateListDrawable 不同状态引用不同位图
+		- `<selector>`
+		- 系统将应用状态列表中与对象的当前状态匹配的第一项
+	- 级别列表 LevelListDrawable 备选
+		- `<level-list>` `setLevel()`设置drawable的级别值,显示加载级别列表中 `android:maxLevel`值大于等于传递至方法的值的可绘制对象资源;
+	- 转换可绘制对象 TransitionDrawable
+		- `<transition>`可在两种可绘制对象资源之间交错淡出的可绘制对象。
+		- 向前/向后转换 `startTransition()/reverseTransition()`
+	- 插入可绘制对象 InsetDrawable
+		- 指定距离插入其他可绘制对象的可绘制对象。当视图需要小于视图实际边界的背景时，此类可绘制对象很有用。
+		- `<inset>` 
+	- 裁剪可绘制对象 ClipDrawable
+		- `<clip>` 裁剪可绘制对象。这必须是根元素。
+		- 通过改变`level`,增减裁剪量; 默认级别为 0，即完全裁剪，使图像不可见。当级别为 10,000 时，图像不会裁剪，而是完全可见。
+	- 缩放可绘制对象 ScaleDrawable
+		-`<scale>`
+	- 形状可绘制对象 GradientDrawable
+		- `<shape>`
+	- 动画资源  AnimationDrawable
+
+#### 字体相关
+
+[字体资源 捆绑式字体|可下载字体](https://developer.android.google.cn/guide/topics/resources/font-resource)
+
+####  类型化数组
+
+` TypedArray` 您可以使用这种资源创建其他资源（例如可绘制对象）的数组。 自定义组件使用自定义属性用的比较多;
+
+类型化数组是使用 name 属性中提供的值（而不是 XML 文件的名称）引用的简单资源。因此，您可以在一个 XML 文件中将类型化数组资源与其他简单资源合并到一个 <resources> 元素下。
+
+```
+
+	<?xml version="1.0" encoding="utf-8"?>
+    <resources>
+        <array name="icons">
+            <item>@drawable/home</item>
+            <item>@drawable/settings</item>
+            <item>@drawable/logout</item>
+        </array>
+        <array name="colors">
+            <item>#FFFF0000</item>
+            <item>#FF00FF00</item>
+            <item>#FF0000FF</item>
+        </array>
+    </resources>
+
+	--------------------
+	val icons: TypedArray = resources.obtainTypedArray(R.array.icons)
+    val drawable: Drawable = icons.getDrawable(0)
+
+    val colors: TypedArray = resources.obtainTypedArray(R.array.colors)
+    val color: Int = colors.getColor(0,0)
+
+```
