@@ -97,8 +97,34 @@ APK 编译完成后，package 属性还可表示应用的通用唯一应用 ID�
 
 ```
 
-[activity xml元素](https://developer.android.google.cn/guide/topics/manifest/activity-element)
+- [activity xml元素](https://developer.android.google.cn/guide/topics/manifest/activity-element)
+	- `android:allowTaskReparenting` 当下一次将启动 Activity 的任务转至前台时，Activity 是否能从该任务转移至与其有相似性的任务;仅支持启动模式为 `standard,singleTop`;
+	- `android:autoRemoveFromRecents` 由具有该属性的 Activity 启动的任务是否一直保留在概览屏幕中，直至任务中的最后一个 Activity 完成为止。 
+	- `android:clearTaskOnLaunch` 每当从主屏幕重新启动任务时，是否都从该任务中移除根 Activity 之外的所有 Activity;
+	- `android:configChanges` 在运行时发生配置变更时，默认情况下会关闭 Activity 并将其重启，但使用该属性声明配置将阻止 Activity 重启。相反，Activity 会保持运行状态，并且系统会调用其 onConfigurationChanged() 方法。
+	- `android:documentLaunchMode` 指定每次启动任务时，应如何向其添加新的 Activity 实例。该属性允许用户让多个来自同一应用的文档出现在概览屏幕中。
+	- `android:exported` 此元素设置 Activity 是否可由其他应用的组件启动 
+	- `android:finishOnTaskLaunch` 每当用户再次启动 Activity 的任务（在主屏幕上选择任务）时，是否应关闭（完成）现有的 Activity 实例
+	- `android:launchMode`  有关应如何启动 Activity 的指令,确定在调用 Activity 处理 Intent 时应执行的操作。
+	- `android:parentActivityName` Activity 逻辑父项的类名称。支持导航功能;
 
+#### [概览屏幕](https://developer.android.google.cn/guide/components/recents)
+
+概览屏幕（也称为最新动态屏幕、最近任务列表或最近使用的应用）是一个系统级别 UI，其中列出了最近访问过的 Activity 和任务。 用户可以浏览该列表并选择要恢复的任务，也可以通过滑动清除任务将其从列表中移除。
+
+- 使用 Activity 属性添加任务 `android:documentLaunchMode`
+	- `intoExisting` 该 Activity 会对文档重复使用现有任务。这与不设置 FLAG_ACTIVITY_MULTIPLE_TASK 标志、但设置 FLAG_ACTIVITY_NEW_DOCUMENT 标志所产生的效果相同; 即`如果未找到任务或者 Intent 包含 FLAG_ACTIVITY_MULTIPLE_TASK 标志，则会以该 Activity 作为其根创建新任务。如果找到的话，则会将该任务转到前台并将新 Intent 传递给 onNewIntent()。且新 Activity 将获得 Intent 并在概览屏幕中创建新文档;`
+	- `always` 该 Activity 为文档创建新任务，即便文档已打开也是如此。使用此值与同时设置 FLAG_ACTIVITY_NEW_DOCUMENT 和 FLAG_ACTIVITY_MULTIPLE_TASK 标志所产生的效果相同。
+	- `none`该 Activity 不会为文档创建新任务。概览屏幕将按其默认方式对待此 Activity：为应用显示单个任务，该任务将从用户上次调用的任意 Activity 开始继续执行。
+	- `never`  该 Activity 不会为文档创建新任务。设置此值会替代 FLAG_ACTIVITY_NEW_DOCUMENT 和 FLAG_ACTIVITY_MULTIPLE_TASK 标志的行为（如果在 Intent 中设置了其中一个标志），并且概览屏幕将为应用显示单个任务，该任务将从用户上次调用的任意 Activity 开始继续执行。
+- 对于除 none 和 never 以外的值，必须使用 launchMode="standard" 定义 Activity。如果未指定此属性，则使用 documentLaunchMode="none"。
+
+#### [启动模式](https://developer.android.google.cn/guide/components/activities/tasks-and-back-stack)
+
+- 使用“standard”或“singleTop”启动模式的 Activity 可多次进行实例化。“singleTask”和“singleInstance”Activity 只能启动任务且始终位于 Activity 堆栈的根位置。此外，设备一次只能保留一个 Activity 实例，即一次只允许一个此类任务。
+- “standard”和“singleTop”模式只有一处不同: <br/>`standard` 创建新的类实例来响应该 Intent; <br/>`singleTop` 栈顶复用,位于栈顶调用`onNewIntent()`否则创建新的;
+- “singleTask”和“singleInstance”模式同样只有一处不同:<br/>`singleTask` Activity 允许其他 Activity 成为其任务的一部分。该 Activity 始终位于其任务的**根位置**，但其他 Activity（必然是“standard”和“singleTop”Activity）可以启动到该任务中。 <br/>
+`singleInstance` 与“singleTask"”相同，只是系统不会将任何其他 Activity 启动到包含实例的任务中。它是任务中唯一的 Activity。
 
 
 
