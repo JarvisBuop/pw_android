@@ -1,5 +1,11 @@
 # android 官网系统知识查漏补缺
 
+# 引言
+
+做开发也有几年了,android官网中太多知识,有挺多的知识并不熟悉; 要知道android最好的学习资料就是 android官网,官方demo,android源码了; 
+
+so, 计划把常用android 知识捋一遍;
+
 -------------------
 
 ## 官方网站 [android gov](https://developer.android.com/)
@@ -56,9 +62,9 @@ JobScheduler 的优势在于，它能通过优化作业调度来降低功耗，�
 
 ### 清单文件
 
->软件包名称和应用 ID
+>[软件包名称和应用 ID](https://developer.android.google.cn/studio/build/application-id)
 
-在将应用构建为最终的应用软件包 (APK) 时，Android 构建工具会使用 package 属性完成两件事情：
+在将应用构建为最终的应用软件包 (APK) 时，Android 构建工具会使用 `package` 属性完成两件事情：
 
 - 将此名称用作应用所生成 R.java 类（用于访问应用资源）的命名空间。
 - 使用此名称解析清单文件中声明的任何相关类名称。
@@ -67,6 +73,9 @@ APK 编译完成后，package 属性还可表示应用的通用唯一应用 ID�
 
 - 如果一致,则无需担心任何问题;
 - 软件包名称（由项目目录结构定义）应始终与 AndroidManifest.xml 文件中的 package 属性匹配; 
+- 在 APK 构建流程快要结束时，构建工具会使用 build.gradle 文件（Android Studio 项目使用的文件）中的 applicationId 属性替换 package 名称。
+
+tips: 如果您想在发布应用后更改软件包名称，可以这样做，但您必须保持 applicationId 不变。applicationId 定义了应用在 Google Play 上的唯一身份。因此，如果您对其进行更改，则该 APK 就会被视为其他应用，而且使用之前版本的用户将不会收到更新。
 
 >应用组件
 
@@ -107,6 +116,29 @@ APK 编译完成后，package 属性还可表示应用的通用唯一应用 ID�
 	- `android:finishOnTaskLaunch` 每当用户再次启动 Activity 的任务（在主屏幕上选择任务）时，是否应关闭（完成）现有的 Activity 实例
 	- `android:launchMode`  有关应如何启动 Activity 的指令,确定在调用 Activity 处理 Intent 时应执行的操作。
 	- `android:parentActivityName` Activity 逻辑父项的类名称。支持导航功能;
+	- `android:screenOrientation` 不支持多窗口模式下
+		- `sensorLandscape` 屏幕方向为横向，但可根据设备传感器调整为正常或反向的横向。即使用户锁定基于传感器的旋转，系统仍可使用传感器。`sensorPortrait` 同理;
+	- `android:taskAffinity` (重要) 与 Activity 有着相似性的任务,即任务栈。任务的相似性由其根 Activity 的相似性确定。相似性确定两点内容:
+		- Activity 更改父项后的任务（请参阅 allowTaskReparenting 属性）
+		- 以及通过 FLAG_ACTIVITY_NEW_TASK 标记启动 Activity 时，用于容纳该 Activity 的任务。
+	- `android:windowSoftInputMode` Activity 的主窗口与包含屏幕软键盘的窗口之间的交互方式。
+		- 当 Activity 成为用户注意的焦点时，软键盘的状态为隐藏还是可见。
+		- 对 Activity 主窗口所做的调整 — 是否将其尺寸调小，为软键盘腾出空间；或当软键盘遮盖部分窗口时，是否平移其内容以使当前焦点可见。
+- [application xml 元素](https://developer.android.google.cn/guide/topics/manifest/application-element)
+	- `android:networkSecurityConfig`  [网络安全配置](https://developer.android.google.cn/training/articles/security-config) 可用于抓包配置;
+	- `android:usesCleartextTraffic` 指示应用是否打算使用明文网络流量，如明文 HTTP。对于目标 API 级别为 27 或更低级别的应用，默认值为 "true"。对于目标 API 级别为 28 或更高级别的应用，默认值为 "false"。也是与抓包有关;
+	- `android:process` activity同,默认进程名为清单包名,需要注意:
+		- 如果为此属性分配的名称以冒号（“:”）开头，则会在需要时创建一个应用专用的新进程。
+		- 如果进程名称以小写字符开头，则会创建一个采用该名称的全局进程。
+	`android:testOnly` 指示此应用是否仅用于测试目的。此类 APK 只能通过 adb 安装，您不能将其发布到 Google Play。点击Run时,as会自动添加此属性;
+	- `android:theme` [样式和主题](https://developer.android.google.cn/guide/topics/ui/themes)
+	- `android:vmSafeMode` 指示应用是否希望虚拟机在安全模式下运行。默认false;
+		- 此属性是在 API 级别 8 中添加的，最初添加时，如果值为“true”，会停用 Dalvik 即时 (JIT just in time) 编译器。
+		- 此属性在 API 级别 22 中进行了调整，调整后，如果值为“true”，会停用 ART 预先 (AOT ahead of time) 编译器。
+
+- [intent-filter data xml元素](https://developer.android.google.cn/guide/topics/manifest/data-element)
+- `<meta-data>`可以向父组件提供的其他任意数据项的名称值对。一个组件元素可以包含任意数量的 <meta-data> 子元素。所有这些子元素的值收集到一个 `Bundle` 对象，并且可作为 `PackageItemInfo.metaData` 字段提供给组件。
+
 
 #### [概览屏幕](https://developer.android.google.cn/guide/components/recents)
 
