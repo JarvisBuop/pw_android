@@ -139,6 +139,27 @@ tips: 如果您想在发布应用后更改软件包名称，可以这样做，�
 - [intent-filter data xml元素](https://developer.android.google.cn/guide/topics/manifest/data-element)
 - `<meta-data>`可以向父组件提供的其他任意数据项的名称值对。一个组件元素可以包含任意数量的 <meta-data> 子元素。所有这些子元素的值收集到一个 `Bundle` 对象，并且可作为 `PackageItemInfo.metaData` 字段提供给组件。
 
+- [permission xml元素](https://developer.android.google.cn/guide/topics/manifest/permission-element) 声明可用于限制对此应用或其他应用的特定组件或功能的访问权限的安全权限。
+	- `android:name` 这是将在代码中（例如，在 <uses-permission> 元素和应用组件的 permission 属性中）用于引用权限的名称。建议使用反向域名式命名;
+	- `android:permissionGroup` 组权限,对应于` <permission-group> `
+	- `android:protectionLevel` 说明权限中隐含的潜在风险，并指示系统在确定是否将权限授予请求授权的应用时应遵循的流程。
+		- `normal` 默认值,较低风险,安装时自动授权;
+		- `dangerous` 较高风险,6.0后需要申请运行时权限;
+		- `signature` 只有在请求授权的应用 使用与声明权限的应用 相同的证书进行签名时系统才会授予的权限。如果证书匹配,系统会自动授予权限;
+		- `signatureOrSystem` 即`signature|privileged` 多个供应商将应用内置到一个系统映像中，并且需要明确共享特定功能，因为这些功能是一起构建的。很少使用;
+
+- [provider xml 元素](https://developer.android.google.cn/guide/topics/manifest/provider-element) 声明内容提供程序组件。内容提供程序是 ContentProvider 的子类，可提供对由应用管理的数据的结构化访问机制。<br/>Android 系统根据**授权方**字符串（提供程序的**内容 URI **的一部分）来存储对内容提供程序的引用。
+	- 结构: `<scheme>://<host>:<port>[<path>|<pathPrefix>|<pathPattern>]`  <br/>如 `content://com.example.project.healthcareprovider/nurses/rn`
+		- `content:` 架构 将 URI 标识为指向 Android 内容提供程序的内容 URI。
+		- `host` 标识提供程序本身,Android 系统会在已知提供程序及其授权方的列表中查询该授权方。
+		- `path` 是一个`路径`,内容提供程序可使用它来标识提供程序数据的子集。 
+	- `android:authorities`(必须)一个或多个 URI 授权方的列表，这些 URI 授权方用于标识内容提供程序提供的数据。 多个授权方用";"分隔; 通常，它是实现提供程序的 ContentProvider 子类的名称。
+	- `android:exported` (api >17)内容提供程序是否可供其他应用使用：
+		- true  提供程序可供其他应用使用。任何应用均可使用提供程序的内容 URI 来访问它，但需依据为提供程序指定的权限进行访问。
+		- false 仅限您的应用访问提供程序。只有与提供程序具有相同的用户 ID (UID) 的应用或者通过 android:grantUriPermissions 元素被临时授予对提供程序的访问权限的应用才能访问提供程序。
+	- `android:grantUriPermissions` 是否可以向一般无权访问内容提供程序的数据的组件授予访问这些数据的权限，从而暂时克服由 `readPermission、writePermission、permission 和 exported `属性施加的限制。true 则可以授予权限; false 则只能授予`<grant-uri-permission>` 子元素中列出的数据子集(如果有)的权限;
+	- `android:initOrder` 顺序实例化优先级,数值越高,初始化越靠前;
+	- ``
 
 #### [概览屏幕](https://developer.android.google.cn/guide/components/recents)
 
