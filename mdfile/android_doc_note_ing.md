@@ -28,10 +28,12 @@ Android 系统实现了`最小权限原则`,每个应用只能访问执行其工
 
 ##应用组件
 
-- Activity
-- 服务 Service
-- 广播接收器 BoardCaseReceiver
-- 内容提供程序 ContentProvider
+详细链接:
+
+- [Activity](#Activity)
+- [Service](#Service)
+- [BroadcastReceiver](#BroadcastReceiver)
+- [ContentProvider](#ContentProvider)
 
 ### [Activity](https://developer.android.google.cn/reference/android/app/Activity)
 
@@ -81,17 +83,9 @@ tips: 如果您想在发布应用后更改软件包名称，可以这样做，�
 
 四大组件的注册;
 
->权限
+>常用 xml 元素
 
-6.0 运行时权限;
-
->设备兼容性
-
-清单文件也可用于声明应用所需的硬件或软件功能类型，以及应用兼容的设备类型。 Google Play 商店不允许在未提供应用所需功能或系统版本的设备上安装应用。
-
-[设备兼容性](https://developer.android.google.cn/guide/practices/compatibility)
-
-- `<uses-feature>` 允许您声明应用所需的硬件和软件功能。 
+- `<uses-feature>` 声明应用使用的单个硬件或软件功能。通知任何外部实体应用所依赖的硬件和软件功能集。request true 则无法正常工作了; false 下可用 `PackageManager.hasSystemFeature()`判断可获取;
 - `<uses-sdk>` <uses-sdk> 元素中的这些属性会被 build.gradle 文件中的相应属性覆盖。
 
 ```
@@ -139,8 +133,8 @@ tips: 如果您想在发布应用后更改软件包名称，可以这样做，�
 - [intent-filter data xml元素](https://developer.android.google.cn/guide/topics/manifest/data-element)
 - `<meta-data>`可以向父组件提供的其他任意数据项的名称值对。一个组件元素可以包含任意数量的 <meta-data> 子元素。所有这些子元素的值收集到一个 `Bundle` 对象，并且可作为 `PackageItemInfo.metaData` 字段提供给组件。
 
-- [permission xml元素](https://developer.android.google.cn/guide/topics/manifest/permission-element) 声明可用于限制对此应用或其他应用的特定组件或功能的访问权限的安全权限。
-	- `android:name` 这是将在代码中（例如，在 <uses-permission> 元素和应用组件的 permission 属性中）用于引用权限的名称。建议使用反向域名式命名;
+- [permission xml元素](https://developer.android.google.cn/guide/topics/manifest/permission-element) 声明可用于限制对此应用或其他应用的特定组件或功能的访问权限的安全权限。可自定义权限;
+	- `android:name` 这是将在代码中（例如，在 <uses-permission> 元素和应用组件的 permission 属性中）用于引用权限的名称。因系统不允许同名权限的存在,建议使用反向域名式命名;
 	- `android:permissionGroup` 组权限,对应于` <permission-group> `
 	- `android:protectionLevel` 说明权限中隐含的潜在风险，并指示系统在确定是否将权限授予请求授权的应用时应遵循的流程。
 		- `normal` 默认值,较低风险,安装时自动授权;
@@ -154,12 +148,30 @@ tips: 如果您想在发布应用后更改软件包名称，可以这样做，�
 		- `host` 标识提供程序本身,Android 系统会在已知提供程序及其授权方的列表中查询该授权方。
 		- `path` 是一个`路径`,内容提供程序可使用它来标识提供程序数据的子集。 
 	- `android:authorities`(必须)一个或多个 URI 授权方的列表，这些 URI 授权方用于标识内容提供程序提供的数据。 多个授权方用";"分隔; 通常，它是实现提供程序的 ContentProvider 子类的名称。
-	- `android:exported` (api >17)内容提供程序是否可供其他应用使用：
+	- `android:exported` (api >17)内容提供程序是否可供其他应用使用： 默认值取决于服务是否包含 Intent 过滤器。
 		- true  提供程序可供其他应用使用。任何应用均可使用提供程序的内容 URI 来访问它，但需依据为提供程序指定的权限进行访问。
 		- false 仅限您的应用访问提供程序。只有与提供程序具有相同的用户 ID (UID) 的应用或者通过 android:grantUriPermissions 元素被临时授予对提供程序的访问权限的应用才能访问提供程序。
 	- `android:grantUriPermissions` 是否可以向一般无权访问内容提供程序的数据的组件授予访问这些数据的权限，从而暂时克服由 `readPermission、writePermission、permission 和 exported `属性施加的限制。true 则可以授予权限; false 则只能授予`<grant-uri-permission>` 子元素中列出的数据子集(如果有)的权限;
 	- `android:initOrder` 顺序实例化优先级,数值越高,初始化越靠前;
-	- ``
+	- `android:multiprocess` 决定了是否会创建内容提供程序的多个实例。 将此标志设为 true 可以通过减少进程间通信的开销来提高性能，但也会增加每个进程的内存占用量。
+	- `android:name` 实现内容提供程序的类的名称，它是 ContentProvider的子类,全限定名; 另外如果使用`.` 表示`<manifest>`元素中指定的软件包名称;
+	- `android:permission,android:readPermission,android:writePermission` 客户端为了读取或写入内容提供程序的数据而必须具备的权限的名称。 readPermission、writePermission 和 grantUriPermissions 属性优先于此属性。
+
+- [receiver xml元素](https://developer.android.google.cn/guide/topics/manifest/receiver-element) 广播接收者的静态申请方法;
+	- `android:exported` 广播接收器是否可以接收来自其应用外部来源的消息 ,false 只能接收同一应用或具有相同用户 ID 的应用的组件发送的消息。
+	- `android:name` BroadCastReceiver的全限定名;
+
+- [service xml元素](https://developer.android.google.cn/guide/topics/manifest/service-element)将服务（Service 子类）声明为应用的一个组件。
+	- `android:exported` 其他应用的组件是否能调用服务或与之交互
+	- `android:foregroundServiceType` 阐明服务是满足特定用例要求的前台服务。
+	- `android:isolatedProcess` 设置为 true，则此服务将在与系统其余部分隔离的特殊进程下运行。此服务自身没有权限，只能通过 Service API 与其进行通信（绑定和启动）。
+	- `android:name` 实现服务的 Service 子类的名称。
+	- `android:permission` 实体启动服务或绑定到服务所必需的权限的名称。先获取到权限后才能启动此服务;
+
+- [uses-permission xml 元素](https://developer.android.google.cn/guide/topics/manifest/uses-permission-element)  
+	- `android:name` 权限的名称。可以是应用通过 <permission> 元素定义的权限、另一个应用定义的权限，或者一个标准系统权限 ,通常以软件包名称为前缀。
+	- `android:maxSdkVersion` 此权限应授予应用的最高 API 级别。
+	- 注意 可使用 `<uses-permission-sdk-23>`指明应用需要特定权限，但仅当应用在 Android 6.0（API 级别 23）或更高版本的设备上安装时才需要。
 
 #### [概览屏幕](https://developer.android.google.cn/guide/components/recents)
 
@@ -390,3 +402,213 @@ tips: 在根据屏幕尺寸限定符选择资源时，如果没有更好的匹�
     val color: Int = colors.getColor(0,0)
 
 ```
+
+## 应用权限
+
+每款 Android 应用都在访问受限的沙盒中运行。如果应用需要使用其自己的沙盒外的资源或信息，则必须请求相应权限。
+
+- 需在清单文件中使用 `<uses-permission>` 声明需要的权限;
+	- 正常权限会自动授予权限;
+	- 危险权限需用户明确同意授权;
+- 运行时权限 (Android 6.0 (API level 23) or higher)
+	- 需要用户一个一个授权或取消;
+- 安装时权限 (Android 5.1.1 and below)
+	- 接收则全部授权,否则取消安装;
+- activity,service,contentprovider中定义的`android:permission` 属性,如果强制执行会抛出`SecurityException`异常; broadcast接收不到消息;
+- 特殊权限
+	-  `SYSTEM_ALERT_WINDOW and WRITE_SETTINGS` 如果需要使用需要清单中声明,且发送需要用户授权的Intent,系统会响应一个现实详细管理页面的屏幕给用户;
+- 权限组注意, 需要明确请求它需要的每项权限，即使用户已授予同一组中的其他权限。
+
+### 请求应用权限
+
+> 权限检查
+
+` ContextCompat.checkSelfPermission(@NonNull Context context, @NonNull String permission)`检查是否有某项权限;
+返回值为 `PERMISSION_GRANTED` 或者`PERMISSION_DENIED`
+
+>权限请求
+
+`ActivityCompat.requestPermissions(...)` 会显示一个无法自定义的标准android对话框; 方法异步执行;
+
+> 解释为什么应用需要权限
+
+只在用户之前拒绝过该权限请求的情况下才提供解释。当拒绝第一次系统的权限弹框后,再次申请权限会出现`下次不再出现`的checkbox;
+
+`ActivityCompat.shouldShowRequestPermissionRationale(...)`如果用户之前拒绝了该请求，该方法将返回 true；如果用户之前拒绝了某项权限并且选中了权限请求对话框中的不再询问选项，或者如果设备政策禁止该权限，该方法将返回 false。
+
+```
+
+	// Here, thisActivity is the current activity
+    if (ContextCompat.checkSelfPermission(thisActivity,
+            Manifest.permission.READ_CONTACTS)
+            != PackageManager.PERMISSION_GRANTED) {
+
+        // Permission is not granted
+        // Should we show an explanation?
+        if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity,
+                Manifest.permission.READ_CONTACTS)) {
+            // Show an explanation to the user *asynchronously* -- don't block
+            // this thread waiting for the user's response! After the user
+            // sees the explanation, try again to request the permission.
+        } else {
+            // No explanation needed, we can request the permission.
+            ActivityCompat.requestPermissions(thisActivity,
+                    arrayOf(Manifest.permission.READ_CONTACTS),
+                    MY_PERMISSIONS_REQUEST_READ_CONTACTS)
+
+            // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+            // app-defined int constant. The callback method gets the
+            // result of the request.
+        }
+    } else {
+        // Permission has already been granted
+    }
+
+```
+
+>处理权限请求响应
+
+`onRequestPermissionsResult()` 用户响应应用的权限请求时,提供会调用此回调;
+
+```
+
+ 	override fun onRequestPermissionsResult(requestCode: Int,
+            permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            MY_PERMISSIONS_REQUEST_READ_CONTACTS -> {
+                // If request is cancelled, the result arrays are empty.
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return
+            }
+
+            // Add other 'when' lines to check for other
+            // permissions this app might request.
+            else -> {
+                // Ignore all other requests.
+            }
+        }
+    }
+
+```
+## [应用兼容性](https://developer.android.google.cn/guide/practices/compatibility)
+
+> 设备功能限制
+
+`<users-feature>` 元素阻止安装不具备特定功能的应用;
+
+> 平台版本限制
+
+`<uses-sdk>` 一般gradle中配置;
+
+>屏幕配置适配
+
+- 屏幕尺寸 屏幕物理尺寸 (ppi px per inch)
+	- 小,标准,大,特大
+	- 灵活布局,避免对界面组件的位置和大小进行硬编码
+	- 备用布局,使用备用布局资源;
+	- .9图 可拉伸图像;
+		- 左上边缘黑线的交点为可以拉伸的位图区域;
+		- 右下边缘黑线是定义内容在视图内应进入的安全区域;
+	- 使用最小宽度限定符
+		- 最小宽度限定符指定屏幕两侧的最小尺寸，而不考虑设备当前的屏幕方向，因此这是一种指定布局可用的整体屏幕尺寸的简单方法。
+		- 限定符的尺寸是activity的窗口可用的宽度或高度,dp为单位;
+	- 可用宽度限定符
+	- 屏幕方向限定符
+	- 使用fragment将界面组件模块化
+
+```
+
+    res/layout/main_activity.xml           # For handsets (smaller than 600dp available width)
+    res/layout-sw600dp/main_activity.xml   # For 7” tablets (600dp wide and bigger)
+
+    res/layout-land/main_activity.xml           # For handsets in landscape
+    res/layout-sw600dp/main_activity.xml        # For 7” tablets
+    res/layout-sw600dp-land/main_activity.xml   # For 7” tablets in landscape
+    
+
+```
+
+![不同屏幕 dp 宽度与不同屏幕尺寸和方向的一般对应关系](https://developer.android.google.cn/images/screens_support/layout-adaptive-breakpoints_2x.png)
+
+图:建议的宽度断点以支持不同的屏幕尺寸
+
+![](https://developer.android.google.cn/images/ninepatch_raw.png)
+
+- 屏幕密度 dpi (dot per inch)
+	- mdpi(中),hdpi(高),xhdpi(超高),xxhdpi(超超高)
+	- 密度独立像素 dp (dip dependence px),1 dp 约等于中密度屏幕 mdpi（160dpi；“基准”密度）上的 1 像素。
+	- `DisplayMetrics.density` 字段根据当前像素密度指定将 dp 单位转换为像素时所必须使用的缩放系数。 `px = density * dp = dpi/160 * dp`
+	- 提供备用位图,以相应的分辨率在应用中提供每个位图的多个版本;
+	- 将应用图标放在 mipmap 目录中,某些应用启动器显示的应用图标会比设备的密度级别所要求的大差不多 25%。
+	- 使用矢量图形;
+
+- 不常见密度适配
+	- 预缩放资源（如可绘制位图资源）;
+		- 根据当前屏幕的密度，系统会使用您的应用中特定于密度的任何资源。如果没有针对相应密度的资源可用，系统会加载默认资源，并根据需要将其放大或缩小。
+		- 要避免预缩放，最简单的方法就是将资源放在带有 nodpi 配置限定符的资源目录中。
+	- 自动缩放像素尺寸和坐标;
+		- 可以停用预缩放，具体方法是：将清单中的 android:anyDensity 设置为 "false"；或者针对 Bitmap 以编程方式将 inScaled 设置为 "false"。 这样,像素定义的屏幕元素的显示尺寸与其在基准像素密度 (mdpi) 屏幕上的物理尺寸大致相同。
+
+- [刘海屏的适配](https://developer.android.google.cn/guide/topics/display-cutout)
+
+- 受限屏幕支持
+	- 声明最大宽高比:应用布局无法适应宽高比过大的屏幕，可以通过设置最大宽高比显式强行要求在所有 Android 操作系统级别上采用宽屏显示。我们建议使用 2.4 (12:5) 的比例。
+		- 需要设置`android:resizeableActivity false`,否则宽高比没有任何作用;
+```
+
+	//Android 8.0（API 级别 26）和更高版本设置最大宽高比
+	<!-- Render on full screen up to screen aspect ratio of 2.4 -->
+    <!-- Use a letterbox on screens larger than 2.4 -->
+    <activity android:maxAspectRatio="2.4">
+     ...
+    </activity>
+
+	//Android 7.1 及更低版本，请在 <application> 元素中添加一个名为 android.max_aspect 的 <meta-data> 元素
+	<!-- Render on full screen up to screen aspect ratio of 2.4 -->
+    <!-- Use a letterbox on screens larger than 2.4 -->
+    <meta-data android:name="android.max_aspect" android:value="2.4" />
+    
+```
+
+--------------
+--------------
+
+# Activity
+
+## 生命周期
+
+- onCreate() : 系统创建 Activity 时触发。
+- onStart() : 对用户可见,应用会为 Activity 进入前台并支持互动做准备。
+- onResume() : 系统会在 Activity 开始与用户互动之前调用此回调。
+- onPause() : 当 Activity 失去焦点并进入“已暂停”状态时，系统就会调用 onPause()。此种状态也可以更新页面;
+	- onPause 不可执行耗时操作,**不**应使用 onPause() 来保存应用或用户数据、进行网络调用或执行数据库事务。
+- onStop() : 当 Activity 对用户不再可见时，系统会调用 onStop()。
+	- 应用应释放或调整在应用对用户不可见时的无用资源。执行 CPU 相对密集的关闭操作,保存数据库等;
+	- Activity 对象会继续驻留在内存中, 该对象将维护所有状态和成员信息，但不会附加到窗口管理器。
+- onRestart() : 当处于“已停止”状态的 Activity 即将重启时，系统就会调用此回调。
+- onDestroy() : 系统会在销毁 Activity 之前调用此回调。
+	- Activity 即将结束（由于用户彻底关闭 Activity 或由于系统为 Activity 调用 finish()），或者
+	- 由于配置变更（例如设备旋转或多窗口模式），系统暂时销毁 Activity
+
+![Activity 生命周期的简化图示。](https://developer.android.google.cn/guide/components/images/activity_lifecycle.png)
+
+### 从后台启动activity的限制
+
+
+
+### [生命周期感知型组件](https://developer.android.google.cn/topic/libraries/architecture/lifecycle)
+
+`Lifecycle`  用于存储有关组件（如 Activity 或 Fragment）的生命周期状态的信息，并允许其他对象观察此状态。
+
+- 事件 : 从框架和 Lifecycle 类分派的生命周期事件。这些事件映射到 Activity 和 Fragment 中的回调事件。
+- 状态 : 由 Lifecycle 对象跟踪的组件的当前状态。
+
+可以将状态看作图中的节点，将事件看作这些节点之间的边。
+
+![构成 Android Activity 生命周期的状态和事件](https://developer.android.google.cn/images/topic/libraries/architecture/lifecycle-states.svg)
