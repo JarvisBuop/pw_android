@@ -12,6 +12,15 @@ so, 计划把常用android 知识捋一遍;
 
 ## 官方网站中文 [android gov cn](https://developer.android.google.cn/guide)
 
+# 常见设计应用架构原则
+
+- 分离关注点
+- 通过模型驱动界面 (持久性模型)
+
+>推荐应用架构
+
+![](https://developer.android.google.cn/topic/libraries/architecture/images/final-architecture.png)
+
 # 应用基础知识相关
 
 每个 Android 应用都处于各自的安全沙盒中，并受以下 Android 安全功能的保护：
@@ -118,6 +127,7 @@ tips: 如果您想在发布应用后更改软件包名称，可以这样做，�
 	- `android:windowSoftInputMode` Activity 的主窗口与包含屏幕软键盘的窗口之间的交互方式。
 		- 当 Activity 成为用户注意的焦点时，软键盘的状态为隐藏还是可见。
 		- 对 Activity 主窗口所做的调整 — 是否将其尺寸调小，为软键盘腾出空间；或当软键盘遮盖部分窗口时，是否平移其内容以使当前焦点可见。
+	- `android:alwaysRetainTaskState` 系统是否始终保持 Activity 所在任务的状态 —“true”表示是;该属性只对任务的根 Activity 有意义;
 - [application xml 元素](https://developer.android.google.cn/guide/topics/manifest/application-element)
 	- `android:networkSecurityConfig`  [网络安全配置](https://developer.android.google.cn/training/articles/security-config) 可用于抓包配置;
 	- `android:usesCleartextTraffic` 指示应用是否打算使用明文网络流量，如明文 HTTP。对于目标 API 级别为 27 或更低级别的应用，默认值为 "true"。对于目标 API 级别为 28 或更高级别的应用，默认值为 "false"。也是与抓包有关;
@@ -184,14 +194,23 @@ tips: 如果您想在发布应用后更改软件包名称，可以这样做，�
 	- `never`  该 Activity 不会为文档创建新任务。设置此值会替代 FLAG_ACTIVITY_NEW_DOCUMENT 和 FLAG_ACTIVITY_MULTIPLE_TASK 标志的行为（如果在 Intent 中设置了其中一个标志），并且概览屏幕将为应用显示单个任务，该任务将从用户上次调用的任意 Activity 开始继续执行。
 - 对于除 none 和 never 以外的值，必须使用 launchMode="standard" 定义 Activity。如果未指定此属性，则使用 documentLaunchMode="none"。
 
-#### [启动模式](https://developer.android.google.cn/guide/components/activities/tasks-and-back-stack)
+#### [启动模式 || 使用Intent标记](https://developer.android.google.cn/guide/components/activities/tasks-and-back-stack)
 
 - 使用“standard”或“singleTop”启动模式的 Activity 可多次进行实例化。“singleTask”和“singleInstance”Activity 只能启动任务且始终位于 Activity 堆栈的根位置。此外，设备一次只能保留一个 Activity 实例，即一次只允许一个此类任务。
 - “standard”和“singleTop”模式只有一处不同: <br/>`standard` 创建新的类实例来响应该 Intent; <br/>`singleTop` 栈顶复用,位于栈顶调用`onNewIntent()`否则创建新的;
-- “singleTask”和“singleInstance”模式同样只有一处不同:<br/>`singleTask` Activity 允许其他 Activity 成为其任务的一部分。该 Activity 始终位于其任务的**根位置**，但其他 Activity（必然是“standard”和“singleTop”Activity）可以启动到该任务中。 <br/>
+- “singleTask”和“singleInstance”模式同样只有一处不同:<br/>`singleTask` Activity 允许其他 Activity 成为其任务的一部分。该 Activity 始终位于其任务的**根位置**，但其他 Activity（必然是“standard”和“singleTop”Activity）可以启动到该任务中。Activity一次只能有一个实例 <br/>
 `singleInstance` 与“singleTask"”相同，只是系统不会将任何其他 Activity 启动到包含实例的任务中。它是任务中唯一的 Activity。
+- `singletask` **自己理解**就是创建时,先查找其他的任务栈中是否已存在该ActivityA的实例,如果存在将该task置于前台,调用onNewIntent(),也会清除该task中ActivityA上层其他act; 如果没有查找到则创建新的task,并实例化新任务的根 Activity; 
+-  **疑问点在于** 官网中描述`FLAG_ACTIVITY_NEW_TASK`等同于`singleTask` ,**个人倾向于** `singletask`等同与`FLAG_ACTIVITY_CLEAR_TOP|FLAG_ACTIVITY_NEW_TASK` intent标记将 singletask 分为两种功能;
 
+存在这样一个情况需要注意, 用户按**返回**按钮都会回到上一个 Activity。 </br>
+已存在两个task,如果启动指定`singleTask`启动模式中的某个activity,处于后台的task已存在该activity的实例,系统会将该后台任务**整个**转到前台运行; 如果按返回键,返回的是前台任务中堆栈的act;
 
+![](https://developer.android.google.cn/images/fundamentals/diagram_backstack_singletask_multiactivity.png)
+
+- `FLAG_ACTIVITY_NEW_TASK` : 在新任务中启动 Activity,如果您现在启动的 Activity 已经有任务在运行，则系统会将该任务转到前台并恢复其最后的状态，而 Activity 将在 onNewIntent() 中收到新的 intent。相当于`singleTask`;(**作者注** 官网描述如此,个人觉得有误,`singleTask`觉得更像`FLAG_ACTIVITY_CLEAR_TOP|FLAG_ACTIVITY_NEW_TASK`);
+- `FLAG_ACTIVITY_SINGLE_TOP` : 堆栈顶部的 Activity,相当于`singleTop`;
+- `FLAG_ACTIVITY_CLEAR_TOP` : 如果要启动的 Activity 已经在当前任务中运行，则不会启动该 Activity 的新实例，而是会销毁位于它之上的所有其他 Activity，并通过 onNewIntent() 将此 intent 传送给它的已恢复实例（现在位于堆栈顶部）。
 
 
 ## 应用资源
@@ -598,9 +617,6 @@ tips: 在根据屏幕尺寸限定符选择资源时，如果没有更好的匹�
 
 ![Activity 生命周期的简化图示。](https://developer.android.google.cn/guide/components/images/activity_lifecycle.png)
 
-### 从后台启动activity的限制
-
-
 
 ### [生命周期感知型组件](https://developer.android.google.cn/topic/libraries/architecture/lifecycle)
 
@@ -612,3 +628,93 @@ tips: 在根据屏幕尺寸限定符选择资源时，如果没有更好的匹�
 可以将状态看作图中的节点，将事件看作这些节点之间的边。
 
 ![构成 Android Activity 生命周期的状态和事件](https://developer.android.google.cn/images/topic/libraries/architecture/lifecycle-states.svg)
+
+### 管理任务和返回堆栈
+
+任务是用户在执行某项工作时与之互动的一系列 Activity 的集合。
+
+![](https://developer.android.google.cn/images/fundamentals/diagram_backstack.png)
+
+
+![](https://developer.android.google.cn/images/fundamentals/diagram_multitasking.png)
+
+android的多任务管理,当用户开始一个新任务或通过主屏幕按钮进入主屏幕时，任务可移至“后台”。任务是一个整体单元,任务的返回堆栈保持不变;
+
+>管理任务栈
+
+**清单文件** `<activity>` 属性包括：
+
+- taskAffinity 默认亲和性为包名,亲和性可在两种情况下发挥作用;
+	- 当启动 Activity 的 intent 包含 FLAG_ACTIVITY_NEW_TASK 标记时。
+	- 当 Activity 的 allowTaskReparenting 属性设为 "true" 时。一旦和 Activity 有亲和性的任务进入前台运行，Activity 就可从其启动的任务转移到该任务。
+- launchMode
+- allowTaskReparenting
+- clearTaskOnLaunch
+- alwaysRetainTaskState
+- finishOnTaskLaunch
+
+**使用intent标记(优先)** `intent` 标记包括：
+
+- FLAG_ACTIVITY_NEW_TASK
+- FLAG_ACTIVITY_CLEAR_TOP
+- FLAG_ACTIVITY_SINGLE_TOP
+
+## 进程和应用生命周期
+
+进程类型排序: 
+
+- 前台进程 用户目前执行操作所需的进程,一下任意条件成立即为前台:
+	- 它正在用户的互动屏幕上运行一个 Activity（其 onResume() 方法已被调用）。
+	- 它有一个 BroadcastReceiver 目前正在运行（其 BroadcastReceiver.onReceive() 方法正在执行）。
+	- 它有一个 Service 目前正在执行其某个回调（Service.onCreate()、Service.onStart() 或 Service.onDestroy()）中的代码。
+
+- 可见进程  正在进行用户当前知晓的任务;
+	- 它正在运行的 Activity 在屏幕上对用户可见，但不在前台（其 onPause() 方法已被调用）。举例来说，如果前台 Activity 显示为一个对话框，而这个对话框允许在其后面看到上一个 Activity，则可能会出现这种情况。
+	- 它有一个 Service 正在通过 Service.startForeground()（要求系统将该服务视为用户知晓或基本上对用户可见的服务）作为前台服务运行。
+	- 系统正在使用其托管的服务实现用户知晓的特定功能，例如动态壁纸、输入法服务等。
+
+- 服务流程(后台进程) 包含一个已使用 startService() 方法启动的 Service。例如后台网络数据上传或下载;已经运行了很长时间（例如 30 分钟或更长时间）的服务的重要性可能会降位，以使其进程降至下文所述的缓存 LRU 列表。这有助于避免超长时间运行的服务因内存泄露或其他问题占用大量内存，进而妨碍系统有效利用缓存进程。
+- 缓存进程 运行良好的系统将始终有多个缓存进程可用（为了更高效地切换应用），并根据需要定期终止最早的进程。
+	- 通常包含用户当前不可见的一个或多个 Activity 实例（onStop() 方法已被调用并返回）
+	- 这些进程保存在伪 LRU 列表中,列表中的最后一个进程是为了回收内存而终止的第一个进程。
+
+## Fragment
+
+### 创建fragment
+
+- onCreate() 系统会在创建片段时调用此方法。
+- onCreateView() 系统会在片段首次绘制其界面时调用此方法。返回的 View 必须是片段布局的根视图。
+- onPause() 系统会将此方法作为用户离开片段的第一个信号（但并不总是意味着此片段会被销毁）进行调用。
+
+对于 Activity 生命周期与片段生命周期而言，二者最显著的差异是在其各自返回栈中的存储方式。默认情况下，Activity 停止时会被放入由系统管理的 Activity 返回栈中。不过，只有当您在移除片段的事务执行期间通过调用 addToBackStack() 显式请求保存实例时，系统才会将片段放入由宿主 Activity 管理的返回栈;
+
+![](https://developer.android.google.cn/images/fragment_lifecycle.png)
+
+![](https://developer.android.google.cn/images/activity_fragment_lifecycle.png)
+
+>[fragmentmanager](https://developer.android.google.cn/reference/androidx/fragment/app/FragmentManager)
+
+- 通过 findFragmentById()（针对在 Activity 布局中提供界面的片段）或 findFragmentByTag()（针对提供或不提供界面的片段）获取 Activity 中存在的片段。
+- 通过 popBackStack()（模拟用户发出的返回命令）使片段从返回栈中弹出。
+- 通过 addOnBackStackChangedListener() 注册侦听返回栈变化的侦听器。
+
+>执行片段事务
+
+` addToBackStack()`  以将事务添加到片段事务返回栈,该返回栈由 Activity 管理，允许用户通过按返回按钮返回上一片段状态
+
+- 可以将替换事务`replace`保存到返回栈，以便用户能够通过按返回按钮撤消事务并回退到上一片段。 FragmentActivity 会自动通过 onBackPressed() 从返回栈检索片段。
+- 如果您向事务添加多个更改（如又一个 `add() 或 remove()`），并调用 addToBackStack()，则调用 commit() 前应用的所有更改都将作为单一事务添加到返回栈，并且返回按钮会将它们一并撤消。
+
+```
+
+	val newFragment = ExampleFragment()
+	val transaction = supportFragmentManager.beginTransaction()
+	transaction.replace(R.id.fragment_container, newFragment)
+	transaction.addToBackStack(null)
+	transaction.commit()
+
+```
+
+`commit() ` 不会立即执行事务，而是在 Activity 的界面线程（“主”线程）可执行该操作时，再安排该事务在线程上运行。 也可以从界面线程调用 `executePendingTransactions()`，以立即执行 commit() 提交的事务。 (FragmentTransaction.commitNow() 在提交一个单一交易不改变fragment 回退栈的情况下,用这个替代)
+
+只能在Activity 保存其状态（当用户离开 Activity）之前使用 commit() 提交事务。 不然会发生异常;  对于丢失提交无关紧要的情况，请使用 `commitAllowingStateLoss()`。
