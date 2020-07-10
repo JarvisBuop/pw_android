@@ -692,6 +692,11 @@ android的多任务管理,当用户开始一个新任务或通过主屏幕按钮
 
 ![](https://developer.android.google.cn/images/activity_fragment_lifecycle.png)
 
+与 Activity 生命周期协调一致, Activity 的每次生命周期回调都会引发每个片段的类似回调。
+
+- onAttach() 在片段已与 Activity 关联时进行调用（Activity 传递到此方法内）。
+- onActivityCreated() 当 Activity 的 onCreate() 方法已返回时进行调用。
+
 >[fragmentmanager](https://developer.android.google.cn/reference/androidx/fragment/app/FragmentManager)
 
 - 通过 findFragmentById()（针对在 Activity 布局中提供界面的片段）或 findFragmentByTag()（针对提供或不提供界面的片段）获取 Activity 中存在的片段。
@@ -700,7 +705,7 @@ android的多任务管理,当用户开始一个新任务或通过主屏幕按钮
 
 >执行片段事务
 
-` addToBackStack()`  以将事务添加到片段事务返回栈,该返回栈由 Activity 管理，允许用户通过按返回按钮返回上一片段状态
+` addToBackStack()` :以将事务添加到片段事务返回栈,该返回栈由 Activity 管理，允许用户通过按返回按钮返回上一片段状态
 
 - 可以将替换事务`replace`保存到返回栈，以便用户能够通过按返回按钮撤消事务并回退到上一片段。 FragmentActivity 会自动通过 onBackPressed() 从返回栈检索片段。
 - 如果您向事务添加多个更改（如又一个 `add() 或 remove()`），并调用 addToBackStack()，则调用 commit() 前应用的所有更改都将作为单一事务添加到返回栈，并且返回按钮会将它们一并撤消。
@@ -718,3 +723,5 @@ android的多任务管理,当用户开始一个新任务或通过主屏幕按钮
 `commit() ` 不会立即执行事务，而是在 Activity 的界面线程（“主”线程）可执行该操作时，再安排该事务在线程上运行。 也可以从界面线程调用 `executePendingTransactions()`，以立即执行 commit() 提交的事务。 (FragmentTransaction.commitNow() 在提交一个单一交易不改变fragment 回退栈的情况下,用这个替代)
 
 只能在Activity 保存其状态（当用户离开 Activity）之前使用 commit() 提交事务。 不然会发生异常;  对于丢失提交无关紧要的情况，请使用 `commitAllowingStateLoss()`。
+
+

@@ -1,9 +1,8 @@
 
->[视频缓存](https://github.com/danikula/AndroidVideoCache)
-
-
 
 ----
 
 
->[饺子播放器](https://github.com/lipangit/JiaoZiVideoPlayer)
+- [viewpager pageadapter](https://www.jianshu.com/p/b1cacb5605b4)
+
+- [线程池创建线程数](https://www.jianshu.com/p/f30ee2346f9f)
