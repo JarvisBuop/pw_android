@@ -1,7 +1,10 @@
 package com.jdev.wandroid.ui.frg
 
+import android.media.Image
 import android.os.Bundle
 import android.view.Gravity
+import android.widget.ImageView
+import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -25,6 +28,10 @@ class WebPTestFrag : BaseViewStubFragment() {
     lateinit var arr: Array<String>
     var index: Int = 0
 
+    lateinit var img_webp:ImageView
+    lateinit var btn_test:TextView
+    lateinit var img_btn:TextView
+
     override fun getViewStubId(): Int {
         return R.layout.app_frag_webp
     }
@@ -32,6 +39,9 @@ class WebPTestFrag : BaseViewStubFragment() {
     override fun initIntentData(): Boolean = true
 
     override fun customOperate(savedInstanceState: Bundle?) {
+        img_webp = findView(R.id.img_webp)
+        btn_test = findView(R.id.btn_test)
+        img_btn = findView(R.id.img_btn)
 
         btn_test.setOnClickListener {
             initPop()
@@ -71,7 +81,7 @@ class WebPTestFrag : BaseViewStubFragment() {
         val options = RequestOptions()
                 .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
-        Glide.with(this)
+        Glide.with(activity!!)
                 .load(webpUrl)
                 .apply(options).transition(DrawableTransitionOptions().crossFade(200))
                 .into(img_webp)

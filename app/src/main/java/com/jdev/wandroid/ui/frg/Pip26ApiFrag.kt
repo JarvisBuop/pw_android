@@ -19,7 +19,9 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Rational
+import android.view.View
 import android.widget.MediaController
+import android.widget.TextView
 import android.widget.VideoView
 import com.blankj.utilcode.util.LogUtils
 import com.jdev.kit.baseui.BaseViewStubFragment
@@ -35,6 +37,35 @@ import java.util.*
  */
 
 class Pip26ApiFrag : BaseViewStubFragment() {
+    var btn_pip:TextView
+        get() {
+            return findView(R.id.btn_pip)
+        }
+        set(value) {}
+
+    var btn_play:TextView
+        get() {
+            return findView(R.id.btn_play)
+        }
+        set(value) {}
+
+    var mVideoView:VideoView
+        get() {
+            return findView(R.id.mVideoView)
+        }
+        set(value) {}
+
+    var btn_pause:TextView
+        get() {
+            return findView(R.id.btn_pause)
+        }
+        set(value) {}
+
+    var btn_ms:TextView
+        get() {
+            return findView(R.id.btn_ms)
+        }
+        set(value) {}
 
     @RequiresApi(Build.VERSION_CODES.O)
     private val mPipParamsBuilder: PictureInPictureParams.Builder = PictureInPictureParams.Builder()
@@ -317,7 +348,9 @@ class Pip26ApiFrag : BaseViewStubFragment() {
          */
         override fun onSkipToNext() {
             super.onSkipToNext()
-            initVideoView()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                initVideoView()
+            }
             if (indexInPlaylist < PLAYLIST_SIZE) {
                 indexInPlaylist++
                 if (indexInPlaylist >= PLAYLIST_SIZE) {

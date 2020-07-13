@@ -3,7 +3,9 @@ package com.jdev.wandroid.ui.frg
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import android.widget.SeekBar
+import android.widget.TextView
 import android.widget.Toast
 import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
@@ -31,6 +33,11 @@ class GpuImageCameraFrag : BaseViewStubFragment() {
     }
     private var filterAdjuster: FilterAdjuster? = null
 
+    private lateinit var seekBar:SeekBar
+    private lateinit var button_choose_filter:TextView
+    private lateinit var button_capture:ImageView
+    private lateinit var img_switch_camera:ImageView
+    private lateinit var gpuImageView:GPUImageView
 
     override fun getViewStubId(): Int {
         return R.layout.app_frag_gpucamera
@@ -39,6 +46,11 @@ class GpuImageCameraFrag : BaseViewStubFragment() {
     override fun initIntentData(): Boolean = true
 
     override fun customOperate(savedInstanceState: Bundle?) {
+        seekBar = findView(R.id.seekBar)
+        button_choose_filter = findView(R.id.button_choose_filter)
+        button_capture = findView(R.id.button_capture)
+        img_switch_camera = findView(R.id.img_switch_camera)
+        gpuImageView = findView(R.id.gpuImageView)
 
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {

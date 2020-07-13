@@ -1,8 +1,11 @@
 package com.jdev.wandroid.ui.frg
 
 import android.gesture.GestureLibraries
+import android.gesture.GestureOverlayView
 import android.graphics.Color
 import android.os.Bundle
+import android.widget.ImageView
+import android.widget.TextView
 import com.blankj.utilcode.util.LogUtils
 import com.jdev.kit.baseui.BaseFragment
 import com.jdev.kit.baseui.BaseViewStubFragment
@@ -20,6 +23,10 @@ class GestureTestFrag : BaseViewStubFragment() {
     val gestureName: String = "mygestures_"
     var count: Int = 0
 
+    lateinit var btn_save : TextView
+    lateinit var gesture_view : GestureOverlayView
+    lateinit var image_show : ImageView
+
     override fun getViewStubId(): Int {
         return R.layout.app_frag_gesture
     }
@@ -28,6 +35,11 @@ class GestureTestFrag : BaseViewStubFragment() {
 
 
     override fun customOperate(savedInstanceState: Bundle?) {
+        btn_save = findView(R.id.btn_save)
+        gesture_view = findView(R.id.gesture_view)
+        image_show = findView(R.id.image_show)
+
+
         btn_save.isEnabled = false
 
         gesture_view.gestureColor = Color.RED

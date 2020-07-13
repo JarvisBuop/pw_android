@@ -17,6 +17,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
+import android.widget.TextView
 import com.blankj.utilcode.util.ConvertUtils
 import com.blankj.utilcode.util.StringUtils
 import com.chad.library.adapter.base.BaseQuickAdapter
@@ -39,6 +40,13 @@ import kotlinx.android.synthetic.main.frag_gpufilter.*
  *
  */
 class JdGpuImageMultiFrag : BaseViewStubFragment() {
+    private lateinit var mRecyclerView:RecyclerView
+    private lateinit var mSeekBar:SeekBar
+    private lateinit var mViewPager:ViewPager
+    private lateinit var mTxtCurrentTab:TextView
+    private lateinit var mTxtCenterName:TextView
+    private lateinit var mTxtBottomPercent:TextView
+    private lateinit var mGroupLabel:View
 
     private var viewpagePosition: Int = 0
     private var mPagerAdapter: MyPagerAdapter? = null
@@ -138,6 +146,7 @@ class JdGpuImageMultiFrag : BaseViewStubFragment() {
     }
 
     private fun initRecyclerView() {
+        mRecyclerView = findView<RecyclerView>(R.id.mRecyclerView)
         mRecyclerView.layoutManager = LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false)
         mRecyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
 
@@ -181,6 +190,7 @@ class JdGpuImageMultiFrag : BaseViewStubFragment() {
     }
 
     private fun initSeekBar() {
+        mSeekBar = findView(R.id.mSeekBar)
         mSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
@@ -205,6 +215,11 @@ class JdGpuImageMultiFrag : BaseViewStubFragment() {
     }
 
     private fun initViewPager() {
+        mViewPager = findView<ViewPager>(R.id.mViewPager)
+        mTxtCurrentTab = findView<TextView>(R.id.mTxtCurrentTab)
+        mTxtCenterName = findView<TextView>(R.id.mTxtCenterName)
+        mTxtBottomPercent = findView<TextView>(R.id.mTxtBottomPercent)
+        mGroupLabel = findView<View>(R.id.mGroupLabel)
         mViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(state: Int) {
             }

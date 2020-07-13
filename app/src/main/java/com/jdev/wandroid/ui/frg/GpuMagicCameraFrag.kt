@@ -23,6 +23,7 @@ import com.jdev.wandroid.utils.gputils.GPUImageFilterTools
 import com.seu.magicfilter.MagicEngine
 import com.seu.magicfilter.filter.helper.MagicFilterType
 import com.seu.magicfilter.utils.MagicParams
+import com.seu.magicfilter.widget.MagicCameraView
 import kotlinx.android.synthetic.main.app_filter_layout.*
 import kotlinx.android.synthetic.main.app_frag_magiccamera.*
 import java.io.File
@@ -38,6 +39,16 @@ import java.util.*
  *
  */
 class GpuMagicCameraFrag : BaseViewStubFragment() {
+    lateinit var btn_camera_filter:ImageView
+    lateinit var btn_camera_closefilter:ImageView
+    lateinit var btn_camera_shutter:ImageView
+    lateinit var btn_camera_switch:ImageView
+    lateinit var btn_camera_mode:ImageView
+    lateinit var btn_camera_beauty:ImageView
+    lateinit var layout_filter:View
+    lateinit var filter_listView:RecyclerView
+    lateinit var glsurfaceview_camera:MagicCameraView
+
     override fun getViewStubId(): Int {
         return R.layout.app_frag_magiccamera
     }
@@ -45,9 +56,24 @@ class GpuMagicCameraFrag : BaseViewStubFragment() {
     override fun initIntentData(): Boolean = true
 
     override fun customOperate(savedInstanceState: Bundle?) {
+        bindView()
         magicEngine = MagicEngine.Builder().build(glsurfaceview_camera)
         initView()
 
+    }
+
+    private fun bindView() {
+
+        btn_camera_filter = findView(R.id.btn_camera_filter)
+        btn_camera_closefilter = findView(R.id.btn_camera_closefilter)
+        btn_camera_shutter = findView(R.id.btn_camera_shutter)
+        btn_camera_switch = findView(R.id.btn_camera_switch)
+        btn_camera_mode = findView(R.id.btn_camera_mode)
+        btn_camera_beauty = findView(R.id.btn_camera_beauty)
+        layout_filter = findView(R.id.layout_filter)
+
+        filter_listView = findView(R.id.filter_listView)
+        glsurfaceview_camera = findView(R.id.glsurfaceview_camera)
     }
 
     private lateinit var mFilterLayout: View

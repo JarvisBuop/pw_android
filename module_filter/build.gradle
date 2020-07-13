@@ -6,6 +6,7 @@ if (isModuleDefault.toBoolean()) {
 
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion rootProject.ext.androidVersion.compileSdkVersion
@@ -15,7 +16,7 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.androidVersion.minSdkVersion
         targetSdkVersion rootProject.ext.androidVersion.targetSdkVersion
-        applicationId "com.example.module_filter"
+//        applicationId "com.example.module_filter"
         versionCode 1
         versionName "1.0"
 

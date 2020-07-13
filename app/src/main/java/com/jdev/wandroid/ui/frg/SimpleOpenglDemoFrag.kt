@@ -2,6 +2,7 @@ package com.jdev.wandroid.ui.frg
 
 import android.app.ActivityManager
 import android.content.Context
+import android.opengl.GLSurfaceView
 import android.os.Build
 import android.os.Bundle
 import com.blankj.utilcode.util.LogUtils
@@ -18,6 +19,7 @@ import kotlinx.android.synthetic.main.app_frag_simple_opengl_demo.*
  */
 class SimpleOpenglDemoFrag : BaseViewStubFragment() {
 
+    lateinit var glSurfaceview: GLSurfaceView
     override fun getViewStubId(): Int {
         return R.layout.app_frag_simple_opengl_demo
     }
@@ -25,6 +27,7 @@ class SimpleOpenglDemoFrag : BaseViewStubFragment() {
     override fun initIntentData(): Boolean = true
 
     override fun customOperate(savedInstanceState: Bundle?) {
+        glSurfaceview = findView(R.id.glSurfaceview)
         //gl10
 //        glSurfaceview.setRenderer(MyRender())
         var myG20Render = MyG20Render()

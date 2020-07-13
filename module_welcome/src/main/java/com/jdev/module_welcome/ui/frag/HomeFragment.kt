@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.view.ViewPager
+import android.support.v4.widget.SwipeRefreshLayout
 import android.view.View
 import android.view.ViewGroup
 import com.blankj.utilcode.util.BarUtils
@@ -12,11 +13,13 @@ import com.blankj.utilcode.util.ConvertUtils
 import com.blankj.utilcode.util.LogUtils
 import com.jdev.kit.baseui.BaseFragment
 import com.jdev.kit.helper.HeaderScrollHelper
+import com.jdev.kit.widget.home.HeaderViewPager
+import com.jdev.kit.widget.home.KtStatusBarHeightView
+import com.jdev.kit.widget.tablayout.SlidingTabLayout
 import com.jdev.module_welcome.R
 import com.jdev.module_welcome.adapter.BaseFragmentV4StatePagerAdapter
 import com.jdev.module_welcome.ui.widget.JdCustomHeader
-import kotlinx.android.synthetic.main.mw_act_mainpage_container.*
-import kotlinx.android.synthetic.main.mw_include_real_search_item.*
+import com.scwang.smartrefresh.layout.SmartRefreshLayout
 import java.util.ArrayList
 
 /**
@@ -33,6 +36,14 @@ class HomeFragment : BaseFragment() {
     private var fakeIsShow: Boolean = false
     var verticalListener: ScrollVerticalDistanceListener? = null
 
+    lateinit var swipeRefreshView: SmartRefreshLayout
+    lateinit var scrollView: HeaderViewPager
+    lateinit var common_viewpager: ViewPager
+    lateinit var common_tablayout: SlidingTabLayout
+    lateinit var fake_search_item_compat: KtStatusBarHeightView
+    lateinit var real_search_item: View
+    lateinit var item_inner_four_shortcut: View
+
     interface ScrollVerticalDistanceListener {
         fun scrollDistance(scrollPos: Int, tabMaxHeight: Int)
     }
@@ -41,6 +52,7 @@ class HomeFragment : BaseFragment() {
         val searchItemHeight = ConvertUtils.dp2px(60f)
         val tabHeight = ConvertUtils.dp2px(45f)
         val floatViewMarginTop = ConvertUtils.dp2px(132f)
+
         //兼容阴影padding;
         val paddingOffset = ConvertUtils.dp2px(6f)
 
@@ -53,6 +65,7 @@ class HomeFragment : BaseFragment() {
     override fun initIntentData(): Boolean = true
 
     override fun customOperate(savedInstanceState: Bundle?) {
+        bindView()
 
         swipeRefreshView.setOnRefreshListener {
             if (swipeRefreshView != null) {
@@ -82,6 +95,16 @@ class HomeFragment : BaseFragment() {
         })
 
         fetchDatas()
+    }
+
+    private fun bindView() {
+        swipeRefreshView = findView(R.id.swipeRefreshView)
+        scrollView = findView(R.id.scrollView)
+        common_viewpager = findView(R.id.common_viewpager)
+        common_tablayout = findView(R.id.common_tablayout)
+        fake_search_item_compat = findView(R.id.fake_search_item_compat)
+        real_search_item = findView(R.id.real_search_item)
+        item_inner_four_shortcut = findView(R.id.item_inner_four_shortcut)
     }
 
     private fun fetchDatas() {

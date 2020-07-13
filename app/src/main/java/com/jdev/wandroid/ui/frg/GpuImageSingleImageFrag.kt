@@ -10,6 +10,8 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import com.blankj.utilcode.util.ToastUtils
 import com.jdev.kit.baseui.BaseViewStubFragment
@@ -44,6 +46,16 @@ class GpuImageSingleImageFrag : BaseViewStubFragment() {
     private lateinit var filterType: MagicFilterType
     var progress: Int = 50
     var filterAdjuster: FilterAdjuster? = null
+
+    lateinit var layout_controller:View
+    lateinit var gpuImageView:GPUImageView
+    lateinit var txt_style_name:TextView
+    lateinit var txt_style_action:TextView
+    lateinit var txt_style_save:TextView
+    lateinit var txt_style_select:TextView
+    lateinit var txt_style_custom:TextView
+    lateinit var image_origin:ImageView
+
     override fun getViewStubId(): Int {
         return R.layout.app_item_gpuimage
     }
@@ -51,6 +63,15 @@ class GpuImageSingleImageFrag : BaseViewStubFragment() {
     override fun initIntentData(): Boolean = true
 
     override fun customOperate(savedInstanceState: Bundle?) {
+        layout_controller = findView(R.id.layout_controller)
+        gpuImageView = findView(R.id.gpuImageView)
+        txt_style_name = findView(R.id.txt_style_name)
+        txt_style_action = findView(R.id.txt_style_action)
+        txt_style_save = findView(R.id.txt_style_save)
+        txt_style_select = findView(R.id.txt_style_select)
+        txt_style_custom = findView(R.id.txt_style_custom)
+        image_origin = findView(R.id.image_origin)
+
         layout_controller.visibility = View.VISIBLE
         gpuImageView.setImage(BitmapFactory.decodeResource(mContext!!.resources, R.drawable.gpuimage_origin))
 

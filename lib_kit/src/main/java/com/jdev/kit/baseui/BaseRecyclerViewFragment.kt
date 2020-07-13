@@ -5,6 +5,7 @@ import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
+import android.view.ViewStub
 import com.blankj.utilcode.util.LogUtils
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
@@ -45,6 +46,7 @@ abstract class BaseRecyclerViewFragment<T> : BaseViewStubFragment(), SwipeRefres
 
     open fun initEmptyView() {
         if (getEmptyLayout() != 0) {
+            var mEmptyViewStub = findView<ViewStub>(R.id.mEmptyViewStub)
             mEmptyViewStub.layoutResource = getEmptyLayout()
             mEmptyView = mEmptyViewStub.inflate()
             mEmptyView?.visibility = View.GONE
@@ -52,9 +54,9 @@ abstract class BaseRecyclerViewFragment<T> : BaseViewStubFragment(), SwipeRefres
     }
 
     open fun initRecyclerView() {
-        recyclerView?.layoutManager = getLayoutManager()
+        findView<RecyclerView>(R.id.recyclerView)?.layoutManager = getLayoutManager()
         if (getItemDecoration() != null) {
-            recyclerView?.addItemDecoration(getItemDecoration()!!)
+            findView<RecyclerView>(R.id.recyclerView)?.addItemDecoration(getItemDecoration()!!)
         }
         try {
             mDataList = ArrayList()
@@ -63,21 +65,21 @@ abstract class BaseRecyclerViewFragment<T> : BaseViewStubFragment(), SwipeRefres
         } catch (e: Exception) {
             LogUtils.e("${javaClass.name} adapter initial encounter a exception ")
         }
-        recyclerView?.adapter = mAdapter
+        findView<RecyclerView>(R.id.recyclerView)?.adapter = mAdapter
     }
 
     private fun initSwipeView() {
         if (isSupportRefresh()) {
-            swipeRefreshLayout?.isEnabled = true
-            swipeRefreshLayout?.setColorSchemeResources(R.color.red, R.color.green, R.color.blue)
-            swipeRefreshLayout?.setOnRefreshListener(this)
+            findView<SwipeRefreshLayout>(R.id.swipeRefreshLayout)?.isEnabled = true
+            findView<SwipeRefreshLayout>(R.id.swipeRefreshLayout)?.setColorSchemeResources(R.color.red, R.color.green, R.color.blue)
+            findView<SwipeRefreshLayout>(R.id.swipeRefreshLayout)?.setOnRefreshListener(this)
         } else {
-            swipeRefreshLayout?.isEnabled = false
+            findView<SwipeRefreshLayout>(R.id.swipeRefreshLayout)?.isEnabled = false
         }
     }
 
     override fun onRefresh() {
-        swipeRefreshLayout?.isRefreshing = false
+        findView<SwipeRefreshLayout>(R.id.swipeRefreshLayout)?.isRefreshing = false
         resetInitParams()
         loadDatas()
     }
