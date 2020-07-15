@@ -28,11 +28,15 @@ class KtHandlerSingleton {
         }
     }
 
-    fun setCallBackByHandler(time: Long = 0, mActivty: Activity, func: (msg: Message?) -> Unit) {
+    fun setCallBackByHandler(time: Long = 0, mActivty: Activity,isCanceled:Boolean = true, func: (msg: Message?) -> Unit) {
+        //此处有bug ,activity如果被释放,就收不到消息了
         if (handler == null) {
             handler = MyHandler(WeakReference(mActivty))
         } else {
             handler?.mActivty = WeakReference(mActivty)
+        }
+        if(isCanceled){
+            handler?.removeCallbacksAndMessages(null)
         }
         var obtain = Message.obtain()
         obtain.obj = func

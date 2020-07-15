@@ -1,4 +1,4 @@
-if (isModuleDefault.toBoolean()) {
+if (isFilterModule.toBoolean()) {
     apply plugin: 'com.android.application'
 } else {
     apply plugin: 'com.android.library'
@@ -38,7 +38,7 @@ android {
         main {
             //组件化清单文件配置:
             def debugManifest = 'src/main/debug/AndroidManifest.xml'
-            if (isModuleDefault.toBoolean() && project.file(debugManifest).exists()) {
+            if (isFilterModule.toBoolean() && project.file(debugManifest).exists()) {
                 //debug模式下,加载独立的清单文件;
                 manifest.srcFile debugManifest
 

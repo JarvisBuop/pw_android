@@ -138,6 +138,6 @@ public enum  MagicFilterType {
     /**
      * custom
      */
-    CUSTOM_丑颜,
-    CUSTOM_美颜
+    CUSTOM_美颜,
+    CUSTOM_MIXED
 }

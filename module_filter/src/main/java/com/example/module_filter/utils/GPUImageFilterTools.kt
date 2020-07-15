@@ -23,6 +23,7 @@ import com.example.libimagefilter.filter.helper.MagicFilterType
 import com.jarvisdong.kit.utils.ResourceIdUtils
 import com.example.libimagefilter.filter.helper.FilterAdjuster
 import com.example.libimagefilter.filter.helper.MagicFilterFactory
+import com.example.libimagefilter.filter.other.GpuImageBeautyFilter
 import com.example.module_filter.R
 
 object GPUImageFilterTools {
@@ -34,7 +35,7 @@ object GPUImageFilterTools {
                                listener: (filter: GPUImageFilter?, filterName: String) -> Unit) {
 
         val filters = arrayListOf<MagicFilterType>(
-                MagicFilterType.CUSTOM_丑颜,
+                MagicFilterType.CUSTOM_MIXED,
                 MagicFilterType.CUSTOM_美颜
         )
         val names = arrayListOf<String>()
@@ -53,17 +54,17 @@ object GPUImageFilterTools {
     }
 
     fun createCustomFilterForType(context: Context, type: MagicFilterType): GPUImageFilter? {
-//        return when (type) {
-//            MagicFilterType.CUSTOM_丑颜 -> {
-//                GPUImageUglyFilter(context)
-//            }
-//            MagicFilterType.CUSTOM_美颜 -> {
-//                GpuImageBeautyFilter()
-//            }
-//            else -> {
-//                GpuImageBeautyFilter()
-//            }
-//        }
+        return when (type) {
+            MagicFilterType.CUSTOM_MIXED -> {
+                null
+            }
+            MagicFilterType.CUSTOM_美颜 -> {
+                GpuImageBeautyFilter()
+            }
+            else -> {
+                GpuImageBeautyFilter()
+            }
+        }
         return null
     }
 

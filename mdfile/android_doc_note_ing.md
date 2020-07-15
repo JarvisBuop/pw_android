@@ -696,6 +696,10 @@ android的多任务管理,当用户开始一个新任务或通过主屏幕按钮
 
 - onAttach() 在片段已与 Activity 关联时进行调用（Activity 传递到此方法内）。
 - onActivityCreated() 当 Activity 的 onCreate() 方法已返回时进行调用。
+- onDestroyView() 在移除与片段关联的视图层次结构时进行调用。
+- onDetach() 在取消片段与 Activity 的关联时进行调用。
+
+在处理 Fragment 时（尤其是在运行时添加 Fragment 时），需遵循的一个重要原则是，您的 Activity 布局必须包含一个可以插入 Fragment 的容器 View。
 
 >[fragmentmanager](https://developer.android.google.cn/reference/androidx/fragment/app/FragmentManager)
 
@@ -724,4 +728,6 @@ android的多任务管理,当用户开始一个新任务或通过主屏幕按钮
 
 只能在Activity 保存其状态（当用户离开 Activity）之前使用 commit() 提交事务。 不然会发生异常;  对于丢失提交无关紧要的情况，请使用 `commitAllowingStateLoss()`。
 
+### 在 Fragment 之间传递数据
 
+从 Fragment 1.3.0-alpha04 开始，每个 FragmentManager 都会实现 `FragmentResultOwner`。这意味着 FragmentManager 可以充当 Fragment 结果的`集中存储区`。可让单独的fragment相互通信;

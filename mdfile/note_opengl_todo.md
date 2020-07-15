@@ -1,31 +1,475 @@
 ## OpenGl 学习
 
->相关链接
+### OpenGl规范
+
+OpenGL规范严格`规定了每个函数该如何执行，以及它们的输出值。`至于内部具体每个函数是如何实现(Implement)的，将由OpenGL库的开发者自行决定（译注：这里开发者是指编写OpenGL库的人）。
+
+> 状态机 
+
+OpenGL自身是一个巨大的状态机(State Machine)：一系列的变量描述OpenGL此刻应当如何运行。OpenGL的状态通常被称为OpenGL上下文(Context)。我们通常使用如下途径去更改OpenGL状态：设置选项，操作缓冲。最后，我们使用当前OpenGL上下文来渲染。
+
+### 三角形
+
+- 顶点数组对象：Vertex Array Object，VAO
+- 顶点缓冲对象：Vertex Buffer Object，VBO
+- 索引缓冲对象：Element Buffer Object，EBO或Index Buffer Object，IBO
+
+在OpenGL中，任何事物都在3D空间中，而屏幕和窗口却是2D像素数组，这导致OpenGL的大部分工作都是关于把3D坐标转变为适应你屏幕的2D像素。</br> 
+3D坐标转为2D坐标的处理过程是由OpenGL的图形渲染管线（Graphics Pipeline，大多译为管线，实际上指的是一堆原始图形数据途经一个输送管道，期间经过各种变化处理最终出现在屏幕的过程）管理的。 图形渲染管线接受一组3D坐标，然后把它们转变为你屏幕上的有色2D像素输出。
+
+- 第一部分把你的3D坐标转换为2D坐标;
+- 第二部分是把2D坐标转变为实际的有颜色的像素。
+
+>Shader 着色器
+
+大多数显卡都有成千上万的小处理核心，它们在GPU上为每一个（渲染管线）阶段运行各自的小程序，从而在图形渲染管线中快速处理你的数据。 OpenGL着色器是用OpenGL着色器语言(OpenGL Shading Language, GLSL)写成的;
+
+蓝色部分: 可自定义着色器;
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20200715114656737.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+首先，我们以数组的形式传递3个3D坐标作为图形渲染管线的输入，用来表示一个三角形，这个数组叫做`顶点数据(Vertex Data)`；顶点数据是一系列顶点的集合。一个顶点(Vertex)是一个3D坐标的数据的集合。而顶点数据是用顶点属性(Vertex Attribute)表示的，它可以包含任何我们想用的数据，但是简单起见，我们还是假定每个顶点只由一个3D位置(译注1)和一些颜色值组成的吧。
+
+```
+
+	译注1: 
+	
+	当我们谈论一个“位置”的时候，它代表在一个“空间”中所处地点的这个特殊属性；同时“空间”代表着任何一种坐标系，比如x、y、z三维坐标系，x、y二维坐标系，或者一条直线上的x和y的线性关系，只不过二维坐标系是一个扁扁的平面空间，而一条直线是一个很瘦的长长的空间。
+
+	为了让OpenGL知道我们的坐标和颜色值构成的到底是什么，OpenGL需要你去指定这些数据所表示的渲染类型。我们是希望把这些数据渲染成一系列的点？一系列的三角形？还是仅仅是一个长长的线？做出的这些提示叫做图元`(Primitive)`，任何一个绘制指令的调用都将把图元传递给OpenGL。这是其中的几个：GL_POINTS、GL_TRIANGLES、GL_LINE_STRIP。
+
+```
+
+#### 图形渲染管线 
+
+第一个部分是`顶点着色器(Vertex Shader)`，它把一个单独的顶点作为输入。顶点着色器主要的目的是把3D坐标转为另一种3D坐标（后面会解释），同时顶点着色器允许我们对顶点属性进行一些基本处理。
+
+`图元装配(Primitive Assembly)` 阶段将顶点着色器输出的所有顶点作为输入（如果是GL_POINTS，那么就是一个顶点），并所有的点装配成指定图元的形状；本节例子中是一个三角形。
+
+图元装配阶段的输出会传递给`几何着色器(Geometry Shader)`。几何着色器把图元形式的一系列顶点的集合作为输入，它可以通过产生新顶点构造出新的（或是其它的）图元来生成其他形状。例子中，它生成了另一个三角形。
+
+几何着色器的输出会被传入`光栅化阶段(Rasterization Stage)`，这里它会把图元映射为最终屏幕上相应的像素，生成供片段着色器(Fragment Shader)使用的片段(Fragment)。在片段着色器运行之前会执行裁切(Clipping)。裁切会丢弃超出你的视图以外的所有像素，用来提升执行效率。
+
+`片段着色器`的主要目的是计算一个像素的最终颜色，这也是所有OpenGL高级效果产生的地方。通常，片段着色器包含3D场景的数据（比如光照、阴影、光的颜色等等），这些数据可以被用来计算最终像素的颜色。OpenGL中的一个片段是OpenGL渲染一个像素所需的所有数据。
+
+在所有对应颜色值确定以后，最终的对象将会被传到最后一个阶段，我们叫做`Alpha测试和混合(Blending)阶段`。这个阶段检测片段的对应的深度（和模板(Stencil)）值（后面会讲），用它们来判断这个像素是其它物体的前面还是后面，决定是否应该丢弃。这个阶段也会检查alpha值（alpha值定义了一个物体的透明度）并对物体进行混合(Blend)。所以，即使在片段着色器中计算出来了一个像素输出的颜色，在渲染多个三角形的时候最后的像素颜色也可能完全不同。
+
+> 大多数场合
+
+我们只需要配置顶点和片段着色器就行了。几何着色器是可选的，通常使用它默认的着色器就行了。  但必须定义至少一个顶点着色器和一个片段着色器（因为GPU中没有默认的顶点/片段着色器）
+
+### 顶点输入
+
+开始绘制图形之前，我们必须先给OpenGL输入一些顶点数据。 OpenGL仅当3D坐标在3个轴（x、y和z）上都为-1.0到1.0的范围内时才处理它。所有在所谓的`标准化设备坐标(Normalized Device Coordinates)`范围内的坐标才会最终呈现在屏幕上（在这个范围以外的坐标都不会显示）。
+
+```
+
+	float vertices[] = {
+    -0.5f, -0.5f, 0.0f,
+     0.5f, -0.5f, 0.0f,
+     0.0f,  0.5f, 0.0f
+	};
+
+	标准化设备坐标(Normalized Device Coordinates, NDC)
+	
+	一旦你的顶点坐标已经在顶点着色器中处理过，它们就应该是标准化设备坐标了，标准化设备坐标是一个x、y和z值在-1.0到1.0的一小段空间。任何落在范围外的坐标都会被丢弃/裁剪，不会显示在你的屏幕上。
+
+	你的标准化设备坐标接着会变换为屏幕空间坐标(Screen-space Coordinates)，这是使用你通过glViewport函数提供的数据，进行视口变换(Viewport Transform)完成的。所得的屏幕空间坐标又会被变换为片段输入到片段着色器中。
+
+```
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20200715131910841.png)
+
+定义这样的顶点数据后,会被作为输入发送给图形渲染管线的第一个处理阶段: `顶点着色器`; 它会在GPU上创建内存用于储存我们的顶点数据，还要配置OpenGL如何解释这些内存，并且指定其如何发送给显卡。顶点着色器接着会处理我们在内存中指定数量的顶点。
+
+我们通过`顶点缓冲对象(Vertex Buffer Objects, VBO)`管理这个内存，它会在GPU内存（通常被称为显存）中储存大量顶点。使用这些缓冲对象的好处是我们可以一次性的发送一大批数据到显卡上，而不是每个顶点发送一次。从CPU把数据发送到显卡相对较慢，所以只要可能我们都要尝试尽量一次性发送尽可能多的数据。当数据发送至显卡的内存中后，顶点着色器几乎能立即访问顶点，这是个非常快的过程。
+
+```
+
+	//使用glGenBuffers函数和一个缓冲ID生成一个VBO对象：
+	unsigned int VBO;
+	glGenBuffers(1, &VBO);
+
+```
+
+OpenGL有很多缓冲对象类型，顶点缓冲对象的缓冲类型是`GL_ARRAY_BUFFER`。OpenGL允许我们同时绑定多个缓冲，只要它们是不同的缓冲类型。我们可以使用glBindBuffer函数把新创建的缓冲绑定到`GL_ARRAY_BUFFER`目标上： `glBindBuffer(GL_ARRAY_BUFFER, VBO);  `
+
+从这一刻起，我们使用的任何（在GL_ARRAY_BUFFER目标上的）缓冲调用都会用来配置当前绑定的缓冲(VBO)。然后我们可以调用glBufferData函数，它会把之前定义的顶点数据复制到缓冲的内存中：
+
+```
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+```
+
+glBufferData是一个专门用来把用户定义的数据复制到当前绑定缓冲的函数。
+
+- 它的第一个参数是目标缓冲的类型：顶点缓冲对象当前绑定到GL_ARRAY_BUFFER目标上。
+- 第二个参数指定传输数据的大小(以字节为单位)；用一个简单的sizeof计算出顶点数据大小就行。
+- 第三个参数是我们希望发送的实际数据。
+- 第四个参数指定了我们希望显卡如何管理给定的数据。
+	- GL_STATIC_DRAW ：数据不会或几乎不会改变。
+	- GL_DYNAMIC_DRAW：数据会被改变很多。
+	- GL_STREAM_DRAW ：数据每次绘制时都会改变。
+
+
+### 顶点着色器
+
+顶点着色器(Vertex Shader)是几个可编程着色器中的一个。如果我们打算做渲染的话，现代OpenGL需要我们至少设置一个顶点和一个片段着色器。
+
+### glsl opengl 着色器语言;
+
+glsl (OpenGL Shader Language)
+
+我们需要做的第一件事是用着色器语言GLSL(OpenGL Shading Language)编写顶点着色器，然后编译这个着色器，这样我们就可以在程序中使用它了。下
+
+```
+
+	#version 330 core
+	layout (location = 0) in vec3 aPos;
+	
+	void main()
+	{
+	    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+	}
+
+```
+
+使用`in`关键字，在顶点着色器中声明所有的输入顶点属性(Input Vertex Attribute)。 `layout (location = 0)`设定输入变量的位置值(Location)你后面会看到为什么我们会需要这个位置值。
+
+ >向量Vector
+
+在图形编程中我们经常会使用向量这个数学概念，因为它简明地表达了任意空间中的位置和方向，并且它有非常有用的数学属性。在GLSL中一个向量有最多4个分量，每个分量值都代表空间中的一个坐标，它们可以通过vec.x、vec.y、vec.z和vec.w来获取。注意vec.w分量不是用作表达空间中的位置的（我们处理的是3D不是4D），而是用在所谓透视除法(Perspective Division)上。
+
+### 编译着色器
+
+我们首先要做的是创建一个着色器对象，注意还是用ID来引用的。所以我们储存这个顶点着色器为unsigned int，然后用glCreateShader创建这个着色器：
+
+```
+
+	unsigned int vertexShader;
+	vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+```
+
+我们把需要创建的着色器类型以参数形式提供给glCreateShader。由于我们正在创建一个顶点着色器，传递的参数是GL_VERTEX_SHADER。 下一步我们把这个着色器源码附加到着色器对象上，然后编译它：
+
+```
+	//需要编译的着色器对象;
+	//传递的源码字符串数量;	
+	//顶点着色器真正的源码;
+	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	glCompileShader(vertexShader);
+
+	//如果编译失败,我们定义一个整型变量来表示是否成功编译，还定义了一个储存错误消息（如果有的话）的容器。然后我们用glGetShaderiv检查是否编译成功。如果编译失败，我们会用glGetShaderInfoLog获取错误消息，然后打印它。
+	
+	int  success;
+	char infoLog[512];
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	
+	if(!success)
+	{
+	    glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+	    std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+
+```
+
+### 片段着色器
+
+片段着色器(Fragment Shader)是第二个也是最后一个我们打算创建的用于渲染三角形的着色器。片段着色器所做的是计算像素最后的颜色输出。
+
+```
+
+	#version 330 core
+	out vec4 FragColor;
+	
+	void main()
+	{
+	    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+	} 
+
+```
+
+片段着色器只需要一个输出变量，这个变量是一个4分量向量，它表示的是最终的输出颜色，我们应该自己将其计算出来。我们可以用`out`关键字声明输出变量，这里我们命名为FragColor。下面，我们将一个alpha值为1.0(1.0代表完全不透明)的橘黄色的vec4赋值给颜色输出。
+
+编译片段着色器的过程与顶点着色器类似，只不过我们使用GL_FRAGMENT_SHADER常量作为着色器类型：
+
+```
+	
+	unsigned int fragmentShader;
+	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	glCompileShader(fragmentShader);
+
+```
+
+### 着色器程序
+
+着色器程序对象(Shader Program Object)是多个着色器合并之后并最终链接完成的版本。如果要使用刚才编译的着色器我们必须把它们链接(Link)为一个着色器程序对象，然后在渲染对象的时候激活这个着色器程序。已激活着色器程序的着色器将在我们发送渲染调用的时候被使用。
+
+当链接着色器至一个程序的时候，它会把每个着色器的输出链接到下个着色器的输入。当输出和输入不匹配的时候，你会得到一个连接错误。
+
+```
+
+	unsigned int shaderProgram;
+	shaderProgram = glCreateProgram();
+
+```
+
+glCreateProgram函数创建一个程序，并返回新创建程序对象的ID引用。现在我们需要把之前编译的着色器附加到程序对象上，然后用`glLinkProgram`链接它们：
+
+```
+
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
+
+```
+
+就像着色器的编译一样，我们也可以检测链接着色器程序是否失败，并获取相应的日志。与上面不同，我们不会调用glGetShaderiv和glGetShaderInfoLog，现在我们使用：
+
+```
+
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+	if(!success) {
+	    glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+	    ...
+	}
+
+```
+
+得到的结果就是一个程序对象，我们可以调用glUseProgram函数，用刚创建的程序对象作为它的参数，以激活这个程序对象：
+
+```
+	
+	glUseProgram(shaderProgram);
+```
+
+在glUseProgram函数调用之后，每个着色器调用和渲染调用都会使用这个程序对象（也就是之前写的着色器)了。
+
+对了，在把着色器对象链接到程序对象以后，记得删除着色器对象，我们不再需要它们了：
+
+```
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
+```
+
+现在，我们已经把输入顶点数据发送给了GPU，并指示了GPU如何在顶点和片段着色器中处理它。就快要完成了，但还没结束，OpenGL还不知道它该如何解释内存中的顶点数据，以及它该如何将顶点数据链接到顶点着色器的属性上。
+
+### 链接顶点属性
+
+顶点着色器允许我们指定任何以顶点属性为形式的输入。这使其具有很强的灵活性的同时，它还的确意味着我们必须手动指定输入数据的哪一个部分对应顶点着色器的哪一个顶点属性。所以，我们必须在渲染前指定OpenGL该如何解释顶点数据。
+
+我们的顶点缓冲数据会被解析为下面这样子：
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20200715135227836.png)
+
+- 位置数据被储存为32位（4字节）浮点值。
+- 每个位置包含3个这样的值。
+- 在这3个值之间没有空隙（或其他值）。这几个值在数组中紧密排列(Tightly Packed)。
+- 数据中第一个值在缓冲开始的位置。
+
+有了这些信息我们就可以使用glVertexAttribPointer函数告诉OpenGL该如何解析顶点数据（应用到逐个顶点属性上）了：
+
+```
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+```
+
+>glVertexAttribPointer 参数
+
+- 第一个参数指定我们要`配置的顶点属性`。还记得我们在顶点着色器中使用layout(location = 0)定义了position顶点属性的位置值(Location)吗？它可以把顶点属性的位置值设置为0。因为我们希望把数据传递到这一个顶点属性中，所以这里我们传入0。
+- 第二个参数`指定顶点属性的大小`。顶点属性是一个vec3，它由3个值组成，所以大小是3。
+- 第三个参数`指定数据的类型`，这里是GL_FLOAT(GLSL中vec*都是由浮点数值组成的)。
+- 下个参数定义我们是否希望数据被`标准化(Normalize)`。如果我们设置为GL_TRUE，所有数据都会被映射到0（对于有符号型signed数据是-1）到1之间。我们把它设置为GL_FALSE。
+- 第五个参数叫做`步长(Stride)`，它告诉我们在连续的顶点属性组之间的间隔。由于下个组位置数据在3个float之后，我们把步长设置为3 * sizeof(float)。要注意的是由于我们知道这个数组是紧密排列的（在两个顶点属性之间没有空隙）我们也可以设置为0来让OpenGL决定具体步长是多少（只有当数值是紧密排列时才可用）。一旦我们有更多的顶点属性，我们就必须更小心地定义每个顶点属性之间的间隔，我们在后面会看到更多的例子（译注: 这个参数的意思简单说就是从这个属性第二次出现的地方到整个数组0位置之间有多少字节）。
+最后一个参数的类型是`void*`，所以需要我们进行这个奇怪的强制类型转换。它表示位置`数据在缓冲中起始位置的偏移量(Offset)`。由于位置数据在数组的开头，所以这里是0。我们会在后面详细解释这个参数。
+
+tips: 每个顶点属性从一个VBO管理的内存中获得它的数据，而具体是从哪个VBO（程序中可以有多个VBO）获取则是通过在调用glVertexAttribPointer时绑定到GL_ARRAY_BUFFER的VBO决定的。由于在调用glVertexAttribPointer之前绑定的是先前定义的VBO对象，顶点属性0现在会链接到它的顶点数据。
+
+在我们已经定义了OpenGL该如何解释顶点数据，我们现在应该使用`glEnableVertexAttribArray`，以顶点属性位置值作为参数，启用顶点属性；顶点属性默认是禁用的。自此，所有东西都已经设置好了：<br/>我们使用一个顶点缓冲对象将顶点数据初始化至缓冲中，建立了一个顶点和一个片段着色器，并告诉了OpenGL如何把顶点数据链接到顶点着色器的顶点属性上。在OpenGL中绘制一个物体，代码会像是这样：
+
+````
+
+	// 0. 复制顶点数组到缓冲中供OpenGL使用
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// 1. 设置顶点属性指针
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// 2. 当我们渲染一个物体时要使用着色器程序
+	glUseProgram(shaderProgram);
+	// 3. 绘制物体
+	someOpenGLFunctionThatDrawsOurTriangle();
+
+```
+
+
+### 顶点数组对象
+
+`顶点数组对象(Vertex Array Object, VAO)`可以像顶点缓冲对象那样被绑定，任何随后的顶点属性调用都会储存在这个VAO中。这样的好处就是，当配置顶点属性指针时，你只需要将那些调用执行一次，之后再绘制物体的时候只需要绑定相应的VAO就行了。这使在不同顶点数据和属性配置之间切换变得非常简单，只需要绑定不同的VAO就行了。刚刚设置的所有状态都将存储在VAO中
+
+```
+
+	OpenGL的核心模式要求我们使用VAO，所以它知道该如何处理我们的顶点输入。如果我们绑定VAO失败，OpenGL会拒绝绘制任何东西。
+
+```
+
+一个顶点数组对象会储存以下这些内容：
+
+- glEnableVertexAttribArray和glDisableVertexAttribArray的调用。
+- 通过glVertexAttribPointer设置的顶点属性配置。
+- 通过glVertexAttribPointer调用与顶点属性关联的顶点缓冲对象。
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20200715142936687.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+要想使用VAO,要做的只是使用glBindVertexArray绑定VAO。从绑定之后起，我们应该绑定和配置对应的VBO和属性指针，之后解绑VAO供之后使用。
+
+```
+
+	//创建一个Vao;
+	unsigned int VAO;
+	glGenVertexArrays(1, &VAO);
+
+	// ..:: 初始化代码（只运行一次 (除非你的物体频繁改变)） :: ..
+	// 1. 绑定VAO
+	glBindVertexArray(VAO);
+	// 2. 把顶点数组复制到缓冲中供OpenGL使用
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// 3. 设置顶点属性指针
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	
+	[...]
+	
+	// ..:: 绘制代码（渲染循环中） :: ..
+	// 4. 绘制物体
+	glUseProgram(shaderProgram);
+	glBindVertexArray(VAO);
+	someOpenGLFunctionThatDrawsOurTriangle();
+
+```
+
+一般当你打算绘制多个物体时，你首先要生成/配置所有的VAO（和必须的VBO及属性指针)，然后储存它们供后面使用。当我们打算绘制物体的时候就拿出相应的VAO，绑定它，绘制完物体后，再解绑VAO。
+
+### 绘制
+
+```
+
+	glUseProgram(shaderProgram);
+	glBindVertexArray(VAO);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+```
+
+`glDrawArrays`
+
+- 函数第一个参数是我们打算绘制的OpenGL图元的类型。
+- 第二个参数指定了顶点数组的起始索引，我们这里填0。
+- 最后一个参数指定我们打算绘制多少个顶点，这里是3（我们只从我们的数据中渲染一个三角形，它只有3个顶点长）。
+
+### 索引缓冲对象
+
+索引缓冲对象(Element Buffer Object，EBO，也叫Index Buffer Object，IBO)。
+
+重用重复的顶点,
+
+```
+
+	float vertices[] = {
+	    0.5f, 0.5f, 0.0f,   // 右上角
+	    0.5f, -0.5f, 0.0f,  // 右下角
+	    -0.5f, -0.5f, 0.0f, // 左下角
+	    -0.5f, 0.5f, 0.0f   // 左上角
+	};
+	
+	unsigned int indices[] = { // 注意索引从0开始! 
+	    0, 1, 3, // 第一个三角形
+	    1, 2, 3  // 第二个三角形
+	};
+
+```
+你可以看到，当时用索引的时候，我们只定义了4个顶点，而不是6个。下一步我们需要创建索引缓冲对象：
+
+```
+
+	unsigned int EBO;
+	glGenBuffers(1, &EBO);
+```
+
+与VBO类似，我们先绑定EBO然后用glBufferData把索引复制到缓冲里。同样，和VBO类似，我们会把这些函数调用放在绑定和解绑函数调用之间，只不过这次我们把缓冲的类型定义为GL_ELEMENT_ARRAY_BUFFER。
+
+```
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+```
+
+要注意的是，我们传递了`GL_ELEMENT_ARRAY_BUFFER`当作缓冲目标。最后一件要做的事是用glDrawElements来替换glDrawArrays函数，来指明我们从索引缓冲渲染。使用glDrawElements时，我们会使用当前绑定的索引缓冲对象中的索引进行绘制：
+
+```
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+```
+
+`glDrawElements` 
+- 第一个参数指定了我们绘制的模式，这个和glDrawArrays的一样。
+- 第二个参数是我们打算绘制顶点的个数，这里填6，也就是说我们一共需要绘制6个顶点。
+- 第三个参数是索引的类型，这里是GL_UNSIGNED_INT。
+- 最后一个参数里我们可以指定EBO中的偏移量（或者传递一个索引数组，但是这是当你不在使用索引缓冲对象的时候），但是我们会在这里填写0。
+
+
+绑定VAO的同时也会自动绑定EBO。
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20200715145223827.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+当目标是`GL_ELEMENT_ARRAY_BUFFER`的时候，VAO会储存glBindBuffer的函数调用。这也意味着它也会储存解绑调用，所以确保你没有在解绑VAO之前解绑索引数组缓冲，否则它就没有这个EBO配置了。
+
+
+```
+
+	// ..:: 初始化代码 :: ..
+	// 1. 绑定顶点数组对象
+	glBindVertexArray(VAO);
+	// 2. 把我们的顶点数组复制到一个顶点缓冲中，供OpenGL使用
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// 3. 复制我们的索引数组到一个索引缓冲中，供OpenGL使用
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	// 4. 设定顶点属性指针
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	
+	[...]
+	
+	// ..:: 绘制代码（渲染循环中） :: ..
+	glUseProgram(shaderProgram);
+	glBindVertexArray(VAO);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0)
+	glBindVertexArray(0);
+
+```
+
+## 着色器
+
+
+
+##相关链接
+
+[重要 - opengl的学习路线](https://www.jianshu.com/p/35c346b37664)
+
+[重要 - opengl中文网站](https://learnopengl-cn.github.io/)
 
 [glsl介绍](https://colin1994.github.io/2017/11/11/OpenGLES-Lesson04/)
-
-[glsl高级](https://colin1994.github.io/2017/11/12/OpenGLES-Lesson05/)
-
-[opengl介绍](https://juejin.im/post/5aefdb2c51882522835e6542)
-
->glsl
-
-glsl (Gl Shader Language)
-
-
-| 变量类别 | 变量类型 | 描述 |
-| ------- | ------- | ---- |
-| 空 | void	| 用于无返回值的函数或空的参数列表 |
-| 标量| float, int, bool | 浮点型，整型，布尔型的标量数据类型 |
-| 浮点型向量|	 float, vec2, vec3, vec4 | 包含1，2，3，4个元素的浮点型向量 |
-| 整数型向量| int, ivec2, ivec3, ivec4 | 包含1，2，3，4个元素的整型向量 |
-| 布尔型向量| bool, bvec2, bvec3, bvec4 | 包含1，2，3，4个元素的布尔型向量 |
-| 矩阵|	mat2, mat3, mat4 | 尺寸为2x2，3x3，4x4的浮点型矩阵 |
-| 纹理句柄|	sampler2D, samplerCube | 表示2D，立方体纹理的句柄 |
-
-
-
-
 
 
 
