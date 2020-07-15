@@ -31,14 +31,14 @@ import kotlinx.android.synthetic.main.app_frag_jdgpu_single.*
  *
  */
 class JdGpuImageSingleFrag : BaseViewStubFragment() {
-    lateinit var txt_style_action:TextView
-    lateinit var layout_controller:View
-    lateinit var gpuImageView:JdGPUDisplayView
-    lateinit var txt_style_name:TextView
-    lateinit var txt_style_save:TextView
-    lateinit var txt_style_custom:TextView
-    lateinit var txt_style_select:TextView
-    lateinit var image_origin:ImageView
+    lateinit var txt_style_action: TextView
+    lateinit var layout_controller: View
+    lateinit var gpuImageView: JdGPUDisplayView
+    lateinit var txt_style_name: TextView
+    lateinit var txt_style_save: TextView
+    lateinit var txt_style_custom: TextView
+    lateinit var txt_style_select: TextView
+    lateinit var image_origin: ImageView
 
     override fun getViewStubId(): Int {
         return R.layout.app_frag_jdgpu_single
@@ -136,12 +136,12 @@ class JdGpuImageSingleFrag : BaseViewStubFragment() {
         txt_style_action.text = "++ ${filterAdjuster?.canAdjust()} " + if (filterAdjuster?.canAdjust() == true) "$progress" else ""
 
         //logic
-        if (filter != null && (gpuImageView.filter == null || gpuImageView.filter.javaClass != filter.javaClass)) {
-            gpuImageView.filter = filter
-            if (filterAdjuster?.canAdjust() == true) {
-                filterAdjuster?.adjust(progress)
-            }
+//        if (filter != null && (gpuImageView.filter == null || gpuImageView.filter.javaClass != filter.javaClass)) {
+        gpuImageView.filter = filter
+        if (filterAdjuster?.canAdjust() == true) {
+            filterAdjuster?.adjust(progress)
         }
+//        }
         gpuImageView.requestRender()
     }
 

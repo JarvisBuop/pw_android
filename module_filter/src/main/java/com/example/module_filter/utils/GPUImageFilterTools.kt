@@ -18,15 +18,22 @@ package com.example.module_filter.utils
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
+import com.blankj.utilcode.util.LogUtils
 import com.example.libimagefilter.filter.base.gpuimage.GPUImageFilter
 import com.example.libimagefilter.filter.helper.MagicFilterType
 import com.jarvisdong.kit.utils.ResourceIdUtils
 import com.example.libimagefilter.filter.helper.FilterAdjuster
 import com.example.libimagefilter.filter.helper.MagicFilterFactory
+import com.example.libimagefilter.filter.origin.GPUImageFilterGroup
 import com.example.libimagefilter.filter.other.GpuImageBeautyFilter
 import com.example.module_filter.R
 
 object GPUImageFilterTools {
+
+    var array = booleanArrayOf()
+    var nameArrays = arrayOf<String>()
+
     /**
      * 测试使用;
      */
@@ -48,16 +55,46 @@ object GPUImageFilterTools {
                 .setTitle("Choose a custom filter")
                 .setSingleChoiceItems(names.toTypedArray(), index) { dialog, item ->
                     dialog.dismiss()
-                    listener(createCustomFilterForType(context, filters[item]), names[item])
+                    if (MagicFilterType.CUSTOM_MIXED == filters[item]) {
+                        doMultiChoiceItem(context, listener)
+                    } else {
+                        listener(createCustomFilterForType(context, filters[item]), names[item])
+                    }
+                }
+                .create().show()
+    }
+
+    private fun doMultiChoiceItem(context: Context,
+                                  listener: (filter: GPUImageFilter?, filterName: String) -> Unit) {
+        val (filters, names) = getFilterTypes()
+
+        if (nameArrays.isEmpty() || array.isEmpty()) {
+            nameArrays = names.toTypedArray()
+            array = BooleanArray(nameArrays.size)
+        }
+        AlertDialog.Builder(context)
+                .setTitle("Choose multi filter")
+                .setMultiChoiceItems(nameArrays, array) { dialog, which, isChecked ->
+                    array[which] = isChecked
+                }
+                .setOnDismissListener {
+                    var gpuFilters = arrayListOf<GPUImageFilter>()
+                    for (i in array.indices) {
+                        if (array[i]) {
+                            var filterByType = MagicFilterFactory.getFilterByType(filters[i])
+                            if (filterByType != null) {
+                                gpuFilters.add(filterByType)
+                            }
+                        }
+                    }
+                    LogUtils.e("group contents: ${gpuFilters.toString()}")
+                    listener(GPUImageFilterGroup(gpuFilters), MagicFilterType.CUSTOM_MIXED.toString())
                 }
                 .create().show()
     }
 
     fun createCustomFilterForType(context: Context, type: MagicFilterType): GPUImageFilter? {
         return when (type) {
-            MagicFilterType.CUSTOM_MIXED -> {
-                null
-            }
             MagicFilterType.CUSTOM_美颜 -> {
                 GpuImageBeautyFilter()
             }
@@ -85,12 +122,7 @@ object GPUImageFilterTools {
             name: String = "",
             listener: (filter: GPUImageFilter?, filterName: String) -> Unit
     ) {
-        val filters = initFilterListObj()
-
-        val names = arrayListOf<String>()
-        for (i in filters) {
-            names.add(i.toString().plus(" ${FilterType2Name(i)}"))
-        }
+        val (filters, names) = getFilterTypes()
 
         var index = names.indexOf(name)
         val builder = AlertDialog.Builder(context)
@@ -100,6 +132,16 @@ object GPUImageFilterTools {
                     listener(MagicFilterFactory.getFilterByType(filters[item]), names[item])
                 }
                 .create().show()
+    }
+
+    private fun getFilterTypes(): Pair<ArrayList<MagicFilterType>, ArrayList<String>> {
+        val filters = initFilterListObj()
+
+        val names = arrayListOf<String>()
+        for (i in filters) {
+            names.add(i.toString().plus(" ${FilterType2Name(i)}"))
+        }
+        return Pair(filters, names)
     }
 
     fun initFilterListObj(): ArrayList<MagicFilterType> {
