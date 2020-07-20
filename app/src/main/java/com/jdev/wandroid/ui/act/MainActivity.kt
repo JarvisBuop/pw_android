@@ -79,6 +79,11 @@ class MainActivity : BaseActivity() {
                     clazz = ContainerActivity::class.java,
                     clazzCode = KEY_ANDROID_PIP
             ),
+            OrientVo("mediaMuxer test",
+                    "MediaMuxer",
+                    clazz = ContainerActivity::class.java,
+                    clazzCode = KEY_ANDROID_MEDIA_MUXER
+            ),
             OrientVo("test",
                     "desc")
     )
