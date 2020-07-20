@@ -40,7 +40,7 @@ const val KEY_ANDROID_FLOAT_WINDOW = 10
 
 //---------------pip-----------------
 const val KEY_ANDROID_PIP = 11
-const val KEY_ANDROID_MEDIA_MUXER = 12
+const val KEY_ANDROID_MEDIA_MUXER = 14
 
 class ContainerActivity : BaseActivity() {
     var callback: (() -> Unit)? = null
@@ -70,7 +70,7 @@ class ContainerActivity : BaseActivity() {
                 KEY_ANDROID_PIP -> Pip26ApiFrag()
                 KEY_KOTLIN_TEST -> KotlinTestFrag()
                 KEY_MVVM_TEST -> MvvmTestFrag.newInstance()
-                KEY_ANDROID_MEDIA_MUXER -> MvvmTestFrag.newInstance()
+                KEY_ANDROID_MEDIA_MUXER -> MediaMuxerTestFrag.newInstance()
                 else -> return null
             }
         }
