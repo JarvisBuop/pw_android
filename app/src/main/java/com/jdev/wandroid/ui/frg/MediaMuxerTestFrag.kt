@@ -1,25 +1,41 @@
 package com.jdev.wandroid.ui.frg
 
+import android.graphics.BitmapFactory
 import android.media.MediaCodec
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMuxer
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.jdev.kit.baseui.BaseViewStubFragment
-import com.jdev.wandroid.utils.media.MediaUtils
+import com.jdev.wandroid.R
+import com.jdev.wandroid.utils.media.AvcEncoder
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.ByteBuffer
 
 class MediaMuxerTestFrag : BaseViewStubFragment() {
+    private var isRunning: Boolean = false
     private var mediaCodec: MediaCodec? = null
+    private var mediaMuxer: MediaMuxer? = null
+
+    private var arr = arrayListOf<Int>(
+            R.drawable.filter_thumb_antique,
+            R.drawable.filter_thumb_amoro,
+            R.drawable.filter_thumb_beauty,
+            R.drawable.filter_thumb_brannan
+    )
 
     companion object {
+        private var mMuxerStarted = false
+        private var mTrackIndex = 0
+
         private val mInputVideoPath: String = "/pwandroid/input.mp4"
         private val mOutputVideoPath: String = "/pwandroid/output.mp4"
         private val SDCARD_PATH = android.os.Environment.getExternalStorageDirectory().path
@@ -76,13 +92,6 @@ class MediaMuxerTestFrag : BaseViewStubFragment() {
         })
 
         linearLayout.addView(Button(mContext).apply {
-            text = "合成视频 = Frame + Audio"
-            setOnClickListener {
-                mergeVideoByParts()
-            }
-        })
-
-        linearLayout.addView(Button(mContext).apply {
             text = "bitmap图片转为视频"
             setOnClickListener {
                 mergeVideoByBitmaps()
@@ -91,60 +100,161 @@ class MediaMuxerTestFrag : BaseViewStubFragment() {
         return linearLayout
     }
 
-    //bitmaps -> video
+    //todo  bitmaps -> video
     private fun mergeVideoByBitmaps() {
-        initMediaCodec()
+        try {
+            initMediaCodec()
+            initMediaMuxer()
+        } finally {
+            releaseMediaCodec()
+        }
+    }
 
+    private fun computePresentationTime(frameIndex: Int): Long {
+        return (132 + frameIndex * 1000000 / 24).toLong()
+    }
 
-//        var mediaMuxer = MediaMuxer(mergeBitmapsOutputPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
-//        mediaMuxer.addTrack()
+    private fun getSize(size: Int): Int {
+        return size / 4 * 4
+    }
 
+    private fun initMediaMuxer() {
+        mediaMuxer = MediaMuxer(mergeBitmapsOutputPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+
+        val TIMEOUT_USEC: Long = 10000
+        val info = MediaCodec.BufferInfo()
+        var buffers: Array<ByteBuffer?>? = null
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+            buffers = mediaCodec!!.inputBuffers
+        }
+
+        while (isRunning) {
+            for (i in 0..3) {
+                var inputBufferId = mediaCodec!!.dequeueInputBuffer(TIMEOUT_USEC)
+                if (inputBufferId > 0) {
+                    var bitmap = BitmapFactory.decodeResource(mContext!!.resources, arr[i])
+                    val ptsUsec: Long = computePresentationTime(i)
+                    if (i >= 3) {
+                        mediaCodec!!.queueInputBuffer(inputBufferId, 0, 0, ptsUsec, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
+                        isRunning = false
+                        drainEncoder(true, info)
+                    } else {
+                        val input: ByteArray = AvcEncoder.getNV12(getSize(bitmap.width), getSize(bitmap.height), bitmap)
+                        //有效的空的缓存区
+                        var inputBuffer: ByteBuffer? = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+                            buffers!![inputBufferId]
+                        } else {
+                            mediaCodec!!.getInputBuffer(inputBufferId) //inputBuffers[inputBufferIndex];
+                        }
+                        inputBuffer!!.clear()
+                        inputBuffer.put(input)
+                        //将数据放到编码队列
+                        mediaCodec!!.queueInputBuffer(inputBufferId, 0, input.size, ptsUsec, 0)
+                        drainEncoder(false, info)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun drainEncoder(endOfStream: Boolean, bufferInfo: MediaCodec.BufferInfo) {
+        val TIMEOUT_USEC = 10000
+        var buffers: Array<ByteBuffer?>? = null
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+            buffers = mediaCodec!!.outputBuffers
+        }
+        if (endOfStream) {
+            try {
+                mediaCodec!!.signalEndOfInputStream()
+            } catch (e: java.lang.Exception) {
+            }
+        }
+        while (true) {
+            val encoderStatus = mediaCodec!!.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC.toLong())
+            if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
+                if (!endOfStream) {
+                    break // out of while
+                } else {
+                    Log.i(TAG, "no output available, spinning to await EOS")
+                }
+            } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+                if (mMuxerStarted) {
+                    throw RuntimeException("format changed twice")
+                }
+                val mediaFormat = mediaCodec!!.outputFormat
+                mTrackIndex = mediaMuxer!!.addTrack(mediaFormat)
+                mediaMuxer!!.start()
+                mMuxerStarted = true
+            } else if (encoderStatus < 0) {
+                Log.i(TAG, "unexpected result from encoder.dequeueOutputBuffer: $encoderStatus")
+            } else {
+                var outputBuffer: ByteBuffer? = null
+                outputBuffer = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+                    buffers!![encoderStatus]
+                } else {
+                    mediaCodec!!.getOutputBuffer(encoderStatus)
+                }
+                if (outputBuffer == null) {
+                    throw RuntimeException("encoderOutputBuffer "
+                            + encoderStatus + " was null")
+                }
+                if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0) {
+                    Log.d(TAG, "ignoring BUFFER_FLAG_CODEC_CONFIG")
+                    bufferInfo.size = 0
+                }
+                if (bufferInfo.size != 0) {
+                    if (!mMuxerStarted) {
+                        throw RuntimeException("muxer hasn't started")
+                    }
+
+                    // adjust the ByteBuffer values to match BufferInfo
+                    outputBuffer.position(bufferInfo.offset)
+                    outputBuffer.limit(bufferInfo.offset + bufferInfo.size)
+                    Log.d(TAG, "BufferInfo: " + bufferInfo.offset + ","
+                            + bufferInfo.size + ","
+                            + bufferInfo.presentationTimeUs)
+                    try {
+                        mediaMuxer!!.writeSampleData(mTrackIndex, outputBuffer, bufferInfo)
+                    } catch (e: java.lang.Exception) {
+                        Log.i(TAG, "Too many frames")
+                    }
+                }
+                mediaCodec!!.releaseOutputBuffer(encoderStatus, false)
+                if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
+                    if (!endOfStream) {
+                        Log.i(TAG, "reached end of stream unexpectedly")
+                    } else {
+                        Log.i(TAG, "end of stream reached")
+                    }
+                    break // out of while
+                }
+            }
+        }
     }
 
     private fun initMediaCodec() {
+        var bitmap = BitmapFactory.decodeResource(mContext!!.resources, arr[0])
         var width = 640
         var height = 480
-        var bitRate = 1300 * 1000
-        var frameRate = 24
-        var interval = 2
+        var bitRate = 4000000
+        var frameRate = 4
+        var interval = 5
+
         var mediaFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height)
-//        mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaUtils.getColorFormat())
+        mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, AvcEncoder.getColorFormat())
         mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitRate)
         mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, frameRate)
         mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, interval)
 
-//        mediaCodec = MediaCodec.createByCodecName(MediaFormat.MIMETYPE_VIDEO_AVC)
-//        var mOutputFormat: MediaFormat?=null
-//        mediaCodec?.setCallback(object:MediaCodec.Callback(){
-//            override fun onOutputBufferAvailable(codec: MediaCodec, outputBufferId: Int, info: MediaCodec.BufferInfo) {
-//                var outputBuffer = codec.getOutputBuffer(outputBufferId)
-//                var bufferFormat = codec.getOutputFormat(outputBufferId)
-//
-//                codec.releaseOutputBuffer(outputBufferId, )
-//            }
-//
-//            override fun onInputBufferAvailable(codec: MediaCodec, inputBufferId: Int) {
-//                var inputBuffer = codec.getInputBuffer(inputBufferId)
-//
-//                codec.queueInputBuffer(inputBufferId, )
-//            }
-//
-//            override fun onOutputFormatChanged(codec: MediaCodec, format: MediaFormat) {
-//                mOutputFormat = format
-//            }
-//
-//            override fun onError(codec: MediaCodec, e: MediaCodec.CodecException) {
-//            }
-//
-//        })
-//        mediaCodec?.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
-//        mOutputFormat = mediaCodec?.outputFormat
-//        mediaCodec?.start()
-
-        mediaCodec = MediaCodec.createByCodecName(MediaFormat.MIMETYPE_VIDEO_AVC)
+//        对于planar的YUV格式，先连续存储所有像素点的Y，紧接着存储所有像素点的U，随后是所有像素点的V。
+//        对于packed的YUV格式，每个像素点的Y,U,V是连续交*存储的。
+        //createByCodecName
+        mediaCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC)
         mediaCodec?.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
         var outputFormat = mediaCodec?.outputFormat
         mediaCodec?.start()
+
+        isRunning = true;
 //        while (true) {
 //            var inputBufferId = mediaCodec?.dequeueInputBuffer(timeoutUs);
 //            if (inputBufferId >= 0) {
@@ -334,13 +444,12 @@ class MediaMuxerTestFrag : BaseViewStubFragment() {
     //将asset 中的视频文件复制到 sd卡中;
     private fun loadVideo2SdCard() {
         var open = mContext!!.resources.assets.open("input.mp4")
-        var fileDir = File("$SDCARD_PATH")
         var file = File("$inputPath")
         if (file.exists()) {
             file.delete()
         }
-        if (!fileDir.exists()) {
-            fileDir.mkdirs()
+        if (!file.parentFile.exists()) {
+            file.parentFile.mkdirs()
         }
         if (!file.exists()) {
             file.createNewFile()

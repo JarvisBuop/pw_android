@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 
-
 public class AvcEncoder {
     private final static String TAG = "MeidaCodec";
 
@@ -55,30 +54,7 @@ public class AvcEncoder {
             bitRate0 = width * height;
         }
 
-        int[] formats = this.getMediaCodecList();
-
-        lab:
-        for (int format : formats) {
-            switch (format) {
-                case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar: // yuv420sp
-                    colorFormat = format;
-                    break lab;
-                case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar: // yuv420p
-                    colorFormat = format;
-                    break lab;
-                case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420PackedSemiPlanar: // yuv420psp
-                    colorFormat = format;
-                    break lab;
-                case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420PackedPlanar: // yuv420pp
-                    colorFormat = format;
-                    break lab;
-            }
-        }
-
-        if (colorFormat <= 0) {
-            colorFormat = MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar;
-        }
-
+        colorFormat = getColorFormat();
 
         MediaFormat mediaFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height);//COLOR_FormatYUV420SemiPlanar
         mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, colorFormat);
@@ -103,7 +79,35 @@ public class AvcEncoder {
         isRunning = true;
     }
 
-    public int[] getMediaCodecList() {
+    public static int getColorFormat() {
+        int colorFormat = 0;
+        int[] formats = getMediaCodecList();
+
+        lab:
+        for (int format : formats) {
+            switch (format) {
+                case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar: // yuv420sp
+                    colorFormat = format;
+                    break lab;
+                case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar: // yuv420p
+                    colorFormat = format;
+                    break lab;
+                case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420PackedSemiPlanar: // yuv420psp
+                    colorFormat = format;
+                    break lab;
+                case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420PackedPlanar: // yuv420pp
+                    colorFormat = format;
+                    break lab;
+            }
+        }
+
+        if (colorFormat <= 0) {
+            colorFormat = MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar;
+        }
+        return colorFormat;
+    }
+
+    public static int[] getMediaCodecList() {
         //获取解码器列表
         int numCodecs = MediaCodecList.getCodecCount();
         MediaCodecInfo codecInfo = null;
@@ -148,7 +152,7 @@ public class AvcEncoder {
             }
         }
 
-        if(mProvider instanceof IProviderExpand){
+        if (mProvider instanceof IProviderExpand) {
             ((IProviderExpand<Bitmap>) mProvider).finish();
         }
 
@@ -156,7 +160,7 @@ public class AvcEncoder {
 
     public void start() {
         try {
-            if(mProvider instanceof IProviderExpand){
+            if (mProvider instanceof IProviderExpand) {
                 ((IProviderExpand<Bitmap>) mProvider).prepare();
             }
 
@@ -187,9 +191,8 @@ public class AvcEncoder {
         return 132 + frameIndex * 1000000 / mFrameRate;
     }
 
-    private byte[] getNV12(int inputWidth, int inputHeight, Bitmap scaled) {
+    public static byte[] getNV12(int inputWidth, int inputHeight, Bitmap scaled) {
         // Reference (Variation) : https://gist.github.com/wobbals/5725412
-
         int[] argb = new int[inputWidth * inputHeight];
 
         //Log.i(TAG, "scaled : " + scaled);
@@ -197,6 +200,7 @@ public class AvcEncoder {
 
         byte[] yuv = new byte[inputWidth * inputHeight * 3 / 2];
 
+        int colorFormat = getColorFormat();
         switch (colorFormat) {
             case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar: // yuv420sp
                 encodeYUV420SP(yuv, argb, inputWidth, inputHeight);
@@ -211,14 +215,12 @@ public class AvcEncoder {
                 encodeYUV420PP(yuv, argb, inputWidth, inputHeight);
                 break;
         }
-
-
 //        scaled.recycle();
 
         return yuv;
     }
 
-    private void encodeYUV420SP(byte[] yuv420sp, int[] argb, int width, int height) {
+    private static void encodeYUV420SP(byte[] yuv420sp, int[] argb, int width, int height) {
         final int frameSize = width * height;
 
         int yIndex = 0;
@@ -253,7 +255,7 @@ public class AvcEncoder {
         }
     }
 
-    private void encodeYUV420P(byte[] yuv420sp, int[] argb, int width, int height) {
+    private static void encodeYUV420P(byte[] yuv420sp, int[] argb, int width, int height) {
         final int frameSize = width * height;
 
         int yIndex = 0;
@@ -286,13 +288,12 @@ public class AvcEncoder {
                 }
 
 
-
                 index++;
             }
         }
     }
 
-    private void encodeYUV420PSP(byte[] yuv420sp, int[] argb, int width, int height) {
+    private static void encodeYUV420PSP(byte[] yuv420sp, int[] argb, int width, int height) {
         final int frameSize = width * height;
 
         int yIndex = 0;
@@ -329,7 +330,7 @@ public class AvcEncoder {
         }
     }
 
-    private void encodeYUV420PP(byte[] yuv420sp, int[] argb, int width, int height) {
+    private static void encodeYUV420PP(byte[] yuv420sp, int[] argb, int width, int height) {
 
         int yIndex = 0;
         int vIndex = yuv420sp.length / 2;
@@ -486,7 +487,7 @@ public class AvcEncoder {
                         bitmap = mProvider.next();
                     }
                     byte[] input = getNV12(getSize(bitmap.getWidth()), getSize(bitmap.getHeight()), bitmap);//AvcEncoder.this.getNV21(bitmap);
-                    if(mProvider instanceof IProviderExpand){
+                    if (mProvider instanceof IProviderExpand) {
                         ((IProviderExpand<Bitmap>) mProvider).finishItem(bitmap);
                     }
                     bitmap = null;
