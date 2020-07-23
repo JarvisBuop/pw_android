@@ -92,7 +92,7 @@ class MediaMuxerTestFrag : BaseViewStubFragment() {
         })
 
         linearLayout.addView(Button(mContext).apply {
-            text = "bitmap图片转为视频"
+            text = "todo - bitmap图片转为视频"
             setOnClickListener {
                 mergeVideoByBitmaps()
             }

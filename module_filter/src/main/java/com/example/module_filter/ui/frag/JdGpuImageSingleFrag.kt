@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
@@ -21,6 +22,7 @@ import com.example.module_filter.utils.GPUImageFilterTools
 import com.jdev.kit.baseui.BaseViewStubFragment
 import com.example.libimagefilter.filter.helper.FilterAdjuster
 import com.example.libimagefilter.filter.helper.MagicFilterFactory
+import com.example.libimagefilter.widget.JdGPUImage
 import com.example.module_filter.R
 import kotlinx.android.synthetic.main.app_frag_jdgpu_single.*
 
@@ -37,6 +39,7 @@ class JdGpuImageSingleFrag : BaseViewStubFragment() {
     lateinit var txt_style_name: TextView
     lateinit var txt_style_save: TextView
     lateinit var txt_style_custom: TextView
+    lateinit var txt_save_flex: TextView
     lateinit var txt_style_select: TextView
     lateinit var image_origin: ImageView
 
@@ -62,6 +65,7 @@ class JdGpuImageSingleFrag : BaseViewStubFragment() {
         txt_style_name = findView(R.id.txt_style_name)
         txt_style_save = findView(R.id.txt_style_save)
         txt_style_custom = findView(R.id.txt_style_custom)
+        txt_save_flex = findView(R.id.txt_save_flex)
         txt_style_select = findView(R.id.txt_style_select)
         image_origin = findView(R.id.image_origin)
 
@@ -123,6 +127,13 @@ class JdGpuImageSingleFrag : BaseViewStubFragment() {
                     filterAdjuster?.adjuster = GPUImageFilterTools.createCustomAdjusterByFilter(filter)
                 }
                 switchFilterTo(filter, gpuImageView, filterAdjuster, name)
+            }
+        }
+
+        txt_save_flex.setOnClickListener {
+            JdGPUImage.getBitmapForMultipleFilters(BitmapFactory.decodeResource(mContext!!.resources, R.drawable.gpuimage_origin),
+                    arrayListOf<GPUImageFilter>(MagicFilterFactory.getFilterByType(MagicFilterType.BLACKCAT)!!)) { item ->
+                Toast.makeText(mContext!!, "Saved: ${item.width}  ${item.height}", Toast.LENGTH_SHORT).show()
             }
         }
 

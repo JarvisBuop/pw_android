@@ -66,6 +66,16 @@
             android:text="custom" />
 
         <Button
+            android:id="@+id/txt_save_flex"
+            style="@style/txt_nor_detail_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/txt_style_custom"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="flexsave" />
+
+        <Button
             android:id="@+id/txt_style_action"
             style="@style/txt_nor_detail_title"
             android:layout_width="match_parent"
