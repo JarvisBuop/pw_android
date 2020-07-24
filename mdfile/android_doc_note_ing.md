@@ -731,3 +731,261 @@ android的多任务管理,当用户开始一个新任务或通过主屏幕按钮
 ### 在 Fragment 之间传递数据
 
 从 Fragment 1.3.0-alpha04 开始，每个 FragmentManager 都会实现 `FragmentResultOwner`。这意味着 FragmentManager 可以充当 Fragment 结果的`集中存储区`。可让单独的fragment相互通信;
+
+FragmentB ->FragmentA
+
+```
+	
+	//只需要在接受结果的FragmentA上设置监听器
+	override fun onCreate(savedInstanceState: Bundle?) {
+	    super.onCreate(savedInstanceState)
+	    // Use the Kotlin extension in the fragment-ktx artifact
+	    setResultListener("requestKey") { key, bundle ->
+	        // We use a String here, but any type that can be put in a Bundle is supported
+	        val result = bundle.getString("bundleKey")
+	        // Do something with the result...
+	    }
+	}
+
+	ps: java中使用 `getParentFragmentManager().setFragmentResultListener`
+
+	//生成结果的FragmentB上设置
+	button.setOnClickListener {
+	    val result = "result"
+	    // Use the Kotlin extension in the fragment-ktx artifact
+	    setResult("requestKey", bundleOf("bundleKey" to result))
+	}
+
+	ps:java中使用 `getParentFragmentManager().setFragmentResult("requestKey", result);`
+
+```
+
+![](https://developer.android.google.cn/images/training/basics/fragments/fragment-b-to-a.png)
+
+然后，在值为 `STARTED` 后，FragmentA 便会收到结果并执行监听器回调。 
+
+- 如果您对同一个键多次调用 setResult()，则系统会将 Fragment B 从返回堆栈退出之前的最近结果发送给 Fragment A。如果您设置的结果没有相应的监听器来接收，则结果会存储在 FragmentManager 中，直到您设置一个具有相同键的监听器。
+- 请注意，监听器的 Fragment 必须为 STARTED，然后该 Fragment 才能收到结果。监听器收到结果并触发 onFragmentResult() 回调后，结果会被清除。
+- 返回堆栈上的 Fragment 只有在被弹出栈顶且为 STARTED 之后才会收到结果。
+- 如果在设置结果时监听结果的 Fragment 为 STARTED，则系统会立即触发监听器的回调。
+
+#### 父与子Fragment通信
+
+如需将结果从子级 Fragment 传递到父级 Fragment，父级 Fragment 在调用 `setFragmentResultListener()` 时应使用 `getChildFragmentManager()` 而不是 `getParentFragmentManager()`。
+
+![](https://developer.android.google.cn/images/training/basics/fragments/parent-to-child.png)
+
+### 与其他Fragment通信;
+
+所有fragment与fragment的通信都是通过共享的`ViewModel`或关联的`Activity`来完成的;两个Fragment是不能直接通信的; 否则只能使用接口回调实现;
+
+### Intent
+
+>验证是否存在可接受的Intent应用
+
+如果设备上没有能处理Intent的应用,则直接崩溃,`packageManager.queryIntentActivities`获取能处理Intent的activity列表;
+
+>Intent多个匹配下,显示应用选择器
+
+使用`createChooser()`创建Intent,并调用startActivity; 会显示一个对话框,包含可响应传递给createChooser方法的Intent应用列表,并提供文本用作对话框标题;
+
+```
+
+	val intent = Intent(Intent.ACTION_SEND)
+    ...
+
+    // Always use string resources for UI text.
+    // This says something like "Share this photo with"
+    val title = resources.getString(R.string.chooser_title)
+    // Create intent to show chooser
+    val chooser = Intent.createChooser(intent, title)
+
+    // Verify the intent will resolve to at least one activity
+    if (intent.resolveActivity(packageManager) != null) {
+        startActivity(chooser)
+    }
+
+```
+
+### 新版应用互动回调获取结果  (懵逼V-V)
+
+androidX 提供的 `Activity Result API`; 可代替 `startActivityForResult,onActivityResult`;
+
+位于 `ComponentActivity 或 Fragment` 中时，`Activity Result API` 会提供 `prepareCall() API`，用于注册结果回调。prepareCall() 接受 `ActivityResultContract 和 ActivityResultCallback` 作为参数，并返回 `ActivityResultLauncher`，供您用来启动另一个 Activity。
+
+ActivityResultContract 定义生成结果所需的`输入类型`以及`结果的输出类型`。这些 API 可为拍照和请求权限等基本 intent 操作提供默认协定。您还可以创建自己的自定义协定。
+
+ActivityResultCallback 是单一方法接口，带有 onActivityResult() 方法，可接受 ActivityResultContract 中定义的`输出类型`的对象：
+
+```
+
+	 // GetContent creates an ActivityResultLauncher<String> to allow you to pass
+    // in the mime type you'd like to allow the user to select
+    ActivityResultLauncher<String> mGetContent = prepareCall(new GetContent(),
+        new ActivityResultCallback<Uri>() {
+            @Override
+            public void onActivityResult(Uri uri) {
+                // Handle the returned Uri
+            }
+    });
+
+```
+
+如果您有多个使用不同协定或需要单独回调的 Activity 结果调用，则您可以多次调用 prepareCall()，以准备多个 ActivityResultLauncher 实例。每次创建 Fragment 或 Activity 时，都必须按照相同的顺序调用 prepareCall()，才能确保将生成的结果传递给正确的回调。
+
+> 启动act获取结果
+
+```
+
+	 ActivityResultLauncher<String> mGetContent = prepareCall(new GetContent(),
+        new ActivityResultCallback<Uri>() {
+            @Override
+            public void onActivityResult(Uri uri) {
+                // Handle the returned Uri
+				//回调数据;
+            }
+    });
+
+    @Override
+    public void onCreate(@Nullable savedInstanceState: Bundle) {
+        // ...
+
+        Button selectButton = findViewById(R.id.select_button);
+
+        selectButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Pass in the mime type you'd like to allow the user to select
+                // as the input
+				//启动act;
+                mGetContent.launch("image/*");
+            }
+        });
+    }
+
+```
+
+>在单独的类中接受act的结果
+
+虽然 ComponentActivity 和 Fragment 类通过实现 `ActivityResultCaller` 接口来允许您使用 prepareCall() API，但您也可以直接使用 `ActivityResultRegistry` 在未实现 ActivityResultCaller 的单独类中接收结果。
+
+默认情况下，prepareCall() 会自动使用 Activity 提供的 ActivityResultRegistry。
+
+```
+
+	class MyLifecycleObserver extends DefaultLifecycleObserver {
+        private final ActivityResultRegistry mRegistry;
+        private ActivityResultLauncher<String> mGetContent;
+
+        MyLifecycleObserver(@NonNull ActivityResultRegistry registry) {
+            mRegistry = registry;
+        }
+
+        public void onCreate(@NonNull LifecycleOwner owner) {
+            // ...
+
+            mGetContent = mRegistry.register(“key”, owner, new GetContent(),
+                new ActivityResultCallback<String>() {
+                    @Override
+                    public void onActivityResult(Uri uri) {
+                        // Handle the returned Uri
+                    }
+                });
+        }
+
+        public void selectImage() {
+            // Open the activity to select an image
+            mGetContent.launch("image/*");
+        }
+    }
+
+    class MyFragment extends Fragment {
+        private MyLifecycleObserver mObserver;
+
+        @Override
+        void onCreate(Bundle savedInstanceState) {
+            // ...
+
+            mObserver = MyLifecycleObserver(requireActivity().getActivityResultRegistry());
+            getLifecycle().addObserver(mObserver);
+        }
+
+        @Override
+        void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+            Button selectButton = findViewById(R.id.select_button);
+            selectButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mObserver.selectImage();
+                }
+            });
+        }
+    }
+
+```
+
+> 自定义协定
+
+每个 ActivityResultContract 都需要定义输入和输出类，如果您不需要任何输入，可使用 Void（在 Kotlin 中，使用 Void? 或 Unit）作为输入类型。
+
+必须实现`createIntent()`方法,接受context和输入内容作为参数,并构造将与startActivityForResult配合使用的Intent;
+
+每个协定还必须实现 `parseResult()`，这会根据指定的 resultCode（如 Activity.RESULT_OK 或 Activity.RESULT_CANCELED）和 Intent 生成输出内容。
+
+如果无需调用 `createIntent()`、启动另一个 Activity 并借助 parseResult() 来构建结果即可确定指定输入内容的结果，则协定可以选择性地实现 getSynchronousResult()。
+
+默认的通用协定为`StartActivityForResult`,可接受任何Intent作为输入内容并返回`ActivityResult`,能在回调中提取`resultCode`和`Intent`;
+
+```
+
+	   public class PickRingtone extends ActivityResultContract<Integer, Uri> {
+        @NonNull
+        @Override
+        public Intent createIntent(@NonNull Context context, @NonNull Integer ringtoneType) {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, ringtoneType.intValue());
+            return intent;
+        }
+
+        @Override
+        public Uri parseResult(int resultCode, @Nullable Intent result) {
+            if (resultCode != Activity.RESULT_OK || result == null) {
+                return null;
+            }
+            return result.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+        }
+    }
+
+	//使用通用协议
+	 ActivityResultLauncher<Intent> mStartForResult = prepareCall(new StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                Intent intent = result.getIntent();
+                // Handle the Intent
+            }
+        }
+    });
+
+    @Override
+    public void onCreate(@Nullable savedInstanceState: Bundle) {
+        // ...
+
+        Button startButton = findViewById(R.id.start_button);
+
+        startButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // The launcher with the Intent you want to start
+                mStartForResult.launch(new Intent(this, ResultProducingActivity.class));
+            }
+        });
+    }
+    
+
+```
+
+> 允许其他应用启动你的act
+
+`<activity>` 中添加`<intent-filter>`元素;
