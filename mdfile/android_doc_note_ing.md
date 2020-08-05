@@ -187,12 +187,43 @@ tips: 如果您想在发布应用后更改软件包名称，可以这样做，�
 
 概览屏幕（也称为最新动态屏幕、最近任务列表或最近使用的应用）是一个系统级别 UI，其中列出了最近访问过的 Activity 和任务。 用户可以浏览该列表并选择要恢复的任务，也可以通过滑动清除任务将其从列表中移除。
 
+您可以使用 `ActivityManager.AppTask` 类来管理任务，并使用 Intent 类的 `Activity 标记`来指定在最近使用的应用屏幕中添加或移除 Activity 的时间。此外，您还可以使用 `<activity> 属性`在清单中设置行为。
+
 - 使用 Activity 属性添加任务 `android:documentLaunchMode`
 	- `intoExisting` 该 Activity 会对文档重复使用现有任务。这与不设置 FLAG_ACTIVITY_MULTIPLE_TASK 标志、但设置 FLAG_ACTIVITY_NEW_DOCUMENT 标志所产生的效果相同; 即`如果未找到任务或者 Intent 包含 FLAG_ACTIVITY_MULTIPLE_TASK 标志，则会以该 Activity 作为其根创建新任务。如果找到的话，则会将该任务转到前台并将新 Intent 传递给 onNewIntent()。且新 Activity 将获得 Intent 并在概览屏幕中创建新文档;`
 	- `always` 该 Activity 为文档创建新任务，即便文档已打开也是如此。使用此值与同时设置 FLAG_ACTIVITY_NEW_DOCUMENT 和 FLAG_ACTIVITY_MULTIPLE_TASK 标志所产生的效果相同。
 	- `none`该 Activity 不会为文档创建新任务。概览屏幕将按其默认方式对待此 Activity：为应用显示单个任务，该任务将从用户上次调用的任意 Activity 开始继续执行。
 	- `never`  该 Activity 不会为文档创建新任务。设置此值会替代 FLAG_ACTIVITY_NEW_DOCUMENT 和 FLAG_ACTIVITY_MULTIPLE_TASK 标志的行为（如果在 Intent 中设置了其中一个标志），并且概览屏幕将为应用显示单个任务，该任务将从用户上次调用的任意 Activity 开始继续执行。
 - 对于除 none 和 never 以外的值，必须使用 launchMode="standard" 定义 Activity。如果未指定此属性，则使用 documentLaunchMode="none"。
+
+- Intent的标记添加任务
+
+FLAG_ACTIVITY_MULTIPLE_TASK: 此设置支持同一文档在多个任务中打开。
+
+```
+
+	  fun createNewDocument(view: View) {
+        val newDocumentIntent = newDocumentIntent()
+        if (useMultipleTasks) {
+            newDocumentIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+        }
+        startActivity(newDocumentIntent)
+    }
+
+    private fun newDocumentIntent(): Intent =
+            Intent(this, NewDocumentActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
+                        android.content.Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS)
+                putExtra(KEY_EXTRA_NEW_DOCUMENT_COUNTER, documentCounter++)
+            }
+
+```
+
+##### 移除任务
+
+- 将 `<activity>` 属性 android:excludeFromRecents 设置为 true，即可始终将任务从最近使用的应用屏幕中完全排除。
+- 将 `<activity>` 属性 android:maxRecents 设置为一个整数，即可设置您的应用可在最近使用的应用屏幕中包含的最大任务数。默认值为 16。一旦达到最大任务数，最早使用的任务将从最近使用的应用屏幕中移除。android:maxRecents 最大值为 50（内存较低的设备上为 25）；小于 1 的值无效。
+- 
 
 #### [启动模式 || 使用Intent标记](https://developer.android.google.cn/guide/components/activities/tasks-and-back-stack)
 

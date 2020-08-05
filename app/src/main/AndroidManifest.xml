@@ -50,6 +50,9 @@
             android:theme="@style/AppTheme.NoActionBar.Trans2"
             android:screenOrientation="portrait" />
 
+        <activity android:name=".ui.act.RecentActivity"
+            android:screenOrientation="portrait"/>
+
     </application>
 
 </manifest>

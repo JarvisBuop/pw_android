@@ -80,9 +80,13 @@ class MainActivity : BaseActivity() {
                     clazzCode = KEY_ANDROID_PIP
             ),
             OrientVo("mediaMuxer test",
-                    "MediaMuxer 分离及合成视频调研",
+                    "MediaMuxer 分离及合成视频调研 todo",
                     clazz = ContainerActivity::class.java,
                     clazzCode = KEY_ANDROID_MEDIA_MUXER
+            ),
+            OrientVo("概览屏幕",
+                    "最近使用的应用act,可在多任务栏中查看到多个任务",
+                    clazz = RecentActivity::class.java
             ),
             OrientVo("test",
                     "desc")
@@ -256,6 +260,11 @@ class MainActivity : BaseActivity() {
                 if (it.clazz == ContainerActivity::class.java && clazzCode != null && clazzCode != -1) {
                     mSecretString.put(clazzCode, item)
                     clickItemByCode(clazzCode)
+                } else if(it.clazz == RecentActivity::class.java){
+                    mContext.startActivity(Intent(mContext,it.clazz).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS)
+                        addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                    })
                 } else {
                     mContext.startActivity(Intent(mContext, it.clazz))
                 }
