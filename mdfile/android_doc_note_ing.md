@@ -989,3 +989,12 @@ ActivityResultCallback 是单一方法接口，带有 onActivityResult() 方法�
 > 允许其他应用启动你的act
 
 `<activity>` 中添加`<intent-filter>`元素;
+
+### 加载器 (28已弃用,推荐使用ViewModels和LiveData组合来处理加载数据)
+
+Loader Api
+
+- 加载器在单独的线程上运行，以免界面出现卡顿或无响应问题。
+- 加载器可在事件发生时提供回调方法，从而简化线程管理。
+- 加载器会保留和缓存配置变更后的结果，以免出现重复查询问题。
+- 加载器可实现观察器，从而监控基础数据源的变化。例如，CursorLoader 会自动注册 ContentObserver，以在数据变更时触发重新加载。
