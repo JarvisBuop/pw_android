@@ -8,3 +8,5 @@
 - [线程池创建线程数](https://www.jianshu.com/p/f30ee2346f9f)
 
 - [android mediacodec 谷歌非正式例子](https://github.com/google/grafika/blob/master/app/src/main/java/com/android/grafika/SoftInputSurfaceActivity.java)
+
+-[滤镜收集1](https://my.oschina.net/jjyuangu/blog/3021407)
