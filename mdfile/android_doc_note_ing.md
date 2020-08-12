@@ -21,6 +21,16 @@ so, 计划把常用android 知识捋一遍;
 
 ![](https://developer.android.google.cn/topic/libraries/architecture/images/final-architecture.png)
 
+官网提供一套 : viewmodel + retrofit+repository+ dagger2+ 缓存+room(实体类+抽象database+dao)
+
+- 避免将应用的入口点(activity,service和广播接收器)指定为数据源; 
+- 在应用的各个模块之间设定明确定义的职责界限; (单一职责)
+- 尽量少公开每个模块的代码 (最小知识)
+- 考虑如何使每个模块可独立测试
+- 专注应用的独特核心,以使其从其他应用中脱颖而出 (使用android架构组件做重复样板)
+- 保留尽可能多的相关数据和最新数据;
+- 将一个数据源指定为单一可信来源;
+
 # 应用基础知识相关
 
 每个 Android 应用都处于各自的安全沙盒中，并受以下 Android 安全功能的保护：
@@ -1017,15 +1027,23 @@ ActivityResultCallback 是单一方法接口，带有 onActivityResult() 方法�
 
 ```
 
-> 允许其他应用启动你的act
+### 奇型屏幕适配
 
-`<activity>` 中添加`<intent-filter>`元素;
+[折叠屏适配](https://developer.android.google.cn/guide/topics/ui/foldables)
 
-### 加载器 (28已弃用,推荐使用ViewModels和LiveData组合来处理加载数据)
+[刘海屏适配](https://developer.android.google.cn/guide/topics/display-cutout#best_practices_for_display_cutout_support)
 
-Loader Api
+### 应用快捷方式
 
-- 加载器在单独的线程上运行，以免界面出现卡顿或无响应问题。
-- 加载器可在事件发生时提供回调方法，从而简化线程管理。
-- 加载器会保留和缓存配置变更后的结果，以免出现重复查询问题。
-- 加载器可实现观察器，从而监控基础数据源的变化。例如，CursorLoader 会自动注册 ContentObserver，以在数据变更时触发重新加载。
+app长按的[快捷方式](https://developer.android.google.cn/guide/topics/ui/shortcuts)
+
+### 应用微件
+
+自定义主屏幕的一个方面 [appwidgets](https://developer.android.google.cn/guide/topics/appwidgets/overview)
+
+### 常用架构组件
+
+[应用启动优化](https://developer.android.google.cn/topic/libraries/app-startup)
+
+[视图绑定](https://developer.android.google.cn/topic/libraries/view-binding)
+
