@@ -658,18 +658,6 @@ tips: 在根据屏幕尺寸限定符选择资源时，如果没有更好的匹�
 
 ![Activity 生命周期的简化图示。](https://developer.android.google.cn/guide/components/images/activity_lifecycle.png)
 
-
-### [生命周期感知型组件](https://developer.android.google.cn/topic/libraries/architecture/lifecycle)
-
-`Lifecycle`  用于存储有关组件（如 Activity 或 Fragment）的生命周期状态的信息，并允许其他对象观察此状态。
-
-- 事件 : 从框架和 Lifecycle 类分派的生命周期事件。这些事件映射到 Activity 和 Fragment 中的回调事件。
-- 状态 : 由 Lifecycle 对象跟踪的组件的当前状态。
-
-可以将状态看作图中的节点，将事件看作这些节点之间的边。
-
-![构成 Android Activity 生命周期的状态和事件](https://developer.android.google.cn/images/topic/libraries/architecture/lifecycle-states.svg)
-
 ### 管理任务和返回堆栈
 
 任务是用户在执行某项工作时与之互动的一系列 Activity 的集合。
@@ -819,34 +807,6 @@ FragmentB ->FragmentA
 ### 与其他Fragment通信;
 
 所有fragment与fragment的通信都是通过共享的`ViewModel`或关联的`Activity`来完成的;两个Fragment是不能直接通信的; 否则只能使用接口回调实现;
-
-### Intent
-
->验证是否存在可接受的Intent应用
-
-如果设备上没有能处理Intent的应用,则直接崩溃,`packageManager.queryIntentActivities`获取能处理Intent的activity列表;
-
->Intent多个匹配下,显示应用选择器
-
-使用`createChooser()`创建Intent,并调用startActivity; 会显示一个对话框,包含可响应传递给createChooser方法的Intent应用列表,并提供文本用作对话框标题;
-
-```
-
-	val intent = Intent(Intent.ACTION_SEND)
-    ...
-
-    // Always use string resources for UI text.
-    // This says something like "Share this photo with"
-    val title = resources.getString(R.string.chooser_title)
-    // Create intent to show chooser
-    val chooser = Intent.createChooser(intent, title)
-
-    // Verify the intent will resolve to at least one activity
-    if (intent.resolveActivity(packageManager) != null) {
-        startActivity(chooser)
-    }
-
-```
 
 ### 新版应用互动回调获取结果  (懵逼V-V)
 
@@ -1452,7 +1412,7 @@ ObservableMap取字面量
 
 单一方法接口,表示类具有`Lifecycle`;  可以让各个组件存储自己的生命周期逻辑,可使act和frag逻辑更易于管理;
 
-Lifecycle 类允许其他对象查询当前状态;
+`Lifecycle`  用于存储有关组件（如 Activity 或 Fragment）的生命周期状态的信息，并允许其他对象观察此状态。
 
 使用`LifecycleRegistry`类使自定义类成为`LifecycleOwner`,但需要将事件转发到该类;
 
@@ -1478,7 +1438,84 @@ Lifecycle 类允许其他对象查询当前状态;
 
 ```
 
->生命感知的最佳做法
+>生命感知型组件的最佳做法
+
+- 界面控制器(act,frag) 使用ViewModel获取自己的数据,观察LiveData对象将更改体现到视图中;
+- 数据驱动型界面; 
+- 数据逻辑放在ViewModel类中;数据的获取可通过Repository封装;
+- 使用DataBing在视图和界面控制器维持干净的接口,ButterKnife之类;
+- 界面复杂,考虑Presenter类处理界面的更改;
+- 避免在ViewModel中引用View或Activity上下文;
+- 使用kotlin协程管理长时间运行的任务和其他可以异步运行的操作;
+
+[分页库](https://developer.android.google.cn/topic/libraries/architecture/paging)
+
+[room持久库](https://developer.android.google.cn/topic/libraries/architecture/room)
+
+>[ViewModel](https://developer.android.google.cn/topic/libraries/architecture/viewmodel#java)
+
+对象存在的时间范围是获取 ViewModel 时传递给 ViewModelProvider 的 Lifecycle。ViewModel 将一直留在内存中，直到限定其存在时间范围的 Lifecycle 永久消失; 多次调用onCreate时,时间范围为首次请求ViewModel的时候;
+
+![](https://developer.android.google.cn/images/topic/libraries/architecture/viewmodel-lifecycle.png)
+
+### WorkManager 调度任务
+
+可以轻松地调度即使在应用退出或设备重启时仍应运行的**可延迟**异步任务
+
+- 最高向后兼容到 API 14
+	- 在运行 API 23 及以上级别的设备上使用 JobScheduler
+	- 在运行 API 14-22 的设备上结合使用 BroadcastReceiver 和 AlarmManager
+- 添加网络可用性或充电状态等工作约束
+- 调度一次性或周期性异步任务
+- 监控和管理计划任务
+- 将任务链接起来
+- 确保任务执行，即使应用或设备重启也同
+- 样执行任务
+- 遵循低电耗模式等省电功能
+
+[WorkManger 官方指南](https://developer.android.google.cn/topic/libraries/architecture/workmanager/basics)
+
+-------
+
+### 导航
+
+导航是指支持用户导航、进入和退出应用中不同内容片段的交互。
+
+[导航](https://developer.android.google.cn/guide/navigation/navigation-principles)
+
+### Intent
+
+Intent 是一个消息传递对象，您可以用来从其他应用组件请求操作。
+
+- 启动Activity
+- 启动服务
+- 传递广播
+
+>验证是否存在可接受的Intent应用
+
+如果设备上没有能处理Intent的应用,则直接崩溃,`packageManager.queryIntentActivities`获取能处理Intent的activity列表;
+
+>Intent多个匹配下,显示应用选择器
+
+使用`createChooser()`创建Intent,并调用startActivity; 会显示一个对话框,包含可响应传递给createChooser方法的Intent应用列表,并提供文本用作对话框标题;
+
+```
+
+	val intent = Intent(Intent.ACTION_SEND)
+    ...
+
+    // Always use string resources for UI text.
+    // This says something like "Share this photo with"
+    val title = resources.getString(R.string.chooser_title)
+    // Create intent to show chooser
+    val chooser = Intent.createChooser(intent, title)
+
+    // Verify the intent will resolve to at least one activity
+    if (intent.resolveActivity(packageManager) != null) {
+        startActivity(chooser)
+    }
+
+```
 
 
 
