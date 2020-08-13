@@ -1047,3 +1047,438 @@ app长按的[快捷方式](https://developer.android.google.cn/guide/topics/ui/s
 
 [视图绑定](https://developer.android.google.cn/topic/libraries/view-binding)
 
+#### [数据绑定](https://developer.android.google.cn/topic/libraries/data-binding)
+
+>可观察字段
+
+- ObservableBoolean 
+- ObservableByte
+- ObservableChar
+- ObservableInt
+- ObservableShort
+- ObservableLong
+- ObservableFloat
+- ObservableDouble
+- ObservableParcelable
+
+
+```
+
+	val firstName = ObservableField<String>()
+
+```
+
+>可观察集合
+
+- ObservableArrayMap<String,Any>()
+- ObservableArrayList<Any>()
+
+```
+
+	<import type="android.databinding.ObservableMap"/>
+        <variable name="user" type="ObservableMap<String, Object>"/>
+
+
+	<import type="android.databinding.ObservableList"/>
+        <import type="com.example.my.app.Fields"/>
+        <variable name="user" type="ObservableList<Object>"/>
+
+```
+
+>可观察对象
+
+`BaseObservable` 负责在属性更改时发出通知; getter 分配`Bindable`注释,setter调用`notifyPropertyChanged`方法;
+
+数据绑定在模块包中生成一个名为BR的类,该类包含用于数据绑定的资源的ID; 编译期间,Bindable注释会在BR类文件中生成一个条目; 如果数据类的基类无法更改,可以使用`PropertyChangeRegistry`对象实现,以便有效地注册和通知监听器;
+
+```
+
+	class User : BaseObservable() {
+
+        @get:Bindable
+        var firstName: String = ""
+            set(value) {
+                field = value
+                notifyPropertyChanged(BR.firstName)
+            }
+
+        @get:Bindable
+        var lastName: String = ""
+            set(value) {
+                field = value
+                notifyPropertyChanged(BR.lastName)
+            }
+    }
+
+```
+
+##### 绑定类的生成
+
+`extends ViewDataBinding` ; 
+
+默认情况下,类文件基于布局文件的名称,按照驼峰法则的命名再添加Binding的后缀;
+
+>绑定对象的创建
+
+- val binding = MyLayoutBinding.inflate(layoutInflater)
+- val binding = MyLayoutBinding.inflate(getLayoutInflater,viewGroup,false)
+- val binding = MyLayoutBinding.bind(viewRoot)
+- var binding = DataBindingUtil.bind(viewRoot)
+	- ListItemBinding.inflate(layoutInflate,viewGroup,false)
+	- DataBindingUtil.inflate(layoutInflate,R.layout.xxx,vg,false)
+
+>ViewStubs
+
+ViewStubProxy 必须监听ViewStub `OnInflateListener`必要时绑定;
+
+>即时绑定
+
+`executePendingBindings`
+
+>高级绑定
+
+针对于 `RecyclerView.Adapter` 系统不知道特定的绑定类; 在以下示例中，RecyclerView 绑定到的所有布局都有 item 变量。BindingHolder 对象具有一个 getBinding() 方法，这个方法返回 ViewDataBinding 基类。
+
+```
+
+	//数据绑定库在模块包中生成一个名为 BR 的类，其中包含用于数据绑定的资源的 ID。在上例中，该库自动生成 BR.item 变量。
+	 override fun onBindViewHolder(holder: BindingHolder, position: Int) {
+        item: T = items.get(position)
+        holder.binding.setVariable(BR.item, item);
+        holder.binding.executePendingBindings();
+    }
+
+```
+
+##### 绑定适配器
+
+绑定适配器负责发出相应的框架调用类设置值,允许您通过使用适配器指定为设置值而调用的方法、提供您自己的绑定逻辑，以及指定返回对象的类型。
+
+- 自动选择方法,`app:setter`方法;
+- 自定义方法名称
+
+```
+
+	//将tint 和setimagetintlist绑定在一起;
+	  @BindingMethods(value = [
+        BindingMethod(
+            type = android.widget.ImageView::class,
+            attribute = "android:tint",
+            method = "setImageTintList")])
+
+```
+
+- 自定义逻辑
+
+使用`BindingAdapter`注释的静态绑定适配器方法支持自定义特性setter的调用方式;
+
+数据绑定库在匹配时会忽略自定义命名空间。
+
+
+
+```
+	
+	//参数类型非常重要,第一个参数用于确定与特性关联的视图类型;
+	//第二个参数用于确定在给定特性的绑定表达式中接受的类型;
+	 @BindingAdapter("android:paddingLeft")
+    @JvmStatic fun setPaddingLeft(view: View, padding: Int) {
+        view.setPadding(padding,
+                    view.getPaddingTop(),
+                    view.getPaddingRight(),
+                    view.getPaddingBottom())
+    }
+
+	@BindingAdapter(value =["imageUrl","error"],requireAll=false)
+	@JvmStatic fun loadImage(view: ImageView, url: String?, error: Drawable?) {
+        Picasso.get().load(url).error(error).into(view)
+    }
+
+	<ImageView app:imageUrl="@{venue.imageUrl}" app:error="@{@drawable/venueError}" />
+
+```
+
+可选择性的在处理程序中使用旧值; 同时获取旧值和新值的方法应该先为属性声明所有旧值,然后再声明新值;
+
+```
+
+	@BindingAdapter("android:onLayoutChange")
+    fun setOnLayoutChangeListener(
+            view: View,
+            oldValue: View.OnLayoutChangeListener?,
+            newValue: View.OnLayoutChangeListener?
+    ) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            if (oldValue != null) {
+                view.removeOnLayoutChangeListener(oldValue)
+            }
+            if (newValue != null) {
+                view.addOnLayoutChangeListener(newValue)
+            }
+        }
+    }
+
+	<View android:onLayoutChange="@{() -> handler.layoutChanged()}"/>
+
+```
+
+如果监听器有多个方法时,必须拆分成多个监听器;
+
+```
+
+	
+	@BindingAdapter(
+            "android:onViewDetachedFromWindow",
+            "android:onViewAttachedToWindow",
+            requireAll = false
+    )
+    fun setListener(view: View, detach: OnViewDetachedFromWindow?, attach: OnViewAttachedToWindow?) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+            val newListener: View.OnAttachStateChangeListener?
+            newListener = if (detach == null && attach == null) {
+                null
+            } else {
+                object : View.OnAttachStateChangeListener {
+                    override fun onViewAttachedToWindow(v: View) {
+                        attach.onViewAttachedToWindow(v)
+                    }
+
+                    override fun onViewDetachedFromWindow(v: View) {
+                        detach.onViewDetachedFromWindow(v)
+                    }
+                }
+            }
+
+			//android.databinding.adapters.ListenerUtil 类有助于跟踪以前的监听器，以便在绑定适配器中将它们移除。
+            val oldListener: View.OnAttachStateChangeListener? =
+                    ListenerUtil.trackListener(view, newListener, R.id.onAttachStateChangeListener)
+            if (oldListener != null) {
+                view.removeOnAttachStateChangeListener(oldListener)
+            }
+            if (newListener != null) {
+                view.addOnAttachStateChangeListener(newListener)
+            }
+        }
+    }
+
+```
+
+- 对象转换
+
+ObservableMap取字面量
+
+`android:text='@{userMap["lastName"]}'`  
+
+"@{userMap[`lastName`]}"
+
+
+`BindingConversion` 注释静态方法完成转换
+
+```
+
+	 @BindingConversion
+    fun convertColorToDrawable(color: Int) = ColorDrawable(color)
+
+	android:background="@{isError ? @color/red : @color/white}"
+
+```
+
+##### 布局视图的绑定
+
+```
+
+	class ViewModelActivity extends AppCompatActivity {
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            // Obtain the ViewModel component. 
+			// kotlin 简写:  val userModel: UserModel by viewModels()
+            UserModel userModel = new ViewModelProvider(this).get(UserModel.class);
+
+            // Inflate view and obtain an instance of the binding class.
+            UserBinding binding = DataBindingUtil.setContentView(this, R.layout.user);
+
+            // Assign the component to a property in the binding class.
+            binding.viewmodel = userModel;
+        }
+    }
+
+```
+
+实现 ObservableViewModel 更好的控制绑定适配器
+
+```
+
+	/**
+     * A ViewModel that is also an Observable,
+     * to be used with the Data Binding Library.
+     */
+    open class ObservableViewModel : ViewModel(), Observable {
+        private val callbacks: PropertyChangeRegistry = PropertyChangeRegistry()
+
+        override fun addOnPropertyChangedCallback(
+                callback: Observable.OnPropertyChangedCallback) {
+            callbacks.add(callback)
+        }
+
+        override fun removeOnPropertyChangedCallback(
+                callback: Observable.OnPropertyChangedCallback) {
+            callbacks.remove(callback)
+        }
+
+        /**
+         * Notifies observers that all properties of this instance have changed.
+         */
+        fun notifyChange() {
+            callbacks.notifyCallbacks(this, 0, null)
+        }
+
+        /**
+         * Notifies observers that a specific property has changed. The getter for the
+         * property that changes should be marked with the @Bindable annotation to
+         * generate a field in the BR class to be used as the fieldId parameter.
+         *
+         * @param fieldId The generated BR id for the Bindable field.
+         */
+        fun notifyPropertyChanged(fieldId: Int) {
+            callbacks.notifyCallbacks(this, fieldId, null)
+        }
+    }
+
+```
+
+##### 双向数据绑定
+
+````
+	
+	//单向数据绑定,
+	<CheckBox
+        android:id="@+id/rememberMeCheckBox"
+        android:checked="@{viewmodel.rememberMe}"
+        android:onCheckedChanged="@{viewmodel.rememberMeChanged}"
+    />
+
+	//双向数据绑定;
+	<CheckBox
+        android:id="@+id/rememberMeCheckBox"
+        android:checked="@={viewmodel.rememberMe}"
+    />
+
+	 class LoginViewModel : BaseObservable {
+        // val data = ...
+
+        @Bindable
+        fun getRememberMe(): Boolean {
+            return data.rememberMe
+        }
+
+        fun setRememberMe(value: Boolean) {
+            // Avoids infinite loops.
+            if (data.rememberMe != value) {
+                data.rememberMe = value
+
+                // React to the change.
+                saveData()
+
+                // Notify observers of a new value.
+                notifyPropertyChanged(BR.remember_me)
+            }
+        }
+    }
+
+```
+
+>自定义特性的双向数据绑定
+
+`@InverseBindingAdapter` , `@InverseBindingMethod`
+
+数据绑定知道在数据发生更改时要执行的操作（调用使用 @BindingAdapter 注释的方法）以及当 view 视特性发生更改时要调用的内容（调用 InverseBindingListener）。
+
+注意不要引入无限循环; 用户更改特性,会调用`@InverseBindingAdapter`注释的方法,并且该值将分配给后备属性; 继而调用使用`@BindingAdapter`注释的方法,从而触发对使用`@InverseBingingAdapter`注释的方法的另一个调用; 通过比较`@BindingAdapter`注释方法中的新值和旧值,打破循环;
+
+```
+
+	@BindingAdapter("time")
+    @JvmStatic fun setTime(view: MyView, newValue: Time) {
+        // Important to break potential infinite loops.
+        if (view.time != newValue) {
+            view.time = newValue
+        }
+    }
+
+	@InverseBindingAdapter("time")
+    @JvmStatic fun getTime(view: MyView) : Time {
+        return view.getTime()
+    }
+
+	//在视图上设置监听器; 用监听器告知view视图特性已更改;
+	@BindingAdapter("app:timeAttrChanged")
+    @JvmStatic fun setListeners(
+            view: MyView,
+            attrChange: InverseBindingListener
+    ) {
+        // Set a listener for click, focus, touch, etc.
+    }
+
+```
+
+>转换器
+
+`InverseMethod` 注释引用反向转换器;
+
+```
+
+	android:text="@={Converter.dateToString(viewmodel.birthDate)}"
+
+	//双向表达式的反向转换器;
+	object Converter {
+        @InverseMethod("stringToDate")
+        @JvmStatic fun dateToString(
+            view: EditText, oldValue: Long,
+            value: Long
+        ): String {
+            // Converts long to String.
+        }
+
+        @JvmStatic fun stringToDate(
+            view: EditText, oldValue: String,
+            value: String
+        ): Long {
+            // Converts String to long.
+        }
+    }
+
+```
+
+###  处理生命周期 LifecycleOwner 
+
+单一方法接口,表示类具有`Lifecycle`;  可以让各个组件存储自己的生命周期逻辑,可使act和frag逻辑更易于管理;
+
+Lifecycle 类允许其他对象查询当前状态;
+
+使用`LifecycleRegistry`类使自定义类成为`LifecycleOwner`,但需要将事件转发到该类;
+
+```
+
+	class MyObserver : LifecycleObserver {
+
+        @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+        fun connectListener() {
+            ...
+        }
+
+        @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+        fun disconnectListener() {
+            ...
+        }
+    }
+
+    myLifecycleOwner.getLifecycle().addObserver(MyObserver())
+
+	//判断当前状态至少处于start状态
+	lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+
+```
+
+>生命感知的最佳做法
+
+
+
