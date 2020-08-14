@@ -1491,6 +1491,28 @@ Intent 是一个消息传递对象，您可以用来从其他应用组件请求�
 - 启动服务
 - 传递广播
 
+action: intent指定的操作必须与过滤器你中列出的某一操作匹配;
+category: intent中的每个类别均必须与过滤器中的类别匹配; 不含类别的Intent应当始终通过;Intent中指定的类别可少于过滤器中声明的类别;
+data:  `<scheme>://<host>:<port>/<path> 架构/主机/端口/路径` 完全匹配;
+
+
+>PendingIntent
+
+授权外部应用使用包含的Intent,就像是它从应用本身的进程中执行的一样;
+
+- 声明用户使用您的通知执行操作时所要执行的 Intent（Android 系统的 NotificationManager 执行 Intent）。
+- 声明用户使用您的应用微件执行操作时要执行的 Intent（主屏幕应用执行 Intent,appwidget);
+- 声明未来某一特定时间要执行的 Intent（Android 系统的 AlarmManager 执行 Intent）。
+
+声明所需的组件类型:
+
+- PendingIntent.getActivity(),适用于启动Activity的Intent;
+- PendingIntent.getService(),适用于启动Service 的Intent;
+- PendingIntent.getBroadcast(),适用于启动BroadcastReceiver的Intent;
+
+
+![](https://developer.android.google.cn/images/components/intent-filters_2x.png)
+
 >验证是否存在可接受的Intent应用
 
 如果设备上没有能处理Intent的应用,则直接崩溃,`packageManager.queryIntentActivities`获取能处理Intent的activity列表;
@@ -1517,5 +1539,120 @@ Intent 是一个消息传递对象，您可以用来从其他应用组件请求�
 
 ```
 
+[常见Intent](https://developer.android.google.cn/guide/components/intents-common)
+
+### 界面
+
+>ConstraintLayout 
+
+`ConstraintSet` 和`TransitionManager` 添加关键帧动画效果;
+
+```
+
+	fun animateToKeyframeTwo() {
+        val constraintSet = ConstraintSet()
+        constraintSet.load(this, R.layout.keyframe_two)
+        TransitionManager.beginDelayedTransition()
+        constraintSet.applyTo(constraintLayout)
+    }
+
+```
+
+>[MotionLayout](https://developer.android.google.cn/training/constraint-layout/motionlayout/examples)
+
+ConstraintLayout的子类,MotionLayout 缩小了布局转换与复杂运动处理之间的差距，同时在属性动画框架、TransitionManager 和 CoordinatorLayout 之间提供了各种功能。
+
+支持 `可搜索转换`,您可以根据某个条件（例如触控输入）立即显示转换中的任意点。
+
+- 替换ConstraintLayout
+- 创建MotionScene (app:layoutDescription引用MotionScene)
+	- MotionScene 是一个 XML 资源文件，其中包含相应布局的所有运动描述。为了将布局信息与运动描述分开，每个 MotionLayout 都引用一个单独的 MotionScene。请注意，MotionScene 中的定义优先于 MotionLayout 中的任何类似定义。
+
+可实现:  视差滑动
+
+反正挺牛的做触摸动画;
+
+```
+
+	<?xml version="1.0" encoding="utf-8"?>
+    <MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:motion="http://schemas.android.com/apk/res-auto">
+		//包含运动的基本定义
+        <Transition
+			//指的是运动的端点,在后定义;
+            motion:constraintSetStart="@+id/start"
+            motion:constraintSetEnd="@+id/end"
+            motion:duration="1000">
+            <OnSwipe
+				//轻触控制运动; 滑动的视图id;
+                motion:touchAnchorId="@+id/button"
+                motion:touchAnchorSide="right"
+                motion:dragDirection="dragRight" />
+
+			//添加关键帧
+			<KeyFrameSet>
+				<KeyAttribute
+	                android:rotation="-45"
+	                android:scaleX="2"
+	                android:scaleY="2"
+	                motion:framePosition="50"
+	                motion:motionTarget="@id/button" />
+	            <KeyPosition
+	                motion:keyPositionType="pathRelative"
+	                motion:percentY="-0.25"
+	                motion:framePosition="50"
+	                motion:motionTarget="@id/button"/>
+				//添加波状运动;
+				<KeyCycle
+	                android:translationY="50dp"
+	                motion:framePosition="75"
+	                motion:motionTarget="@id/button"
+	                motion:waveOffset="0"
+	                motion:wavePeriod="1"
+	                motion:waveShape="sin" />
+	        </KeyFrameSet>
+        </Transition>
+		
+		//描述您的运动的各种限制条件的位置;
+        <ConstraintSet android:id="@+id/start">
+            <Constraint
+                android:id="@+id/button"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginStart="8dp"
+                motion:layout_constraintBottom_toBottomOf="parent"
+                motion:layout_constraintStart_toStartOf="parent"
+                motion:layout_constraintTop_toTopOf="parent" />
+        </ConstraintSet>
+
+        <ConstraintSet android:id="@+id/end">
+            <Constraint
+                android:id="@+id/button"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginEnd="8dp"
+                motion:layout_constraintBottom_toBottomOf="parent"
+                motion:layout_constraintEnd_toEndOf="parent"
+                motion:layout_constraintTop_toTopOf="parent" />
+        </ConstraintSet>
+
+    </MotionScene>
+
+```
+
+`<CustomAttribute>`自定义属性
+
+```
+
+	<Constraint
+        android:id="@+id/button" ...>
+		//attributeName是必须属性,必须有getter和setter方法的对象匹配;
+		//customColorValue,xxxIntergerxxx,Float,String,customDimension,customBoolean;
+        <CustomAttribute
+            motion:attributeName="backgroundColor"
+            motion:customColorValue="#D81B60"/>
+    </Constraint>
+
+```
 
 
