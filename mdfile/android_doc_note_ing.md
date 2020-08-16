@@ -1654,5 +1654,399 @@ ConstraintLayout的子类,MotionLayout 缩小了布局转换与复杂运动处�
     </Constraint>
 
 ```
+> [布局优化](https://developer.android.google.cn/training/improving-layouts/optimizing-layout)
+
+- ` Hierarchy Viewer ` 显示可用设备及其正在运行的组件的列表。
+- `Lint ` 对布局文件运行 lint 工具来搜索可能的视图层次结构优化机会。
+- `include`,`merge`
+- `ViewStub` 它不会绘制任何内容或参与布局。
+
+>自定义view/viewgroup
+
+[自定义view步骤](https://developer.android.google.cn/training/custom-views/create-view#kotlin)
 
 
+>[表情兼容](https://developer.android.google.cn/guide/topics/ui/look-and-feel/emoji-compat)
+
+EmojiCompat
+
+>[放大镜微件](https://developer.android.google.cn/guide/topics/text/magnifier)
+
+Magnifier
+
+>Span
+
+Span 是强大的标记对象，可用于在字符或段落级别对文本设置样式。
+
+- SpannedString 不可变文本,不可变标记,线性数组
+- SpannableString 不可变文本,可变标记,线性数组
+- SpannableStringBuilder 可变文本,可变标记,区间树
+
+`Spannable.SPAN_EXCLUSIVE_INCLUSIVE` 标记来包含插入的文本，并使用 `Spannable.SPAN_EXCLUSIVE_EXCLUSIV` 标记来排除插入的文本。
+
+
+```
+
+	val spannable = SpannableStringBuilder("Text is spantastic!")
+    spannable.setSpan(
+        ForegroundColorSpan(Color.RED),
+        8, // start
+        12, // end
+        Spannable.SPAN_EXCLUSIVE_INCLUSIVE
+    )
+	//插入其他文本且有样式;
+    spannable.insert(12, "(& fon)")
+
+```
+
+使用span的最佳做法
+
+- 附加或分离span,而不改变底层文本;
+
+- 在TextView中多次设置文本;
+	- 使用`Spannable.Factory`
+- 更改内部Span属性,刷新;
+
+
+
+
+
+
+
+### [后台任务](https://developer.android.google.cn/guide/background)
+
+- 即时任务 
+	- 应在用户离开特定作用域或完成某项互动时结束的任务，Kotlin 协程。
+	-  Java 编程语言用户,android上的线程处理
+	-  应立即执行并需要继续处理的任务，即使用户将应用放在后台运行或重启设备 ,workmanager;
+	-  媒体播放,主动导航,前台服务;
+- 延期任务
+	- workmanager
+- 精确任务
+	- alarmanager
+
+![](https://developer.android.google.cn/images/guide/background/task-category-tree.png)
+
+>在后台线程中android任务
+
+- 创建多个线程 ExecutorService,创建线程的成本很高,可以在应用初始化时仅创建一次线程池,保存在application类或者依赖项注入容器;
+
+- 在后台线程中执行,与主线程通信 viewmodel.postValue()
+
+- Handler
+
+>服务
+
+Service 是一种可在后台执行长时间运行操作而不提供界面的应用组件;
+
+前台-后台-绑定
+
+默认情况下,服务会在应用的主线程中运行;
+
+##### 基础知识
+
+- `onStartCommand()` startService()启动无限期运行服务-> onStartCommand(设置的值可让系统终止服务后重启服务)-> stopSelf/stopService 
+- `onBind` 绑定服务  bindService 返回一个与客户端通信的IBinder接口; 解绑后销毁
+- `onCreate` 首次创建服务;
+- `onDestroy` 销毁时回调;
+
+创建启动服务
+
+- 扩展IntentService
+
+创建默认的工作线程,用于在应用的主线程执行传递给`onStartCommand()`的所有Intent;(就是把主线程的intent,传给子线程中的消息队列中)
+
+创建工作队列,用于将Intent逐一传递给`onHandleIntent()`实现;(在子线程handlerMessage中处理intent)
+
+在处理完所有启动请求后停止服务(在子线程handlerMessage中调用stopSelf)
+
+提供`onBind`的默认实现;null
+
+提供`onStartCommand()`的默认实现,可将Intent依次发送到工作队列和`onHandlerIntent`实现;
+
+- 扩展Service (多线程)
+
+HandlerThread + serviceHandler
+
+onStartCommand 的返回值: 
+
+`START_NOT_STICKY`: 如果系统在 onStartCommand() 返回后终止服务，则除非有待传递的挂起 Intent，否则系统不会重建服务。
+
+`START_STICKY`: 如果系统在 onStartCommand() 返回后终止服务，则其会重建服务并调用 onStartCommand()，但不会重新传递最后一个 Intent。播放器
+
+`START_REDELIVER_INTENT`: 如果系统在 onStartCommand() 返回后终止服务，则其会重建服务，并通过传递给服务的最后一个 Intent 调用 onStartCommand()。 下载
+
+启动服务
+
+`startService -> oncreate(没有运行情况下) ->onStartCommand ` 通信通过Intent; 服务返回结果可通过PengingIntent,传递给服务,服务可通过广播传递结果;
+
+绑定服务
+
+`bindservice -> oncreate -> onbind  -> onUnBind -> onDestroy`
+
+先启动后绑定 `oncreate-> onstartcommand ->onbind -onunbind->onDestroy`
+先绑定后启动 `oncreate ->onbind ->onStartCommand ->onUnbind ->onDestroy`
+
+在前台运行服务
+
+`startForegroundService()`; 9.0 以上需提供`FOREGROUN_SERVICE`普通权限;
+
+`startForeground(int,notification)/stopForeground()` 唯一标志通知的整数(不能我0)和用于状态栏的Notification;
+
+```
+
+	val pendingIntent: PendingIntent =
+	        Intent(this, ExampleActivity::class.java).let { notificationIntent ->
+	            PendingIntent.getActivity(this, 0, notificationIntent, 0)
+	        }
+	
+	val notification: Notification = Notification.Builder(this, CHANNEL_DEFAULT_IMPORTANCE)
+	        .setContentTitle(getText(R.string.notification_title))
+	        .setContentText(getText(R.string.notification_message))
+	        .setSmallIcon(R.drawable.icon)
+	        .setContentIntent(pendingIntent)
+	        .setTicker(getText(R.string.ticker_text))
+	        .build()
+	
+	startForeground(ONGOING_NOTIFICATION_ID, notification)
+
+```
+
+![](https://developer.android.google.cn/images/service_lifecycle.png)
+
+
+
+
+### [性能](https://developer.android.google.cn/topic/performance)
+
+Android Vitals:  
+
+- 崩溃率
+- ANR
+- 唤醒次数过多
+- 唤醒锁定被卡住等指标
+
+问题修复: 
+
+>唤醒锁定被卡住等指标 
+
+`PowerManager` 可让开发者在设备的显示屏关闭后继续保持cpu运行; 可使用`Partial_WAKE_LOCK`标记的acquire()获取部分唤醒锁定,如果在后台保持了较长时间,则会变成卡住状态(用户看不到应用的任何部分);
+
+- 使用新版`WorkManager` 替换; 
+- 确保会释放其获取的所有唤醒锁定;finally;
+
+最佳做法:
+
+- 确保应用的某个部分保留在前台; 启动前台服务,会直观的向用户表名应用在运行;
+- 确保获取和释放唤醒锁定的逻辑尽可能简单;
+
+>过多唤醒
+
+`AlarmManager` 可让开发者设置闹钟以在指定的时间唤醒设备; 可使用 `AlarmManager`中某个带有`RTC_WAKEUP`或`ELAPSED_REALTIME_WAKEUP` 标记的set()方法,当唤醒闹钟时,设备会在执行闹钟的onReceive()或onAlarm()方法期间退出低功耗模式并保持`部分唤醒锁定`;
+
+- 使用新版`WorkManager`替换;
+- 降低闹钟触发频率;
+
+最佳做法:
+
+- 使用`WorkManger` 替换 AlarmManager 调度后台任务;优势如下: 
+	- 批处理 将work合并一起,减少耗电量;
+	- 持久性 如果重新启动设备,则调度的workmanager作业会在重新启动后运行;
+	- 条件 作业可以根据条件(wlan)运行;
+- 使用`Handler`替换AlarmManager调度仅在应用运行期间有效的定时操作;
+
+> ANR
+
+如果应用在界面线程处于阻塞状态的事件过长,会触发ANR(application not response)错误;
+
+排查anr
+
+- 主线程上的耗时操作,跨进程操作耗时长,死锁;
+- 启动严格模式
+- 开发者选项中启动后台anr对话框;
+- TraceView + adb调试;
+
+解决问题:
+
+- 主线程上执行速度缓慢的代码 ,io
+	- 应该将耗时操作移至工作线程; 线程处理的辅助类;
+- 锁争用 1.子线程持有对资源的锁,主线程也获取锁;2. 等待来自工作线程的结果;
+	- 确保持有锁的时间降到最低,或者是否需要持有锁
+	- AsyncTask;
+- 死锁 线程间相互持有对方所需资源的锁;
+- 执行速度缓慢的广播接收器 (1.未执行完onReceive;2.PendingResule对象调完goAsync(),未能调用finish())
+	- 使用IntentService执行长时间的操作;
+	- goAsync()表明需要更多的时间处理消息,不过需要用PendingResult调用finish()回收广播;
+
+>崩溃
+
+排查
+
+- 读取堆栈轨迹;
+- 重现bug;
+
+>呈现速度缓慢
+
+低于60帧/s ,即为卡顿;
+
+- 目视检查
+	- 运行发布版本;
+	- 启动gpu渲染模式分析功能;
+- Systrace
+	- 显示整个设备在做什么,可识别卡顿;
+	- android cpu profiler
+- 自定义性能监控
+	- 三方库 firebase;
+
+常见卡顿来源
+
+- 可滚动列表;
+	- recyclervie 全局刷新
+	- 嵌套recyclerview
+		- 使用共享回收池
+		- layoutmanager `setInitialPrefetchItemCount(int)`表示某个水平行即将显示在屏幕上时,如果界面线程中有空余时间,执行预取该行内容;
+	- recyclerview 膨胀过多,创建时间过长  / 布局绘制用时过长
+		- 合并视图类型
+		- itemview使用ConstraintLayout减少结构视图;
+	- recyclervie 绑定时间过长
+		- onBindView中执行少量的工作;
+	- ListView 扩充
+		- 检查viewholder重用机制
+- 布局性能
+	-  在层次结构的所有叶节点(最低叶节点除外)中避免使用RelativeLayout,避免使用LinearLayout的权重功能;
+	-  约束布局
+
+- 渲染性能
+	- android cpu profiler
+	- 代码优化
+
+- 线程调度延迟
+	- binder调用
+		- 避免调用
+		- 缓存相应值,将工作转移至后台线程;
+
+- 对象分配和垃圾收集
+	- android memory profiler
+
+> 应用启动时间
+
+应用有三种启动状态,每种状态都会影响应用向用户显示所需的时间: 冷启动,温启动或热启动;
+
+冷启动: 从头开始启动,系统进程在冷启动后才创建应用进程;
+
+- 系统加载并启动应用
+- 系统在启动后立即显示应用的空白启动窗口
+- 系统创建应用进程;
+
+![](https://developer.android.google.cn/topic/performance/images/cold-launch.png)
+
+在 `应用创建`和`Activity创建`可能出现性能问题;
+
+
+热启动: 系统将activity带入前台; 如果某些内存因`onTrimMemory`被清理,需要创建相应的对象;
+
+温启动: 介于两者之间;
+	
+- 用户在退出应用后又重新启动应用; 从头开始创建activity.oncreate
+- 系统将应用从内存中逐出,重新启动; 进程和activity需要重启,传递到onCreate的已保存的实例state bundle 可用;
+
+检测方式:
+
+- logcat 包含名为`Displayed`的值,代表从启动进程到在屏幕上完成对activity的绘制所用的时间; 包括`启动进程->初始化对象->创建初始化activity ->扩充布局->首次绘制引用` 
+- `reportFullyDrawn()` 测量从应用启动到完全显示所有资源和视图层次结构所用的时间;  手动调用: 创建应用对象到调用方法所用的时间;
+
+常见问题
+
+- 密集型应用初始化
+	- 延迟初始化对象,单例和依赖注入;
+- 密集型activity初始化
+	-  视图优化
+	-  转移工作线程;
+- 带主题背景的启动屏幕
+	- 使用windowBackground 
+
+### 进程和线程 优化
+
+android单线程模式规则: 
+
+- 不要阻塞ui线程
+- 不要在UI线程外访问android ui工具包;
+
+发送至主线程:
+
+- view.post(Runnable)
+- activity.runOnUiThread(Runnable)
+- Handler
+- AsyncTask
+
+通过线程提升性能:
+
+主线程的设计: 唯一工作就是从线程安全工作队列获取工作块并执行,直到应用被终止; 当有动画或屏幕更新正在进行时,系统每隔16ms尝试执行一个工作块绘制屏幕,从而渲染屏幕;
+
+线程处理的辅助类:
+
+- AsyncTask 单线程处理特性;
+
+- HandlerThread 
+
+- ThreadPoolExecuter
+
+### 缩减应用体量
+
+- 使用Android App Bundle 上传应用 (google play)
+- 使用 Android Size Analyzer  as插件;
+	- 了解 APK 结构 
+- 缩减资源数量和大小;
+	- 移出未使用的资源 lint检测,shrinkResources自动移出不使用的资源;
+	- 尽量减少库中的资源使用量;
+	- 仅支持特定密度
+	- 使用可绘制图像drawable;
+	- 重复使用资源 ,自己处理旋转,着色
+	- 代码渲染
+	- 压缩png
+		- aapt可无损压缩res/drawable的图片资源;
+			- 但不会压缩asset中资源;
+			- aapt可能会扩充已压缩的png文件; 可在gradle中使用`cruncherEnabled`标记png停用此过程;
+	- 压缩png,jpeg
+		- `pngcrush、pngquant 或 zopflipng` 或tinypng;
+	- 使用webp格式/矢量图形;
+- 减少原生和java代码
+	- 避免枚举
+	- 缩减原生二进制文件大小
+
+
+
+>了解Apk结构
+
+apk文件由一个Zip压缩文件组成,其中包含构成应用的所有文件;
+
+- `META-INF` 包含CERT.SF 和 CERT.RSA签名文件,以及MANIFEST.MF清单文件;
+- `assets/` 包含应用的资源; 可使用assetManger获取;
+- `res/` 包含未编译到resources.arsc 中的资源;
+- `lib/` 包含特定于处理器软件层的已编译代码,包含每种平台类型的子目录; 
+- androidmanifest.xml 包含核心android清单文件;
+- resources.arsc 包含已编译的资源,包含res/value中的xml内容;
+- classes.dex 包含以Dalvik/ART虚拟机可理解的DEX文件格式编译的类;
+
+
+```
+
+	 aaptOptions {
+        cruncherEnabled = false
+    }
+
+```
+
+### 应用内存管理
+
+- `onTrimMemory(ComponentCallback2)`回调以响应不同的与内存相关的事件
+- 使用内存效率更高的代码结构
+	- 谨慎使用服务
+	- 使用优化的数据容器
+	- 谨慎对待代码抽象
+	- 避免内存抖动
+
+- 移出会占用大量内存的资源和库
+	- 缩减apk体积;
+	- 依赖注入
+	- 谨慎使用外部库

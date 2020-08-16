@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
@@ -11,6 +12,7 @@ import android.util.SparseArray
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.BaseAdapter
+import android.widget.Magnifier
 import android.widget.TextView
 import com.blankj.utilcode.util.StringUtils
 import com.chad.library.adapter.base.BaseQuickAdapter
@@ -260,8 +262,8 @@ class MainActivity : BaseActivity() {
                 if (it.clazz == ContainerActivity::class.java && clazzCode != null && clazzCode != -1) {
                     mSecretString.put(clazzCode, item)
                     clickItemByCode(clazzCode)
-                } else if(it.clazz == RecentActivity::class.java){
-                    mContext.startActivity(Intent(mContext,it.clazz).apply {
+                } else if (it.clazz == RecentActivity::class.java) {
+                    mContext.startActivity(Intent(mContext, it.clazz).apply {
                         addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS)
                         addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
                     })
@@ -303,6 +305,12 @@ class MainActivity : BaseActivity() {
 
     //----------------EXTRA CLASS------------------
     class MyAdapter<T>(layoutId: Int, mDataList: List<T>? = null) : BaseQuickAdapter<T, BaseViewHolder>(layoutId, mDataList) {
+        var longPressFlag: Boolean = false
+
+        init {
+
+        }
+
         override fun convert(helper: BaseViewHolder?, item: T?) {
             if (item is OrientVo) {
                 helper?.apply {
@@ -329,6 +337,37 @@ class MainActivity : BaseActivity() {
                             setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.text_second_color))
                         }
                     }
+
+                    //magnifier
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        longPressFlag = false
+                        var magnifier: Magnifier? = null
+                        val viewPosition = IntArray(2)
+                        itemView?.setOnTouchListener { v, event ->
+                            if (longPressFlag) {
+                                when (event.actionMasked) {
+                                    MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+                                        if (magnifier == null) {
+                                            magnifier = Magnifier(helper.itemView)
+                                        }
+                                        v.getLocationOnScreen(viewPosition)
+                                        magnifier?.show(event.rawX - viewPosition[0], event.rawY - viewPosition[1])
+                                    }
+                                    MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
+                                        magnifier?.dismiss()
+                                    }
+                                }
+                            }
+                            return@setOnTouchListener false
+                        }
+                        itemView?.setOnLongClickListener {
+                            longPressFlag = true
+                            return@setOnLongClickListener true
+                        }
+
+                    } else {
+                    }
+
                 }
             }
         }

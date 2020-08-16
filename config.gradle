@@ -19,10 +19,10 @@ ext {
             rxandroid_version         : "2.0.1",
             lottie_version            : "2.7.0",
             blackjutil_version        : "1.26.0",
-            glide_core_version         : "4.7.1",
+            glide_core_version        : "4.7.1",
 //            glide_core_version        : "4.11.0",
             glide_compiler_version    : "4.11.0",
-            facebook_webp_version     : "2.0.0",
+            facebook_webp_version     : "1.9.0",
             okhttp_version            : "3.10.0",
             okhttp_integration_version: "4.6.1",
             ijkplayer_java_version    : "0.8.8",
@@ -38,27 +38,27 @@ ext {
 //    android support & third party;
     dependencies = [
             //android support
-            appcompatV7             : "com.android.support:appcompat-v7:${dependencyVersion.supportLibraryVersion}",
-            supportV4               : "com.android.support:support-v4:${dependencyVersion.supportLibraryVersion}",
-            support_annotations     : "com.android.support:support-annotations:${dependencyVersion.supportLibraryVersion}",
-            support_design          : "com.android.support:design:${dependencyVersion.supportLibraryVersion}",
-            support_recyclerview    : "com.android.support:recyclerview-v7:${dependencyVersion.supportLibraryVersion}",
-            support_cardview        : "com.android.support:cardview-v7:${dependencyVersion.supportLibraryVersion}",
-            support_palette         : "com.android.support:palette-v7:${dependencyVersion.supportLibraryVersion}",
-            constraint_layout       : "com.android.support.constraint:constraint-layout:${dependencyVersion.constraintVersion}",
+            appcompatV7                   : "com.android.support:appcompat-v7:${dependencyVersion.supportLibraryVersion}",
+            supportV4                     : "com.android.support:support-v4:${dependencyVersion.supportLibraryVersion}",
+            support_annotations           : "com.android.support:support-annotations:${dependencyVersion.supportLibraryVersion}",
+            support_design                : "com.android.support:design:${dependencyVersion.supportLibraryVersion}",
+            support_recyclerview          : "com.android.support:recyclerview-v7:${dependencyVersion.supportLibraryVersion}",
+            support_cardview              : "com.android.support:cardview-v7:${dependencyVersion.supportLibraryVersion}",
+            support_palette               : "com.android.support:palette-v7:${dependencyVersion.supportLibraryVersion}",
+            constraint_layout             : "com.android.support.constraint:constraint-layout:${dependencyVersion.constraintVersion}",
 
             //kotlin support
-            kotlin_stdlib           : "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",
-            kotlin_stdlib_jdk8      : "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version",
-            kotlin_stdlib_common    : "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version",
-            kotlin_stdlib_coroutines: "org.jetbrains.kotlinx:kotlinx-coroutines-core:${dependencyVersion.kotlin_lib_version}",
+            kotlin_stdlib                 : "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",
+            kotlin_stdlib_jdk8            : "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version",
+            kotlin_stdlib_common          : "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version",
+            kotlin_stdlib_coroutines      : "org.jetbrains.kotlinx:kotlinx-coroutines-core:${dependencyVersion.kotlin_lib_version}",
 
             //multidex support
-            android_multidex        : "com.android.support:multidex:${dependencyVersion.multidex_version}",
+            android_multidex              : "com.android.support:multidex:${dependencyVersion.multidex_version}",
 
             //rxjava support
-            rxjava2_core            : "io.reactivex.rxjava2:rxjava:${dependencyVersion.rxjava_version}",
-            rxandroid_core          : "io.reactivex.rxjava2:rxandroid:${dependencyVersion.rxandroid_version}",
+            rxjava2_core                  : "io.reactivex.rxjava2:rxjava:${dependencyVersion.rxjava_version}",
+            rxandroid_core                : "io.reactivex.rxjava2:rxandroid:${dependencyVersion.rxandroid_version}",
 
             //DI support
 //            implementation "com.google.dagger:dagger:$rootProject.dagger2Version"
@@ -67,32 +67,37 @@ ext {
 //            implementation "com.google.dagger:dagger-android-support:$rootProject.dagger2Version"
 
             //network support
-            okhttp3_core            : "com.squareup.okhttp3:okhttp:${dependencyVersion.okhttp_version}",
-            okhttp3_integration     : "com.github.bumptech.glide:okhttp3-integration:${dependencyVersion.okhttp_integration_version}",
+            okhttp3_core                  : "com.squareup.okhttp3:okhttp:${dependencyVersion.okhttp_version}",
+            okhttp3_integration           : "com.github.bumptech.glide:okhttp3-integration:${dependencyVersion.okhttp_integration_version}",
 //            compile 'com.squareup.retrofit2:retrofit:2.3.0'
 //            compile 'com.squareup.retrofit2:converter-gson:2.3.0'//对序列化和反序列化的转化;
 //            compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'//对Call对象的转化为Observe对象
 
             //animation
-            lottie_lib              : "com.airbnb.android:lottie:${dependencyVersion.lottie_version}",
+            lottie_lib                    : "com.airbnb.android:lottie:${dependencyVersion.lottie_version}",
 
             //commonutil
-            blackj_util             : "com.blankj:utilcode:${dependencyVersion.blackjutil_version}",
+            blackj_util                   : "com.blankj:utilcode:${dependencyVersion.blackjutil_version}",
 
-            //webp support
-            glide_lib               : "com.github.bumptech.glide:glide:${dependencyVersion.glide_core_version}",
-            glide_compiler_lib      : "com.github.bumptech.glide:compiler:${dependencyVersion.glide_compiler_version}",
-            facebook_webp           : "com.facebook.fresco:animated-webp:${dependencyVersion.facebook_webp_version}",
+            //webp support   依赖不了的话 1.9.0 <->2.0.0 互换,gradle 真是活见鬼的bug;
+            glide_lib                     : "com.github.bumptech.glide:glide:${dependencyVersion.glide_core_version}",
+            glide_compiler_lib            : "com.github.bumptech.glide:compiler:${dependencyVersion.glide_compiler_version}",
+            facebook_webp                 : "com.facebook.fresco:animated-webp:${dependencyVersion.facebook_webp_version}",
+            facebook_gif                  : "com.facebook.fresco:animated-gif:${dependencyVersion.facebook_webp_version}",
+            facebook_soloader             : "com.facebook.soloader:soloader:0.6.0",
+            facebook_imagepipeline_base   : "com.facebook.fresco:imagepipeline-base:${dependencyVersion.facebook_webp_version}",
+            facebook_imagepipeline        : "com.facebook.fresco:imagepipeline:${dependencyVersion.facebook_webp_version}",
+            facebook_webpsupport          : "com.facebook.fresco:webpsupport:${dependencyVersion.facebook_webp_version}",
 
             //videoplayer support
-            ijkplayer_java          : "tv.danmaku.ijk.media:ijkplayer-java:${dependencyVersion.ijkplayer_java_version}",
-            ijkplayer_armv7a        : "tv.danmaku.ijk.media:ijkplayer-armv7a:${dependencyVersion.ijkplayer_armv7a_version}",
-            videocache_core         : "com.danikula:videocache:${dependencyVersion.videocache_version}",
-            exoplayer_core          : "com.google.android.exoplayer:exoplayer:${dependencyVersion.exoplayer_version}",
+            ijkplayer_java                : "tv.danmaku.ijk.media:ijkplayer-java:${dependencyVersion.ijkplayer_java_version}",
+            ijkplayer_armv7a              : "tv.danmaku.ijk.media:ijkplayer-armv7a:${dependencyVersion.ijkplayer_armv7a_version}",
+            videocache_core               : "com.danikula:videocache:${dependencyVersion.videocache_version}",
+            exoplayer_core                : "com.google.android.exoplayer:exoplayer:${dependencyVersion.exoplayer_version}",
 
             //customview support
-            flycotablayout_lib      : "com.flyco.tablayout:FlycoTabLayout_Lib:${dependencyVersion.flycotablayout_version}",
-            smartrefresh_lib        : "com.scwang.smartrefresh:SmartRefreshLayout:${dependencyVersion.smartrefresh_core_version}",
-            smartrefresh_header_lib : "com.scwang.smartrefresh:SmartRefreshHeader:${dependencyVersion.smartrefresh_core_version}",
+            flycotablayout_lib            : "com.flyco.tablayout:FlycoTabLayout_Lib:${dependencyVersion.flycotablayout_version}",
+            smartrefresh_lib              : "com.scwang.smartrefresh:SmartRefreshLayout:${dependencyVersion.smartrefresh_core_version}",
+            smartrefresh_header_lib       : "com.scwang.smartrefresh:SmartRefreshHeader:${dependencyVersion.smartrefresh_core_version}",
     ]
 }

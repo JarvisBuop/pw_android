@@ -53,6 +53,10 @@
         <activity android:name=".ui.act.RecentActivity"
             android:screenOrientation="portrait"/>
 
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
+
     </application>
 
 </manifest>

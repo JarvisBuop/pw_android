@@ -98,6 +98,12 @@ dependencies {
     api rootProject.ext.dependencies.glide_lib
 //    annotationProcessor rootProject.ext.dependencies.glide_compiler_lib
     api rootProject.ext.dependencies.facebook_webp
+    api rootProject.ext.dependencies.facebook_gif
+    api rootProject.ext.dependencies.facebook_soloader
+    api rootProject.ext.dependencies.facebook_imagepipeline_base
+    api rootProject.ext.dependencies.facebook_imagepipeline
+    api rootProject.ext.dependencies.facebook_webpsupport
+
     api rootProject.ext.dependencies.okhttp3_core
     api rootProject.ext.dependencies.okhttp3_integration
 
