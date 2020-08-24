@@ -233,7 +233,6 @@ FLAG_ACTIVITY_MULTIPLE_TASK: 此设置支持同一文档在多个任务中打开
 
 - 将 `<activity>` 属性 android:excludeFromRecents 设置为 true，即可始终将任务从最近使用的应用屏幕中完全排除。
 - 将 `<activity>` 属性 android:maxRecents 设置为一个整数，即可设置您的应用可在最近使用的应用屏幕中包含的最大任务数。默认值为 16。一旦达到最大任务数，最早使用的任务将从最近使用的应用屏幕中移除。android:maxRecents 最大值为 50（内存较低的设备上为 25）；小于 1 的值无效。
-- 
 
 #### [启动模式 || 使用Intent标记](https://developer.android.google.cn/guide/components/activities/tasks-and-back-stack)
 

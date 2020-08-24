@@ -65,6 +65,8 @@ spraseArray 可代替hashmap
 
 临时的对象数组使用transient,不参与序列化,使用writeObje和readObj代替(内存流);
 
+初始容器大小为10, `grow`方法扩容,扩容方法为`int newCapacity = oldCapacity + (oldCapacity >> 1);` 扩容1.5倍; 最大size 为`Integer.MAX_VALUE -8` 超过Int的最大值成为负数则抛出oom; 再通过`System.arraycopy`将origin数组考进来,将额外的扩容数据赋值;
+
 >LinkList 
 
 链表结构存储数据,遍历查找代价高,删除插入代价低; 可当做堆栈,队列和双向队列使用;
@@ -506,7 +508,6 @@ jvm会保证子类的`<clinit>`函数执行之前,父类的`<clinit>`方法已�
 	- 第二种方式是构造自定义类加载器时指定父类加载器为null,会使用启动类加载器加载,启动类加载器加载路径找不到会使用当前类加载器加载;
 
 
-
 ### 多线程和线程池
 
 >Runnable,Callable,Future,FutureTask
@@ -548,21 +549,21 @@ newScheduleThreadPool: 固定核心线程数量,总线程数为整数最大值;
 
 > 线程间通信,线程同步和线程调度相关的方法:sleep,wait ,yield,join 等方法区别?
 
-- sleep: Thread 的静态本地方法; 休眠当前线程指定时间,释放cpu资源,`不释放对象锁`,休眠时间到自动苏醒继续执行;  给其他线程执行机会的最佳方式;
+- sleep: Thread 的静态本地方法; 休眠当前线程指定时间,`释放cpu资源`,`不释放对象锁`,休眠时间到自动苏醒继续执行;  给其他线程执行机会的最佳方式;
 
 sleep使线程进入`Timed_Waiting`状态;
 
-- wait: Object的成员本地方法; 只能在同步方法或同步代码块中使用; 如果wait,`放弃持有的对象锁`,将thread加入到锁对象的`wait set` 等待池中; 释放cpu资源,让锁资源;当该对象调用notify/notifyAll后才有机会竞争获取对象锁,进入运行状态;
+- wait: Object的成员本地方法; 只能在同步方法或同步代码块中使用; 如果wait,`放弃持有的对象锁`,将thread加入到锁对象的`wait set` 等待池中; `释放cpu资源,让锁资源`;当该对象调用notify/notifyAll后才有机会竞争获取对象锁,进入运行状态;
 
 wait()会释放锁,释放锁的前提是获得锁,所以必须在同步方法/代码块中使用;
 
 使调用方法的线程进入到`Waiting`状态;
 
-- yield: 给其他线程执行的机会;由运行状态进入到就绪状态,释放cpu,不释放已经持有的锁; 让相同优先级的线程轮流执行,但不保证一定会轮流执行,不阻塞;
+- yield: 给其他线程执行的机会;由运行状态进入到就绪状态,`释放cpu`,`不释放已经持有的锁`; 让相同优先级的线程轮流执行,但不保证一定会轮流执行,不阻塞;
 
 - notify: 唤醒一个处于等待状态的线程,notifyall 唤醒所有处于等待的线程,竞争锁资源;
 
-- join: 先执行join的线程的内容,后执行当前线程的内容,不释放已经持有的锁;
+- join: 先执行join的线程的内容,后执行当前线程的内容,`释放已经持有的锁`,`抢占cpu`;
 
 - interrupt: 中断一个线程,给这个线程一个通知信号,会影响这个线程内部的一个中断标志位,这个线程本身并不会因此而改变状态(阻塞,终止等);
 
@@ -963,11 +964,11 @@ finalize 垃圾回收调用的方法;
 
 - @Retention: 注解的生命周期,被保留的时间长短;
 
-Source 源文件保留,编译字节码时丢弃;
+Source 源文件保留,编译字节码时丢弃; (apt 生成文件;可标记类型,限制参数取值,替代枚举;)
 
-Class 字节码保留,加载到jvm时丢弃;
+Class 字节码保留,加载到jvm时丢弃; (aspectJ,动态代理修改字节码文件)
 
-Runtime 运行时保留,不丢弃;
+Runtime 运行时保留,不丢弃; (可反射)
 
 - @Documented : 注解是否应当被包含在JavaDoc文档中;
 
@@ -977,9 +978,9 @@ Runtime 运行时保留,不丢弃;
 
 个人理解有两种,<br>
 
-一种是直接`反射`获取Annotation对象,接着通过注解的值处理逻辑; 如retrofit;
+一种是直接`反射`获取Annotation对象(Runtime),接着通过注解的值处理逻辑; 如retrofit;
 
-一种是继承AbstractProcessor接口,如butterknife+apt+javapoet生成代码(最终还是反射);
+一种是继承AbstractProcessor接口(可以是Source),如butterknife+apt+javapoet生成代码(butterknife是Runtime,还是反射);
 
 >注解的本质:
 
@@ -1001,7 +1002,7 @@ Runtime 运行时保留,不丢弃;
 exception 是可以捕获处理, 分为编译时异常(CheckedException)和运行时异常(RuntimeException),RuntimeException不需要捕获,需要处理;
 
 
-### Java的修饰符的使用，static, final修饰原理
+### Java的修饰符的使用
 
 - public: 都可以调用;
 - protected: 包权限和继承权限(继承->同包)
@@ -1153,34 +1154,30 @@ Base64,UrlEncoder
 
 >Android中存储类型;
 
-1. Rom手机内存, SD卡; 都是本地磁盘
-2. 存储SharePreferences
-3. Sqlite 
+- SharedPreference; `/data/data/shared_prefes`
+- sqlite,sqliteopenhelper
+- 内部存储; 应用私有文件,其他应用不能访问这些文件;卸载时会被删除;`/data/data/files`
+- 外部存储; 设备共享;
 
->Ram 
-
-所有文件都是存储在`/data/data/files`目录下;
-
->sp 文件存放在`/data/data/shared_prefes`目录下;
 获取方法3种:
 
 1. context类的getsharedpreference();
 2. activit的getpreference();
 3. preferenceManger类中的getDefaultSharedPreference()方法,使用当前应用程序的包名作为前缀来命名sharedpreferences文件;
 
+
+SharedPrefrences的apply和commit有什么区别
+
+commit为同步提交,apply为异步提交; commit()有返回值,apply无返回值;
+
 > 如何将sqlite数据库(dictionary.db文件)和apk文件一起发布?:
 
-将db文件复制到res raw文件夹中,此文件夹的文件不会压缩,可以直接提取该目录中的文件;
+将db文件复制到res raw文件夹中,此文件夹的文件不会压缩,可以直接提取该目录中的文件; (且此raw文件夹不会限制大小,会生成id,asserts中限制大小1M,且只能通过AssetManager访问;)
 
 > 如何打开res raw 目录中的数据库文件?
 
 在安卓中不能打开res raw 中的数据库文件,需要在程序第一次启动的时候将该文件复制到手机磁盘上(rom,sd卡)的某个目录上,然后在打开数据库文件;<br>
 getResource().openRawResource()获得raw的inputStream对象,写入其他的目录相应文件,使用android sdk的`SQLiteDatabase.OpenOrCreateDatabase()`方法打开任意目录的sqlite数据库文件;
-
-
->SharedPrefrences的apply和commit有什么区别
-
-commit为同步提交,apply为异步提交; commit()有返回值,apply无返回值;
 
 > SQLite的数据库升级用过么
 
@@ -1189,9 +1186,9 @@ SQLiteOpenHelper继承类 onUpdata();不升级的走onCreate方法,其他的就�
 
 ### fragment 相关
 
-依存于act, 
+依存于act, 生命周期共11个方法;
 
-  oncreate : : onattach- oncreate- oncreateView- onActivityCreated (onViewCreated常用)
+oncreate : : onattach- oncreate- oncreateView- onActivityCreated (onViewCreated常用)
 
  onStart :: onStart
 
@@ -1207,7 +1204,7 @@ SQLiteOpenHelper继承类 onUpdata();不升级的走onCreate方法,其他的就�
 
 onCreate: 程序创建的时候运行;
   
-  onTerminate: 程序终止的情况运行;
+  onTerminate: 程序终止的情况运行,不能保证一定调用;
   
   onLowMemory: 低内存的时候运行; 与level一样TRIM_MEMORY_COMPLETE;
   
@@ -1223,8 +1220,7 @@ onCreate: 程序创建的时候运行;
 
 ### 资源管理,屏幕适配
 
-### 问了下昼夜模式、多语种、屏幕适配的问题，追问了下，如果要关闭昼夜模式功能怎么办？很多类
-的话，一个个去关吗？
+### 问了下昼夜模式、多语种、屏幕适配的问题，追问了下，如果要关闭昼夜模式功能怎么办？很多类的话，一个个去关吗？
 
   换肤功能:
   
@@ -1244,9 +1240,9 @@ onCreate: 程序创建的时候运行;
 ![](https://upload-images.jianshu.io/upload_images/4064751-e63fc95fb46afc38.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1000)
 
 
- .java -  .class -  .jar ;  基于栈的架构,每次访问数据cpu都要到内存中取到数据;
+ .java - .class - .jar ; 基于栈的架构,每次访问数据cpu都要到内存中取到数据;
  
-  .java- .class- .dex; 基于寄存器的架构,cpu直接从寄存器中读取数据,寄存器是cpu的一块存储空间;
+ .java- .class- .dex; 基于寄存器的架构,cpu直接从寄存器中读取数据,寄存器是cpu的一块存储空间;
 
  `dalvik jit`(just in time)编译器,在运行时,实时将一部分的dalvik字节码翻译成机器码,jit只翻译一部分,内存小;
 
@@ -1254,121 +1250,217 @@ onCreate: 程序创建的时候运行;
 
 ### 性能优化 （讲讲你自己项目中做过的性能优化）(apk瘦身,电量优化,网络优化)
 
-- 减少apk的体积
+>减少apk的体积
 
- 体积占有大的是`lib`,`res`,`dex`; 减小apk体积主要是缩减so包,资源图片,控制代码质量;
+- 使用`android size analyzer`大小分析插件;
+- 缩减资源数量和大小;
+- 减少原生和java代码
 
- - 使用`progruard 混淆`,不过注意反射机制会被混淆破坏,应该充分回归测试;
- - 使用`Android lint` ,剔除没有使用的资源,analyze- inspecting Code
- - 清理Assert文件夹, 不编译的文件夹;
- - 用`代码代替图片`,shape,RotateDrawable 一张图片,属性动画;layer-list 背景图; 重用资源tint;
- - `放弃一些图片资源`, defaultConfig 配置 resConfigs 指定只打包某些资源;
- - `压缩图片` [pngquant](http://www.cnblogs.com/soaringEveryday/p/5148881.html)
- - `so的优化`,defaultConfig 配置 ndk{} abiFilters 
- - 对三方库重新定制,重新打jar包
- - 动态加载技术(插件化);
+>了解apk的结构:
 
-- 如何实现进程保活
+apk文件由一个Zip压缩文件组成,其中包含构成应用的所有文件;
 
-  进程有优先级,手机杀进程有内存阈值 low memory killer, oom_adj值 越大占用物理内存越多越先被杀,降低oom_adj值就可以保活;
+- `META-INF` 包含CERT.SF 和 CERT.RSA签名文件,以及MANIFEST.MF清单文件;
+- `assets/` 包含应用的资源; 可使用assetManger获取;
+- `res/` 包含未编译到resources.arsc 中的资源;
+- `lib/` 包含特定于处理器软件层的已编译代码,包含每种平台类型的子目录; 
+- androidmanifest.xml 包含核心android清单文件;
+- resources.arsc 包含已编译的资源,包含res/value中的xml内容;
+- classes.dex 包含以Dalvik/ART虚拟机可理解的DEX文件格式编译的类;
 
- - 开启一个像素的Actvity, 系统一般不会杀前台进程,锁屏时开启一个activity,大小1像素透明无切换动画,监听系统锁屏广播,开屏关闭;
- - 前台service,前台进程保活,api<18: startForeground(ID,new Notification())发送空的notification,图标不会显示; api 18,需要提升优先级的serviceA,必须有smallIcon, 启动一个InnerService,两个服务同时startForeground,绑定同一个ID,然后stop innerService,cancel调通知栏图标;
- - 进程相互唤醒;
- - JobScheduler ,系统自带的
- - NotificationListenerService 使用系统服务,不过需要权限`BIND_NOTIFICATION_LISTENER_SERVICE`;
- - 后台播放无声音频mediaplayer;
+体积占有大的是`lib`,`res`,`dex`; 减小apk体积主要是缩减so包,资源图片,控制代码质量;
 
-### 性能优化工具
+- 使用`progruard 混淆`,不过注意反射机制会被混淆破坏,应该充分回归测试;
+- 使用`Android lint` ,剔除没有使用的资源,analyze- inspecting Code
+- 清理Assert文件夹, 不编译的文件夹;
+- 用`代码代替图片`,shape,RotateDrawable 一张图片,属性动画;layer-list 背景图; 重用资源tint;
+- `放弃一些图片资源`, defaultConfig 配置 resConfigs 指定只打包某些资源;
+- `压缩图片` [pngquant](http://www.cnblogs.com/soaringEveryday/p/5148881.html)
+- `so的优化`,defaultConfig 配置 ndk{} abiFilters 
+- 对三方库重新定制,重新打jar包
+- 动态加载技术(插件化);
 
-- 优化工具TraceView
+>Android Vitals(google推出的一项改善android设备的稳定性和性能计划):  
 
- 做热点分析,得到单次执行最耗时的方法,执行次数最多的方法;
- 
- 代码中添加: Debug.startMethodTracing(), Debug.stopMethodTracing();
-/ 
- 打开profile- cpu- record- stop- 查看top down/bottom up;
+包括4大核心指标,其他指标`wifi扫描次数多`,`后台网络使用量高`,`应用启动时间`,`呈现速度缓慢`,`冻结的帧`,`权限遭拒`
 
-- 启动优化加速:
+- 崩溃率
+- ANR
+- 唤醒次数过多
+- 唤醒锁定被卡住等指标
 
- 优化application,activity创建和回调等过程;
- 
- - 使用主题防止白屏;
- 	- 使用 windowBackground 主题属性预先设置一个启动图片,oncreate之前使用setTheme设置或在清单中设置;
- - 减少application的oncreate中逻辑或者延迟加载;
- 	- 可以异步的使用异步,不能异步的尽量延迟;
- 	- 耗时任务可以使用异步加载IntentService;
- - multidex优化(5.0以上默认使用art(aot),而不是diavik(jit),art在安装时已将dex转换为oat了,无需优化)
- 	- 启动时开启一个进程进行multidex的第一次加载,即dex提取和dexopt操作;
- 	- 主线程在后台等待,优化进程执行完毕后通知主进程继续执行,此时执行到multidex是,则已经发现提取优化的dex,直接执行;
+>唤醒锁定被卡住等指标 
 
-- 查看模拟器的sp和sqlist文件,布局嵌套层数,加载时间等;
+`PowerManager` 可让开发者在设备的显示屏关闭后继续保持cpu运行; 可使用`Partial_WAKE_LOCK`标记的acquire()获取部分唤醒锁定,如果在后台保持了较长时间,则会变成卡住状态(用户看不到应用的任何部分);
 
- 查看文件: adb shell 进入linux的命令行,data/data/databases;
+- 使用新版`WorkManager` 替换; 
+- 确保会释放其获取的所有唤醒锁定;finally;
 
- layout inspector工具查看嵌套层数;
+最佳做法:
 
-- mat分析方法以及原理
+- 确保应用的某个部分保留在前台; 启动前台服务,会直观的向用户表名应用在运行;
+- 确保获取和释放唤醒锁定的逻辑尽可能简单;
 
- andrdid studio 采用的是`android profiler` 
-  - 反复操作,堆的大小一直增大,则内存泄露;
-  - 保存为hprof文件,使用tools中的hprof-conv 工具转换;
-  - 使用android MAT工具检测泄露;
+>过多唤醒
 
- 使用库leakcanary检测泄露;
+`AlarmManager` 可让开发者设置闹钟以在指定的时间唤醒设备; 可使用 `AlarmManager`中某个带有`RTC_WAKEUP`或`ELAPSED_REALTIME_WAKEUP` 标记的set()方法,当唤醒闹钟时,设备会在执行闹钟的onReceive()或onAlarm()方法期间退出低功耗模式并保持`部分唤醒锁定`;
 
-### 内存优化(oom,泄露,图片压缩)
+- 使用新版`WorkManager`替换;
+- 降低闹钟触发频率;
 
-### 图片处理 (bitmap 压缩策略,裁剪,复用) Bitmap 使用需要注意哪些问题？Bitmap.recycle() 会立即回收么？什么时候会回收？如果没有地方使用这个 Bitmap，为什么垃圾回收不会直接回收它？
+最佳做法:
 
-bitmap的回收需要自己处理:
- - 临时的bitmap;
- - activity中的bitmap对象,如果是成员变量,需要在onDestory中释放;
- - 使用完毕后,立即手动释放资源,尽量不要依靠GC回收;
+- 使用`WorkManger` 替换 AlarmManager 调度后台任务;优势如下: 
+	- 批处理 将work合并一起,减少耗电量;
+	- 持久性 如果重新启动设备,则调度的workmanager作业会在重新启动后运行;
+	- 条件 作业可以根据条件(wlan)运行;
+- 使用`Handler`替换AlarmManager调度仅在应用运行期间有效的定时操作;
 
- recylce主要是释放`native分配`的内存,但一般情况下图像数据是在jvm中分配的,调用recycle并不会释放这部分内存;如果使用createBitmap创建的bitmap且没有别硬件加速过,recycle产生的意义就比较小,可以不主动调用;而象被硬件加速draw的和截屏这种在jvm中分配内存的需要调用方法来释放图像数据; 
+> ANR
 
+如果应用在界面线程处于阻塞状态的事件过长,会触发ANR(application not response)错误;
 
+排查anr
 
-### 启动时间优化
+- 主线程上的耗时操作,跨进程操作耗时长,死锁;
+- 启动严格模式
+- 开发者选项中启动后台anr对话框;
+- TraceView + adb调试;
+	- `/data/anr/anr_*`
 
-> 说下冷启动与热启动是什么，区别，如何优化，使用场景等。
-
- 冷启动: 启动应用时,后台没有该应用的进程,重新创建一个新的进程;
- 
- 重新创建一个新的进程,创建和初始化application,在创建MainActivity类; 
- 
- `冷启动白屏/黑屏`的原因: 打开一个app,如果application还没有启动,systemserver系进程会为activity调用zygote fork一个新的进程,会消耗一段时间,windowmanager会加载app里主题样式的windowBackground作为预览元素;然后才去真正的加载布局; (冷启动后,创建application,启动ActivityThread入口等一系列绘制)
- 
- 设置Theme的windowBackground为logo图解决默认样式;
- 
- 减少application参与业务的操作;
-
- 热启动: 后台已有该应用的进程,从已有的进程来启动应用;
- 
- 从已有的进程中启动,直接走MainActivity;
-
-### ANR原因, 卡顿检测优化(避免频繁gc,viewholder)
-
-anr(application not responding) 一般有三种类型,主线程中
- 
- `KeyDispatchTimeout(5 s)` 类型按钮和触摸事件无响应
- 
- `BroadcastTimeout(10 s)` 无法完成;
- 
- `ServiceTimeout(20 s)` 无法完成;
- 
- 高耗时操作,图像变化等; 磁盘读写,数据库读写等; 大量创建新对象等 容易引起anr;
-
- 如何避免 
- 
- 1. ui线程尽量只做Ui相关的工作;
- 2. 耗时的操作 放在单独的线程处理;
- 3. 尽量用handler来处理UiThread和别的Thread的交互;
- 
  查看方法: adb shell cat /data/anr/traces.txt  /mnt/sdcard/traces.txt; adb pull /data/anr/traces.txt /local/traces.txt;
 
-> 内存优化，OOM的原因和排查方法
+解决问题:
+
+- 主线程上执行速度缓慢的代码 ,io
+	- 应该将耗时操作移至工作线程; 线程处理的辅助类;
+- 锁争用 1.子线程持有对资源的锁,主线程也获取锁;2. 等待来自工作线程的结果;
+	- 确保持有锁的时间降到最低,或者是否需要持有锁
+	- AsyncTask;
+- 死锁 线程间相互持有对方所需资源的锁;
+- 执行速度缓慢的广播接收器 (1.未执行完onReceive;2.PendingResule对象调完goAsync(),未能调用finish())
+	- 使用IntentService执行长时间的操作;
+	- goAsync()表明需要更多的时间处理消息,不过需要用PendingResult调用finish()回收广播;
+
+>崩溃
+
+排查
+
+- 读取堆栈轨迹;
+- 重现bug;
+
+>呈现速度缓慢
+
+低于60帧/s ,即为卡顿;
+
+- 目视检查
+	- 运行发布版本;
+	- 启动gpu渲染模式分析功能;
+- Systrace
+	- 显示整个设备在做什么,可识别卡顿;
+	- android cpu profiler
+- 自定义性能监控
+	- 三方库 firebase;
+
+常见卡顿来源
+
+- 可滚动列表;
+	- recyclervie 全局刷新
+	- 嵌套recyclerview
+		- 使用共享回收池
+		- layoutmanager `setInitialPrefetchItemCount(int)`表示某个水平行即将显示在屏幕上时,如果界面线程中有空余时间,执行预取该行内容;
+	- recyclerview 膨胀过多,创建时间过长  / 布局绘制用时过长
+		- 合并视图类型
+		- itemview使用ConstraintLayout减少结构视图;
+	- recyclervie 绑定时间过长
+		- onBindView中执行少量的工作;
+	- ListView 扩充
+		- 检查viewholder重用机制
+- 布局性能
+	-  在层次结构的所有叶节点(最低叶节点除外)中避免使用RelativeLayout,避免使用LinearLayout的权重功能;
+	-  约束布局
+
+- 渲染性能
+	- android cpu profiler
+	- 代码优化
+
+- 线程调度延迟
+	- binder调用
+		- 避免调用
+		- 缓存相应值,将工作转移至后台线程;
+
+- 对象分配和垃圾收集
+	- android memory profiler
+
+> 应用启动时间
+
+应用有三种启动状态,每种状态都会影响应用向用户显示所需的时间: 冷启动(5s),温启动(2s)或热启动(1.5s);
+
+冷启动: 从头开始启动,系统进程在冷启动后才创建应用进程;
+
+- Zygote进程fork创建一个新的应用进程
+- 创建和初始化application,创建入口类activity;
+- inflate布局,oncreate/onstart/onresume方法走完;
+- 调用setContentView方法,将view添加到Decorview中,调用view的measure/layout/draw方法显示到界面上;
+
+![](https://developer.android.google.cn/topic/performance/images/cold-launch.png)
+
+在 `应用创建`和`Activity创建`可能出现性能问题;
+
+热启动: 系统将activity带入前台; 如果某些内存因`onTrimMemory`被清理,需要创建相应的对象;
+
+温启动: 介于两者之间;
+	
+- 用户在退出应用后又重新启动应用; 从头开始创建activity.oncreate
+- 系统将应用从内存中逐出,重新启动; 进程和activity需要重启,传递到onCreate的已保存的实例state bundle 可用;
+
+检测方式:
+
+- logcat 包含名为`Displayed`的值,代表从启动进程到在屏幕上完成对activity的绘制所用的时间; 包括`启动进程->初始化对象->创建初始化activity ->扩充布局->首次绘制引用` 
+- `reportFullyDrawn()` 测量从应用启动到完全显示所有资源和视图层次结构所用的时间;  手动调用: 创建应用对象到调用方法所用的时间;
+
+常见问题优化
+
+- 密集型应用application初始化
+	- 延迟初始化对象,仅初始化立即需要的对象。单例和依赖注入;
+		- 减少application的oncreate中逻辑或者延迟加载;
+			- 可以异步的使用异步,不能异步的尽量延迟;
+ 			- 耗时任务可以使用异步加载IntentService;
+- 密集型activity初始化
+	-  布局优化,viewstub
+	-  减少onCreate方法工作量,可转移至工作线程或者使用懒加载方式,onWindowFocusChanged方法;
+- 带主题背景的启动屏幕,使用主题防止白屏
+	- 使用 windowBackground 主题属性预先设置一个启动图片,oncreate之前使用setTheme设置或在清单中设置;
+
+>内存优化 RAM
+
+- onTrimMemory 中 释放内存以响应事件;
+- 使用效率更高的代码结构;
+	- 使用经过优化的数据容器; sparseArray -> hashMap;
+	- 谨慎使用服务,jobScheduler,workManger,IntentService优化;
+	- 谨慎抽象,ram映射内存;
+	- 避免内存抖动; 内存在短时间内频繁分配和回收
+		- 
+- 移除会占用大量内存的资源和库
+	- 缩减apk大小;
+	- 依赖注入dagger2 DI;
+	- 谨慎外部库;
+
+- 内存溢出bitmap 
+	- bitmap内存及时回收,一般硬件加速或者截屏类的需要recycle()方法回收;recycle() 只回收native部分的内存;
+		-  recylce主要是释放`native分配`的内存,但一般情况下图像数据是在jvm中分配的,调用recycle并不会释放这部分内存;如果使用createBitmap创建的bitmap且没有别硬件加速过,recycle产生的意义就比较小,可以不主动调用;而象被硬件加速draw的和截屏这种在jvm中分配内存的需要调用方法来释放图像数据; 
+	- 计算下采样 insamplesize 进行图片压缩,修改Config;
+	- lru算法;
+	- 三级缓存(解决频繁gc导致的stw引起的卡顿)
+
+- 图片优化extra
+	- [bitmap占用内存大小计算](https://juejin.im/post/6844904110416723976)
+	- 长图加载 使用`BigmapRegionDecoder`加载指定区域; 三方库[BigImageViewer](https://github.com/Piasy/BigImageViewer)
+	- 三方库 [glide](https://github.com/bumptech/glide)
+	- 压缩算法,[鲁班压缩](https://github.com/Curzibn/Luban);
+
+
+> 内存泄露,OOM的原因和排查方法
 
  oom (outofmemoryerror),原因是无法分配内存导致的错误,可由于内存泄漏导致内存溢出;
  
@@ -1387,25 +1479,121 @@ anr(application not responding) 一般有三种类型,主线程中
  	- String 的拼接使用Stringbuilder;
  	- 复用系统资源,线程池等;
  
-  lrucache主要原理是把最近使用的对象用强引用存储在linkhashMap中,将使用少的对象在缓存值达到预设值前从内存中移出;
+lrucache主要原理是把最近使用的对象用强引用存储在linkhashMap中,将使用少的对象在缓存值达到预设值前从内存中移出;
  
-
  - 布局优化
    - 较少过渡重绘;
    - 较少xml的inflate时间,使用new View()方式创建;
    - 公用的布局尽可能的重用;
 
-### Http[s]请求慢的解决办法（DNS、携带数据、直接访问 IP）
+### 如何实现进程保活
+
+  进程有优先级,手机杀进程有内存阈值 `low memory killer`, oom_adj值 越大占用物理内存越多越先被杀,降低oom_adj值就可以保活;
+
+ - Application 中的 `onTrimMemory`中清除对象可提升存活率;
+ - 开启一个1像素的Actvity, 系统一般不会杀前台进程,锁屏时开启一个activity,大小1像素透明无切换动画,监听系统锁屏广播,开屏关闭;
+ - 前台service,前台进程保活,api<18: startForeground(ID,new Notification())发送空的notification,图标不会显示; api 18,需要提升优先级的serviceA,必须有smallIcon, 启动一个InnerService,两个服务同时startForeground,绑定同一个ID,然后stop innerService,cancel调通知栏图标;
+ - 进程相互唤醒;
+ - JobScheduler ,workManager,系统自带的;
+ - NotificationListenerService 使用系统服务,不过需要权限`BIND_NOTIFICATION_LISTENER_SERVICE`;
+ - 后台播放无声音频mediaplayer;
+
+### 性能优化工具  (Android profiler)
+
+> 优化工具TraceView 
+
+ 做热点分析,得到单次执行最耗时的方法,执行次数最多的方法;
+ 
+ 代码中添加: Debug.startMethodTracing(), Debug.stopMethodTracing();
+ 
+ 打开profile- cpu- record- stop- 查看top down/bottom up;
+
+> adb 调试命令;
+
+查看模拟器的sp和sqlist文件,布局嵌套层数,加载时间等;
+
+查看文件: adb shell 进入linux的命令行,data/data/databases;
+
+> layout inspector工具查看嵌套层数;
+
+> mat分析方法以及原理
+
+andrdid studio 采用的是`android profiler` 
+
+- 反复操作,堆的大小一直增大,则内存泄露;
+- 保存为hprof文件,使用tools中的 hprof-conv 工具转换;
+- 使用android MAT工具检测泄露;
+
+> 使用库leakcanary检测泄露;
+
 
 ### 缓存自己如何实现（LRUCache 原理）
 
+last recently used 最近很少使用;
 
+- 使用LruCache类
+	- 内部主要实现为 `private final LinkedHashMap<K, V> map;`
+	- key,value都不能为空;
+	- put 方法 `trimToSize`方法,如果大于maxSize,开启死循环,遍历移出map的最后一个元素;
+		- 主要使用的是LinkedHashMap的`accessOrder`属性,true代表使用最近使用顺序,false表示插入顺序;
+
+![LinkedHashMap整体结构图](https://images2015.cnblogs.com/blog/249993/201612/249993-20161215143120620-1544337380.png)
+
+![循环双向链表](https://images2015.cnblogs.com/blog/249993/201612/249993-20161215143544401-1850524627.jpg) 
+
+注意该循环双向链表的头部存放的是最久访问的节点或最先插入的节点，尾部为最近访问的或最近插入的节点，迭代器遍历方向是从链表的头部开始到链表尾部结束，在链表尾部有一个空的header节点，该节点不存放key-value内容，为LinkedHashMap类的成员属性，循环双向链表的入口。
+
+[linkedHashMap](https://www.cnblogs.com/xiaoxi/p/6170590.html)
+
+
+- 自定义lrucache算法;  典型例子acache;
+	- 使用`<File,Long>`的键值对,记录最后更新的时间,put时先比较limit,大于limit先进行remove时间最老的对象;get更新时间;
 
 ### 图形图像相关：OpenGL ES 管线流程、EGL 的认识、Shader 相关
 
-### SurfaceView、TextureView、GLSurfaceView 区别及使用场景
+- `GlSurfaceView` 
+	- 是一个View,可捕获触摸屏事件,实现触摸监听;
+- `GlSurfaceView.Renderer` 类
+	- 将Render类设置到GlSurfaceView中使用
+		- onSurfaceCreated(): 创建GlSurfaceView调用初始化的方法;
+		- onDrawFrame() : 每次重新绘制时调用此方法;
+		- onSurfaceChanged: surfaceView大小,设备屏幕方向发生变化时调用的方法;
+
+基本原理: 首先,openGl自身是一个`状态机`, 它的绘制一般都是由一个个三角形构成, 核心是`Shader`着色器; 一般流程为: 顶点数据 -> 顶点着色器 -> 形状(图元)装配 ->  几何着色器 ->光栅化 -> 片段着色器 ->测试和混合 ; 其中 `顶点着色器,几何着色器,片段着色器`可自定义;
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20200715114656737.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+>gpuImage的使用一般流程:  
+
+GlSurfaceView 主要用于显示; GlSurfaceView.Renderer 用于surfaceview的渲染; GpuImageFilter 用于使用`glsl(opengl shader language)`语言处理着色器;  (GlSurfaceView -> GlSurfaceView.Renderer -> GpuImagerFilter)
+
+### SurfaceView、TextureView、GLSurfaceView,SurfaceTexture 区别及使用场景
+
+[博客: SurfaceView、TextureView、GLSurfaceView,SurfaceTexture 区别及使用场景](https://blog.csdn.net/jinzhuojun/article/details/44062175)
+
+[体系框架-窗口管理子系统](https://blog.csdn.net/jinzhuojun/article/details/37737439)
+
+> SurfaceView extends MockView( extends FrameLayout)
+
+![](https://img-blog.csdn.net/20150304164219975?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvamluemh1b2p1bg==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+[简:] surfaceView是一个有自己的Surface的View; 它的渲染可以放在单独线程中而不是主线程中; 缺点是不能做变形和动画;
+
+>GlSurfaceView extends SurfaceView
+
+surfaceVIew的扩展,加入EGL的管理,自带渲染线程;
+
+> SurfaceTexture  (Captures frames from an image stream as an OpenGL ES texture.)
+
+[简:] SurfaceTexture 可以用作非直接输出的内容流,提供二次处理机会;与SurfaceView直接输出相比，这样会有若干帧的延迟。同时，由于它本身管理BufferQueue，因此内存消耗也会稍微大一些。
+
+> TextureView extends View 
+
+[简:] TextureView是一个可以把内容流作为外部纹理输出在上面的View;本身需要是一个硬件加速层; 事实上TextureView本身也包含了SurfaceTexture; 可以完成SurfaceView+SurfaceTexture类似的功能(内容流上的图像->纹理输出,在单独的Surface上做绘制,可以是用户提供的线程; 另外可以用`Hardware overlay`进行显示); 区别在于TextureView在View hierachy 上做绘制,一般在主线程上做的(5.0后引入渲染线程,在渲染线程上做的); 
 
 ### 音视频(音频解码器,audiotrack,视频解码,opengl绘制,视频编辑转码,视频滤镜)
+
+[//TODO]()
 
 ### 动画、差值器、估值器（Android中的View动画和属性动画 - 简书、Android 动画 介绍与使用）
 
@@ -1428,82 +1616,185 @@ release打包,签名,加固,渠道包配置productFlavors;
 
 ### 热修复 (class dex,classloader原理),热修复(asm插桩,类加载方式,底层替换)
 
-[classloader](https://blog.csdn.net/u010386612/article/details/51131642)
+####热修复分类
+
+开源的修复框架: 
+
+- native hook
+	- Dexposed | Andfix: 阿里 实时修复;
+- Java
+	- QFix : 手q 冷启动修复;
+	- Robust: 美团 实时修复;
+	- Nuwa : 大众点评 冷启动修复;
+	- RocooFix : 百度金融 冷启动修复;
+	- Aceso: 美丽说蘑菇街 实时修复;
+	- Amigo: 饿了吗 冷启动修复;
+	- Tinker: 微信 冷启动修复;
+- native+java混合
+	- Sophix 阿里 收费 实时修复+冷启动修复;
+
+![](https://images2018.cnblogs.com/blog/823551/201803/823551-20180313230542094-924942701.png)
+
+
+####热修复原理 [热修复原理](https://www.cnblogs.com/popfisher/p/8543973.html)
+
+> **Native Hook**
+
+阿里dexposed,andFix;
+
+- 直接在native层进行方法的结构体信息对换,从而实现完美的方法新旧替换,从而实现热修复功能;
+	- 来源于Xposed框架,Aop编程;  在native层获取到指定方法的结构体,然后改变他的nativeFunc字段值,而这个值就是可以指定这个方法对应的native函数指针,所以先从java层跳到native层,改变指定方法的nativeFunc值,然后在改变之后的函数中调用java层的回调即可;实现了方法的拦截功能;
+- 基于开源框架xposed实现,是一种aop的解决方案;
+- 只hook app本身的进程,不需要root权限;
+
+![](https://images2018.cnblogs.com/blog/823551/201803/823551-20180311132636957-1552751766.jpg)
+
+dexposed优点:  即时生效; 无额外开销; 
+
+dexposed缺点: 不支持art,dalvik上可以,5.0后不能用;无法增加变量和类等限制,无法做到功能发布级别;
+
+andFix优点: 即时生效;支持dalvik和art;
+
+andFix缺点: 面临稳定性和兼容性问题;不支持新增方法,新增类,新增field;
+
+![](https://images2018.cnblogs.com/blog/823551/201803/823551-20180311132712953-354839170.png)
+
+> **Dex插桩方案(java multidex)**
+
+qq空间;
 
 ![](https://img-blog.csdn.net/20160314140715580)
+
+`dexElements[]`位于`DexPathList`中, `BaseDexClassLoader.findClass() -> DexPathList.findClass()`;
+
+- 原理是hook了`ClassLoader.pathList.dexElements[]`; 因为ClassLoader的findClass是通过遍历dexElements[]中的dex类寻找类的; 当然为了支持4.x的机型,需要打包的时候进行插桩;
+- 越靠前的dex优先被系统使用,基于类级别的修复;
+
+![](https://images2018.cnblogs.com/blog/823551/201803/823551-20180311132727379-906293657.jpg)
+
+优点: 不需要考虑dalvik虚拟机和art虚拟机适配; 代码非侵入式,apk体积影响不大;
+
+缺点: 冷启动有效; dalvik平台存在插桩导致的性能损耗;art平台由于地址偏移导致补丁包可能过大; 虚拟机 在安装期间会为类打上`预校验``CLASS_ISPREVERIFIED`标志是为了提高性能的,但有此flag的类不能引用其他的dex了,否则会抛出`IllegalAccessError`,我们强制防止类被打上标志会影响性能; 但是大项目中拆分dex的问题已经比较严重了,很多类都没有打上这个标记;
+
 
  Android系统是通过`PathClassLoader`加载系统类和已安装的应用的。 
   `DexClassLoader`则可以从一个jar包或者未安装的apk中加载dex ;
  
- dex的分包原理也是classloader: 
- dalvik的限制,app功能越来越复杂时,出现 
- 1.编译失败,因为dvm中存储方法id用的是short,dex中方法不能超过65536个;
- 2.apk在android2.3之前机器无法安装,dex文件过大(dexopt的内存只分配了5m);
- 
- `dexElements`保存了dex的数组;finClass方法中,每个dex就是dexFile的对象,遍历dexElement,通过DexFile加载Class文件,加载成功返回,否则返回null;
- 
- 热加载: 通常情况下,dexElements只会有一个元素,就是apk安装包的classes.dex,我们可以通过反射将一个外部的dex文件添加到dexElements中,这就是dex的分包原理,也是热修复的原理;
- (**简**: DexClassLoader可以加载外部的dex包,可以放在系统dex的前面)
- 
- 如果两个dex中存在相同的class文件会怎样; 遍历中,如果两个dex存在相同的class情况下,先遍历的dex中找到class会直接返回,不会再接下去的dex中查找;所以热修复利用这一特性,一个app出现bug后,将bug修复后,重新编译打成dex,插入到`dexElements`dex数组的前面,那么出现bug的那个类就会被覆盖,app正常运行; 
- 
- (**简**: app启动时,如果有多个dex中存在相同的class,先找到的类会覆盖后找到的类;)
- 
- 将修复后的类打包成dex,通过反射将修复的dex插入到dexElements; 
- `jar -cvf patch.jar com` 将当前com目录(类的全限路径)打包成jar;
- `dx --dex --output=patch_dex.jar patch.jar`将jar打包成dex;
- 
- `BaseDexClassLoader– pathList– dexElements`
- 在应用启动的时候application中处理 1.apk的classes.dex可以从应用本身("dalvik.system.BaseDexClassLoader")的DexClassLoader中获取; 2. path_dex的dex需要new一个DexClassLoader加载后获取;3.分别通过反射取出dex文件,重新合并成一个数组,赋值给应用本身的Classloader的dexElements;
- 
- (**简**: 先获取应用自身的classes.dex,在new DexClassLoader获取patch中的dex,反射合并成一个数组,设置进入到应用自身的dexElements中;)
- 
- 注意: apk安装时会将dex优化成odex拿去执行,会执行**预校验**`CLASS_ISPREVERIFIED`,具体的校验是a和b类都处于同一个dex,并且直接引用了b,a类别加上此flag,不能引用其他dex的类,否则`IllegalAccessError`; 换句话说，只要在static方法，构造方法，private方法，override方法中直接引用了其他dex中的类，那么这个类就不会被打上CLASS_ISPREVERIFIED标记。
- 
- (**简**: 让所有的类都不要被打上预校验的标记,防止不能跨dex调用,所以使用aop技术修改class文件,在gradle中通过transform 修改,在所有的类的构造函数中加入一行打印逻辑,为了能用其他dex的类,所以最终的dex是二种dex拼接的数组, 一个是补丁包dex,不过补丁包dex中包含一个空类,修改原app的dex调用此空类为了防止预校验的标记的类dex,一种是原app的dex)
- 
+  (**简**: 注意: apk安装时会将dex优化成odex拿去执行,会执行**预校验**`CLASS_ISPREVERIFIED`,具体的校验是a和b类都处于同一个dex,并且直接引用了b,a类别加上此flag,不能引用其他dex的类,否则`IllegalAccessError`; 换句话说，只要在static方法，构造方法，private方法，override方法中直接引用了其他dex中的类，那么这个类就不会被打上CLASS_ISPREVERIFIED标记。
+ 让所有的类都不要被打上预校验的标记,防止不能跨dex调用,所以使用aop技术修改class文件,在gradle中通过transform 修改,在所有的类的构造函数中加入一行打印逻辑,为了能用其他dex的类,所以最终的dex是二种dex拼接的数组, 一个是补丁包dex,不过补丁包dex中包含一个空类,修改原app的dex调用此空类为了防止预校验的标记的类dex,一种是原app的dex)
 
-![](https://upload-images.jianshu.io/upload_images/5105267-593595bf220bb46b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/452)
+>**Instant Run 热插拔原理(java hook)**
 
-优点: 避免插桩操作;
+美团 Robust;
 
- - 新dex与旧dex通过`dex差分算法`生成差异包 patch.dex;
- - 将patch.dex 下发到客户端,客户端将patch.dex与旧的dex合成为新的全量dex;
- - 将合成后的全量dex插入到dexElements前面(与Qzone的实现方式即上面的实现方式一致;)完成修复;
+- Robust插件对每个产品代码的每个函数都在编译打包阶段自动的插入一段代码,插入过程对业务开发完全透明的;
+- 编译打包阶段自动为每个class都增加一个类型为`ChangeQuickRedirect`的静态成员,而在每个方法前都插入了使用`ChangeQuickRedirect`相关的逻辑;当 ChangeQuickRedirect不为null时,可能会执行到`accessDispatch`从而替换掉之前老的逻辑,达到fix 的目的;
 
-dex结构:  
+![](https://images2018.cnblogs.com/blog/823551/201803/823551-20180311132821935-182982828.png)
 
-![](https://upload-images.jianshu.io/upload_images/5105267-2651126f18a9e91f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/800)
+优点: 几乎不会影响性能(方法调用,冷启动); 高兼容性(只是正常的使用DexClassLoader),高稳定性;补丁实时生效;支持方法级别的修复,包括静态方法;支持增加方法和类; 支持proguard的混淆,内联,优化等操作;
 
+缺点: 代码是侵入式的,会在原有类中加入相关逻辑;so和资源替换不支持;增大api体积;会增加少量方法数,使用Robust插件后,原来能被ProGuard内联的函数不能被内联了;
+ 
+> **Dex替换**
 
-![](https://upload-images.jianshu.io/upload_images/5105267-e77528772f8096a0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/387)
+微信Tinker;
 
- - 对于dex文件中的每项Section，遍历其每一项Item，进行新数据与旧数据的对比（新旧数据的对比方法是oldItem.compareTo(newItem)，结果小于0记为DEL，大于0记为ADD）设置item的`标记位`;
- (Tinker中会遍历patchOperationList，将同一个位置既有DEL标识又有ADD标识的情况，替换为REPLACE标识，最后将ADD，DEL，REPLACE标识数据分别记录到各自的List中,最后将操作记录列表写入补丁patch.dex中;)
- - 生成patch.dex后，进行下一步是将patch下发到客户端后合成全量的dex，合成dex这部分内容此处不再展开说，是差量过程的反过程;
- - 合成dex结束加载全量dex的流程: 打完补丁的全量dex的加载是在Application启动后的onBaseContextAttached完成的,无法对application类进行修复,tinker中使用代理的aplication完成对application的实际逻辑处理,流程就是通过反射获取到dexElements,将合成的全量dex插入到dexElements数组前面,完成修复工作;
+- 服务端做dex差量,将差量包下发到客户端,在art模式的机型上本地跟原apk中的classes.dex做merge,merge成为一个新的merge.dex后将merge.dex插入到pathClassLoader 的dexElements,原理类同Q-zone; 为了实现差量包的最小化,Tinker自研了DexDiff/DexMerge算法;Tinker还支持资源和so包的更新,so补丁包使用bsDiff来生成,资源补丁包直接使用文件md5对比来生成;针对资源比较大的(默认大于100kb是大文件)会使用bsDiff来对文件生成差量补丁;
 
+![](https://images2018.cnblogs.com/blog/823551/201803/823551-20180311132842593-173785053.png)
+
+优点: 支持动态下发代码;支持替换so库以及资源;
+
+缺点: 不能即时生效,需要下次启动; 
+
+- Tinker已知问题：
+
+Tinker不支持修改AndroidManifest.xml，Tinker不支持新增四大组件(1.9.0支持新增非export的Activity)；
+由于Google Play的开发者条款限制，不建议在GP渠道动态更新代码；
+在Android N上，补丁对应用启动时间有轻微的影响；
+不支持部分三星android-21机型，加载补丁时会主动抛出"TinkerRuntimeException:checkDexInstall failed"；
+对于资源替换，不支持修改remoteView。例如transition动画，notification icon以及桌面图标。
+
+- Tinker性能痛点：
+
+Dex合并内存消耗在vm head上，容易OOM，最后导致合并失败。
+如果本身app占用内存已经比较高，可能容易导致app被系统杀掉。
+
+> **混合/优化**
+
+阿里Sophix; 
+
+![](https://images2018.cnblogs.com/blog/823551/201803/823551-20180311132855847-745121352.png)
+
+>>优化Andfix (突破底层结构差异,解决稳定性问题)
+
+由替换内部变量兼容性不好 改为 整体替换的方案,兼容稳定性;
+
+>>突破qq和tinker的缺陷;
+
+![](https://images2018.cnblogs.com/blog/823551/201803/823551-20180311132924162-1647000593.png)
+
+解决方案:
+
+- Dalvik下采用阿里自研的全量dex方案: 不是插桩,而是在原dex中删除(知识删除类的定义)补丁dex中存在的类,这样让系统查找类的时候找不到,只有在补丁中的dex加载到系统中,系统自然就会从补丁包中找到对应的类;
+- Art虚拟机下支持多dex的加载,仅仅是把补丁dex作为主dex(classes.dex)而已,相当于重新组织了所有的dex文件: 把补丁dex改名为classes.dex,以前apk的所有dex一次改为classes2.dex,classes3.dex...;
+
+![](https://images2018.cnblogs.com/blog/823551/201803/823551-20180311132939270-1909427180.png)
+
+>>> 资源修复(常用方案 Instant Run)
+
+![常用方案](https://images2018.cnblogs.com/blog/823551/201803/823551-20180311132949831-1148740126.png)
+
+![](https://images2018.cnblogs.com/blog/823551/201803/823551-20180311133010134-1945128534.png)
+
+>> so修复
+
+![](https://images2018.cnblogs.com/blog/823551/201803/823551-20180311133020815-466711993.png)
 
 ###  组件化架构思路 (页面路由,cc组件化)
 
  [CC组件化](https://github.com/luckybilly/CC)
 
->路由原理 todo
+**相同点:** 需要将分布在不同组件module中的某些类按照一定规则生成映射表(数据结构通常是map,key为一个字符串,value为类或对象),然后在需要用到的时候从映射表中根据字符串取出类或对象;
 
-- 路由机制:
- 	- 类查找;
- - 组件总线:
- 	- 转发调用请求;
+**不同点:**
 
-### 插件化原理,插件化框架学习 todo
+> 路由机制: 路由的本质是类的查找;
+
+工作机制类似于仓库保管员:  先把类全部放到仓库中,需要的时候,仓库保管员根据所提供的字符串找出存放在仓库中的类;
+
+查找的类主要分为3种: activity子类,fragment子类,自定义接口实现类;
+
+- activity子类: 路由库提供startActivity(startActivityForResult)的封装,并根据字符串从映射表中获取对应的activity类,跳转到该activity页面;
+- fragment子类: 路由库根据字符串从映射表中获取对应的fragmnet类并创建一个对象返回给调用方;
+- 自定义接口实现类: 路由库根据字符串(注解的字符串或者接口类名字符串)从映射表中获取对应接口的实现类,并创建一个对象返回给调用方;
+
+特点: 调用方便;本质是类查找,需要通信的组件必须要打包在同一个app内部才能获取到; 组件间的服务调用,调用方需要持有接口类,需要将接口类定义下沉到base层,面向接口编程;  单组件运行时,添加依赖后 DDComponentForAndroid 通过插件做代码隔离;
+
+
+> 组件总线: 组件总线的本质是转发调用请求
+
+工作原理类似于电话接线员(中介者模式): 组件总线负责收集所有组件类并形成映射表(key为字符串,value为组件类的对象); 调用组件时,总线根据字符串找到对应的组件类并将调用信息转发给该组件类,组件执行完成户在通过组件总线将结果返回给调用方;
+
+优点: 组件总线只负责通信,即转发调用请求和返回执行结果; 不需要下沉接口,面向通信协议编程(类似于client 调用server端接口的通信协议);由于组件总线的本质是转发请求,可以通过跨进程通信方式将调用请求转发给其他app,实现跨进程调用; 作为单组件运行时,无需与其他组件一起打包运行,所有的组件都是平行的,无依赖关系(避免组件间的依赖,框架层面做到完全的代码隔离; 组件独立运行更快;); 
+
+
+### 插件化原理,插件化框架学习
+
+//TODO
 
 就是apk未安装,通过反射,aapt直接获取apk上的字节码和资源,启动act;
 
-### sqlite 相关
 
 ###如何判断一个 APP 在前台还是后台？
 
+- application 监听lifecycle监听事件,onStart count++; onstop count--; count为0 时处于后台; 
+- 监听home键广播;
+
 ###混合开发(rn,fuchsia+flutter+dart,weex,js引擎,渲染引擎)
+
+//TODO
 
 ### aop(aspectJ,apt,javassist)
 
@@ -1535,7 +1826,11 @@ aop 切面编程,oop将问题划分为单个模块;aop就是把涉及到众多�
 
 ### NDK 相关(cmake,ndkmake)
 
+//TODO
+
 ### 监控(apm性能检测,webview性能检测,leakcanary内存泄露检测)
+
+//TODO
 
 ### webwiew了解？怎么实现和javascript的通信？相互双方的通信。@JavascriptInterface在？版本有  bug，除了这个还有其他调用android方法的方案吗？
 
@@ -1567,6 +1862,8 @@ api 17情况下,js 调用java: `webview.addJavascriptInterface(Object obj,String
 
 ### jenkins 持续集成
 
+//TODO
+
 ### adb 命令:
   
  - adb devices ;指定设备
@@ -1586,7 +1883,7 @@ api 17情况下,js 调用java: `webview.addJavascriptInterface(Object obj,String
 
 ### handler原理 (ThreadLocal)
 
-简单来说就是每个线程Loop轮询器,loop中又有一个消息队列, loop处于死循环一致轮询消息队列; 而Thread中有ThreadLocal,存储着该Loop对象,只要把消息发送到ThreadLocal中的loop中的消息队列中,就可以运行消息,注意ThreadLocal特性;
+简单来说就是每个线程Loop轮询器,loop中又有一个消息队列, loop处于死循环一直轮询消息队列; 而Thread中有ThreadLocal,存储着该Loop对象,只要把消息发送到ThreadLocal中的loop中的消息队列中,就可以运行消息,注意ThreadLocal特性;
 
 > handler机制原理,为什么内存泄露,继承handler就不会内存泄露;
 
@@ -1644,17 +1941,61 @@ Looper: 不断循环执行(loop()),按分发机制将消息分发给目标处理
 
 ### Asynctask 原理,AsyncTask是顺序执行么，for循环中执行200次new AsyncTask并execute，会有异常吗
 
+默认使用 `SERIAL_EXECUTOR` Executer,使用队列,顺序执行; 默认线程池为`THREAD_POOL_EXECUTOR`
 
+```
+	
+	//最小2个线程,最多4个线程,最好是比cpu count 小1的线程数;
+	private static final int CORE_POOL_SIZE = Math.max(2, Math.min(CPU_COUNT - 1, 4));
+	//总线程数为 cpu 处理器数*2 +1;
+	private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
+
+
+	/**
+     * An {@link Executor} that can be used to execute tasks in parallel.
+     */
+    public static final Executor THREAD_POOL_EXECUTOR;
+
+    static {
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
+                CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_SECONDS, TimeUnit.SECONDS,
+                sPoolWorkQueue, sThreadFactory);
+        threadPoolExecutor.allowCoreThreadTimeOut(true);
+        THREAD_POOL_EXECUTOR = threadPoolExecutor;
+    }
+
+```
+
+可以使用`executeOnExecutor`使用自定义的Executor,可以实现并行运行;
 
 ### handlerThread
 
-HandlerThread 继承Thread,内部使用Handler的Thread,使用quit或quitSafety退出消息循环;
+HandlerThread 继承Thread,内部使用Handler的Thread,有自己的轮询器和消息队列; 使用quit或quitSafety退出消息循环;
+
+```
+
+	 @Override
+    public void run() {
+        mTid = Process.myTid();
+		//初始化当前线程的looper; 内部实现是 sThreadLocal.set(new Looper(quitAllowed))
+        Looper.prepare();
+        synchronized (this) {
+			//返回当前线程的looper,内部实现是 sThreadLocal.get();
+            mLooper = Looper.myLooper();
+            notifyAll();
+        }
+        Process.setThreadPriority(mPriority);
+        onLooperPrepared();
+		//在当前线程中运行消息队列;
+        Looper.loop();
+        mTid = -1;
+    }
+
+```
 
 ### intentService,IntentService生命周期是怎样的，使用场合等
 
-继承service的处理异步请求的服务类,有工作线程处理耗时任务,任务执行完后会自动停止,不需手动控制或stopself;
- 
-不需要自己new Threrad; 不需要考虑什么时候关闭Service;
+内部使用 HandlerThread, oncreate时启动一个HandlerThread子线程运行,使用HandlerThread的looper构建Handler,启动服务时,将任务发送给handler,回调`onHandlerIntent(Intent)`方法,所以运行在子线程,且`handlerMessage`运行完后自动调用`stopSelf`关闭服务;
 
 ### view体系(事件分发,滑动冲突,嵌套滑动,自定义动画)
 
@@ -1673,7 +2014,17 @@ setOnTouchListener 高于view的onTouchEvent;
 
 采用组合模式;
 
-### measure,layout,draw 及流程
+### measure,layout,draw 绘制入口流程
+
+[博客: 绘制分析比较好的一篇](https://blog.csdn.net/qq_15893929/article/details/86188240)
+
+ActivityThread 作为应用的入口, 绘制的流程 开始于`ActivityThread.handleLaunchActivity()` -> 调用 `ActivityThread.handleResumeActivity` -> 使用windowmanager(实现类WindowManagerGlobal)的addView方法,addView方法中创建ViewRootImpl类, 调用`setView`方法 -> ViewRootImpl 调用`ViewRootImpl.scheduleTraversals()`,发送`mTraversalRunnable`给主线程hander(FrameHandler 位于编舞者Choreographer) -> 运行run方法中的doTraversal()调用`ViewRootImpl.performTraversals()` -> 此方法封装了measure,layout,draw的绘制流程,分别调用 `performMeasure() 调用 View.measure方法`; `perfromLayout() 调用View.layout()方法`;`performDraw()最终调用 View.draw()方法`; -> 最终调用View的 onMeasure,onLayout,onDraw;
+
+
+> post 的绘制
+
+在 API Level 24 之前，通过 View.post() 任务被直接添加到 ViewRootImpl 中，在 24 及以后，每个 View 自行维护待执行的 post() 任务，它们要依赖于 dispatchAttachedToWindow 方法，如果 View 未添加到窗口视图，post() 添加的任务将永远得不到执行; 
+
 
 ### 说下Activity的启动方式，生命周期，两个Activity跳转的生命周期，如果一个Activity跳转另一个;  Activity再按下Home键在回到Activity的生命周期是什么样的;
 
@@ -1715,12 +2066,6 @@ a oncreate,onstart,onresume,onpause,onstop,ondestroy;
 设置Activity的`android:configChange="oriention"`,切屏会重新调用生命周期,横屏和竖屏都会只执行一次;<br>
 设置activity的`android:configChange="orientation|keyboardHidden"` 时,切屏不会重新调用生命周期,只会执行onConfigurationChanged()方法;
 
-> act 跳转方式及Intent属性
-
-显示跳转: 本程序的跳转;
-
-隐式跳转: 跳转到另一个程序页面;action 和 categoty和data 匹配;
-
 > 设置一个act为窗口的模式;
 
 android: theme ="@android:style/Theme.Dialog" <br>
@@ -1733,23 +2078,28 @@ onstart方法: oncreate,onstart, onstop,ondestroy;
 
 ### 任务栈启动模式详解,Activity的onNewIntent;
    
- 程序打开就创建了任务栈,存储当前程序的activity,任务栈顶的act跟用户进行交互;当所有的任务栈中所有的act清除出栈,任务栈会被销毁,程序退出;
- 但是任务栈每开启一次都会添加act,造成数据冗余,oom;
+- 使用“standard”或“singleTop”启动模式的 Activity 可多次进行实例化。“singleTask”和“singleInstance”Activity 只能启动任务且始终位于 Activity 堆栈的根位置。此外，设备一次只能保留一个 Activity 实例，即一次只允许一个此类任务。
+- “standard”和“singleTop”模式只有一处不同: <br/>`standard` 创建新的类实例来响应该 Intent; <br/>`singleTop` 栈顶复用,位于栈顶调用`onNewIntent()`否则创建新的;
+- “singleTask”和“singleInstance”模式同样只有一处不同:<br/>
+	- `singleTask` Activity 允许其他 Activity 成为其任务的一部分。该 Activity 始终位于其任务的**根位置**，但其他 Activity（必然是“standard”和“singleTop”Activity）可以启动到该任务中。Activity一次只能有一个实例; affinity 与 taskAffinity相同的任务栈不存在的情况下新建任务栈;
+	- `singleInstance` 与“singleTask"”相同，只是系统不会将任何其他 Activity 启动到包含实例的任务中。它是任务中唯一的 Activity。
+- `singletask` **自己理解**就是创建时,先查找其他的任务栈中是否已存在该ActivityA的实例,如果存在将该task置于前台,调用onNewIntent(),也会清除该task中ActivityA上层其他act; 如果没有查找到则创建新的task,并实例化新任务的根 Activity; 
+-  **疑问点在于** 官网中描述`FLAG_ACTIVITY_NEW_TASK`等同于`singleTask` ,**个人倾向于** `singletask`等同与`FLAG_ACTIVITY_CLEAR_TOP|FLAG_ACTIVITY_NEW_TASK` intent标记将 singletask 分为两种功能;
 
-standard: 创建一个新的act实例,当前任务栈;
+存在这样一个情况需要注意, 用户按**返回**按钮都会回到上一个 Activity。 </br>
+已存在两个task,如果启动指定`singleTask`启动模式中的某个activity,处于后台的task已存在该activity的实例,系统会将该后台任务**整个**转到前台运行; 如果按返回键,返回的是前台任务中堆栈的act;
 
-singleTop: 可以有多个实例,act在任务栈顶,启动相同的act实例,不会创建新的实例,调用onNewIntent()方法;
+![](https://developer.android.google.cn/images/fundamentals/diagram_backstack_singletask_multiactivity.png)
 
-singleTask: 任务栈唯一,只有一个实例,启动时先在系统中查找affinity与它的属性值taskAffinity相同的任务栈是否存在,如果存在,将act之上的其他act destory调并调用act的onNewIntent()方法;不在则在新的任务栈中启动; <br>
->如果想要这种启动模式的act在新的任务栈中启动,设置单独的taskAffinity属性,这种启动模式的act就会跟启动它的act不在同一个task中;
-
-singleInstance: 全局唯一,只有一个实例,这个实例独立运行在一个task任务栈中,不允许有其他的act存在;
+- `FLAG_ACTIVITY_NEW_TASK` : 在新任务中启动 Activity,如果您现在启动的 Activity 已经有任务在运行，则系统会将该任务转到前台并恢复其最后的状态，而 Activity 将在 onNewIntent() 中收到新的 intent。相当于`singleTask`;(**作者注** 官网描述如此,个人觉得有误,`singleTask`觉得更像`FLAG_ACTIVITY_CLEAR_TOP|FLAG_ACTIVITY_NEW_TASK`);
+- `FLAG_ACTIVITY_SINGLE_TOP` : 堆栈顶部的 Activity,相当于`singleTop`;
+- `FLAG_ACTIVITY_CLEAR_TOP` : 如果要启动的 Activity 已经在当前任务中运行，则不会启动该 Activity 的新实例，而是会销毁位于它之上的所有其他 Activity，并通过 onNewIntent() 将此 intent 传送给它的已恢复实例（现在位于堆栈顶部）。
 
 >`affinity` 属性设置activity的任务栈所属;
 
- 注意singleTask,singleInstance的onActivtyResult方法失效 startActivityForResult resultCode = 0??!
+ 注意singleTask,singleInstance的onActivtyResult方法失效 startActivityForResult resultCode = RESULT_CANCELED; 
 
-使用SingleTask设置taskAffinity属性或者使用SingleInstance 启动模式,因为不是处于同一个任务栈,startActivityForResult失效;
+失败原因: 使用SingleTask设置taskAffinity属性或者使用SingleInstance 启动模式,因为不是处于同一个任务栈,startActivityForResult失效;
 
 ### requestLayout，invalidate，postInvalidate区别与联系
 
@@ -1772,17 +2122,32 @@ singleInstance: 全局唯一,只有一个实例,这个实例独立运行在一�
 
 >生命周期: 
  
-startService: 启动service与启动的act无关;
+- `onStartCommand()` startService()启动无限期运行服务-> onStartCommand(设置的值可让系统终止服务后重启服务)-> stopSelf/stopService 
+- `onBind` 绑定服务  bindService 返回一个与客户端通信的IBinder接口; 解绑后销毁
+- `onCreate` 首次创建服务;
+- `onDestroy` 销毁时回调;
 
-onCreate-> onStartCommand() -> 开始work[stopSelf,stopService] ->onDestroy
 
-bindService: 通过回调获取service的代理对象和service交互,解绑销毁serice;
+onStartCommand 的返回值: 
 
-onCreate -> onBind() ->开始work[unBindService] ->onUnbind() ->onDestory 
+`START_NOT_STICKY`: 如果系统在 onStartCommand() 返回后终止服务，则除非有待传递的挂起 Intent，否则系统不会重建服务。
 
-同时使用startService和bindService: 
+`START_STICKY`: 如果系统在 onStartCommand() 返回后终止服务，则其会重建服务并调用 onStartCommand()，但不会重新传递最后一个 Intent。播放器
 
-oncreate ->onStartCommand ->绑定服务bindservice 开始work ->onBind ->解绑服务UnBindservice ->onUnbind ->停止服务stopself,stopService ->onDestory 
+`START_REDELIVER_INTENT`: 如果系统在 onStartCommand() 返回后终止服务，则其会重建服务，并通过传递给服务的最后一个 Intent 调用 onStartCommand()。 下载
+
+绑定的生命周期:
+
+`startService -> oncreate(没有运行情况下) ->onStartCommand ` 通信通过Intent; 服务返回结果可通过PengingIntent,传递给服务,服务可通过广播传递结果;
+
+绑定服务
+
+`bindservice -> oncreate -> onbind  -> onUnBind -> onDestroy`
+
+先启动后绑定 `oncreate-> onstartcommand ->onbind -onunbind->onDestroy`
+先绑定后启动 `oncreate ->onbind ->onStartCommand ->onUnbind ->onDestroy`
+
+![](https://developer.android.google.cn/images/service_lifecycle.png)
 
 >在service创建子线程优于act
 
@@ -1821,14 +2186,15 @@ intent 同时匹配action类别,category类别,data类别;
 
 ### sp  dp ,屏幕适配相关
 
-dpi = 长平方加宽平方的根号/对角线英寸; 每英寸像素 
+dpi = 长平方加宽平方的根号/对角线英寸; 每英寸像素
+
 density= dpi/160; 屏幕密度
+
 px = dp * density; 独立像素密度
 
 >sp 独立像素缩放,文字大小;
 
 今日头条屏幕适配方案; 动态修改density值,达到修改dp的值;360dp的效果图作为参考;
-
 
  - 图片放在不同像素密度的文件夹`layout`中;
  - 使用不同的限定符,尺寸限定符: 大小会自己适配对应布局; 最小宽度限定符(3.2): 最小宽度大于等于某值的时候,系统选择对应布局;(也可以使用values 将布局分开;) 单面板|双面板;
@@ -1852,7 +2218,7 @@ px = dp * density; 独立像素密度
 
 享元模式,观察者模式
 
-  - ListView是两级缓存,RecyclerView是四级缓存; listview通过`mActiveView`和`mScrapViews`实现两级缓存; recyclerview通过`mAttachedScrap`,`mCacheViews`,`mViewCacheExtension`,`mRecyclerPool`;  
+- ListView是两级缓存,RecyclerView是四级缓存; listview通过`mActiveView`和`mScrapViews`实现两级缓存; recyclerview通过`mAttachedScrap`,`mCacheViews`,`mViewCacheExtension`,`mRecyclerPool`;  
 
  mActiveViews和mAttachScrap功能相似, 在于快速重用屏幕上可见的列表项itemView,不需要重新createView和bindView;
  mScrapView和mCacheViews+mRecyclerPool功能相似,在于缓存离开屏幕的view,让即将进入屏幕的itemview重用,bindView;
@@ -1947,7 +2313,16 @@ ItemDecoration : onDraw: 绘制item之前调用绘制分割线;getItemOffset: on
 
 ### ViewPager的缓存实现
 
- 默认预加载机制, setUserVisibelHint() 生命周期前运行,可以实现懒加载;
+默认预加载机制, setUserVisibelHint() 生命周期前运行,可以实现懒加载;
+
+Viewpager的填充方法`populate()` 主要是两次循环,遍历当前到开始,遍历当前到结束位置,进行item的销毁adapter.destroy和创建adapter.instantiateitem; -> `addNewItem`调用适配器pageAdapter的`instantiateItem()`方法, 调用fragmentmanager的add方法添加fragment到fragmentmanager中
+
+>fragmentpageradapter 和 fragmentstatepageradaper
+
+区别在于:
+
+- instantiateItem(),state 内部有一个fragment列表,且是可以保存状态的;nostate 直接使用fragmentmanager去findfragment;
+- destroyItem(), state会使用fragmentmanager remove掉fragment; nostate 会detach fragment,fragment还是在fragmentmanager中的;
 
 ### Android版本特性
 
