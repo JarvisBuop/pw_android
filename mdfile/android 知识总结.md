@@ -1080,51 +1080,6 @@ Base64,UrlEncoder
  - 3.单进程情况下,使用greendao(objectBox) 因为只有一个sqliteopenhelper,多进程下还是使用contentprovider;
 
 
-### 常用设计模式和使用场景
-
- 面向对象六大原则: 
- 
- - 单一职责原则; 单一职责的功能放在一个类中;
- - 开闭原则; 一个类应该对于修改关闭,对于扩展开放;
- - 里氏替换原则; 引用基类的地方,可以透明的使用其子类的对象;
- - 依赖倒置原则; 高层模块和低层模块都应该依赖于抽象;模块间的依赖通过抽象发生;
- - 接口隔离原则;类间的依赖关系,建立在最小的接口上;
-
- - 最少知识原则(迪米特原则); 一个对象对其他对象有最少的了解;
-
-创建型: 
-
-- 单例
-- 构建者
-- 原型
-- 工厂
-- 抽象工厂
-
-行为型:
-
-- 策略
-- 状态
-- 责任链
-- 解释器
-- 命令
-- 观察者
-- 备忘录
-- 迭代器
-- 模板
-- 访问者
-- 中介者
-
-结构型:
-
-- 代理
-- 组合
-- 适配器
-- 装饰者
-- 享元
-- 外观
-- 桥接
-
-
 
 -----------
 
@@ -2313,16 +2268,52 @@ ItemDecoration : onDraw: 绘制item之前调用绘制分割线;getItemOffset: on
 
 ### ViewPager的缓存实现
 
-默认预加载机制, setUserVisibelHint() 生命周期前运行,可以实现懒加载;
+核心在于viewpager的`populate`方法; 
 
-Viewpager的填充方法`populate()` 主要是两次循环,遍历当前到开始,遍历当前到结束位置,进行item的销毁adapter.destroy和创建adapter.instantiateitem; -> `addNewItem`调用适配器pageAdapter的`instantiateItem()`方法, 调用fragmentmanager的add方法添加fragment到fragmentmanager中
+先使用`offScreenPageLimit`设置startPos,endPos; -> 然后进行两次循环,将不处于startpos-endPos范围内的item移除且进行pageradapter的destroyItem操作; -> 在范围内的调用`addNewItem`,调用适配器pageAdapter的`instantiateItem()`方法,调用fragmentmanager的add方法添加fragment到fragmentmanager中; -> 适配器`setPrimaryItem` 将instantiateItem返回的Object(一般是childView)返回出去,如果我们需要获取ViewPager当前的childView时，我们可以在Adapter中可以复写setPrimaryItem方法将curItem.object保存起来;
 
->fragmentpageradapter 和 fragmentstatepageradaper
+```
+	
+	startPos = Math.max(0, mCurItem - pageLimit);
+	endPos = Math.min(N - 1, mCurItem + pageLimit);
+
+	默认pageLimit为1; 
+	总共10个item;
+	当前处于第5个,position = 4;
+	startPos = 3
+	endPos = 5;
+	缓存数为3;
+
+	pageLimit为2;
+	共10个; 当前mCurItem = 4
+	startPos = 2
+	endPos = 6
+	缓存数为5;
+
+	缓存数为 mCurItem + 2*PageLimit
+
+	for (int pos = mCurItem - 1; pos >= 0; pos--)   3..0  移除2..0的item和destroy;
+	for (int pos = mCurItem + 1; pos < N; pos++)  5..9  移除6..9的item和destroy;
+
+	
+````
+
+1、根据mOffscreenPageLimit计算mItems将要储存ViewPager中startPos~endPos对应的ItemInfo；
+2、从mItems中获取当前mCurItem对应的ItemInfo，若没有则通过addNewItem()方法调用Adapter.instantiateItem()为ViewPager添加mCurItem位置的childView。同时创建该位置对应的ItemInfo并添加到mItems中；
+3、循环遍历当前item左边的所有item，若不在leftWidthNeeded与startPos-endPos决定范围内，则从mItems中删除，同时调用Adapter.destroyItem()方法来通知Adapter回收itemInfo对应的view。若在该范围内且不存在时则通过addNewItem()方法调用Adapter.instantiateItem()方法 往ViewPager中添加对应mCurItem的childView,同时根据Adapter.instantiateItem()的返回值创建对应的ItemInfo并添加到mItems；
+4、循环遍历当前item右边的所有item，逻辑与左循环基本一致；
+5、通过以上流程整理好需要加载的mItems后，计算mItems里的每个ItemInfo的偏移量，用来决定layout时的位置
+6、最后将以上更新的ItemInfo中的内容更新到对应childView的LayoutParams中
+
+
+
+>fragmentpageradapter 和 fragmentstatepageradaper 
 
 区别在于:
 
 - instantiateItem(),state 内部有一个fragment列表,且是可以保存状态的;nostate 直接使用fragmentmanager去findfragment;
 - destroyItem(), state会使用fragmentmanager remove掉fragment; nostate 会detach fragment,fragment还是在fragmentmanager中的;
+
 
 ### Android版本特性
 
@@ -2422,8 +2413,6 @@ Viewpager的填充方法`populate()` 主要是两次循环,遍历当前到开始
 
 - Canvas的底层机制，绘制框架，硬件加速是什么原理，canvas lock的缓冲区是怎么回事
 
-- surfaceview， suface，surfacetexure等相关的，以及底层原理; SurfaceView与View
-
 ### 获取view的宽高;
 
   1.通过设置view的MeasureSpec.UNSPECIFIED来测量;
@@ -2449,9 +2438,20 @@ int viewHeight=view.getMeasuredHeight();
 
 > Android 为啥会采用 Binder？Binder 的机制又是怎样的？binder进程的优点，为什么只copy一次数据; Binder机制，共享内存实现原理;
 
- linux 现有的所有进程ipc方式为: `管道,消息队列,共享内存,套接字,信号,信号量`;
+诸如此类问题都与binder相关;
+
+- 为什么 Activity 间传递对象需要序列化？
+- Activity 的启动流程是什么样的？
+- 四大组件底层的通信机制是怎样的？
+- AIDL 内部的实现原理是什么？
+- 插件化编程技术应该从何学起？等等...
+
+
+ linux 现有的所有进程ipc方式为: `管道,消息队列,共享内存,套接字socket,信号,信号量`;
  
  binder基于cs结构,指client-server结构 `结构稳定`,传输过程数据拷贝一次,`性能效率高`;为发送方添加Uid/Pid,`安全性高`;
+
+![](https://pic2.zhimg.com/80/v2-30dce36be4e6617596b5fab96ef904c6_720w.jpg)
  
  [binder 机制原理](https://zhuanlan.zhihu.com/p/35519585)
 
@@ -2459,16 +2459,16 @@ int viewHeight=view.getMeasuredHeight();
 
  - 进程隔离;
  
-进程和进程间的内存是不共享的,ab进行数据交互,需要ipc;
+进程和进程间的内存是不共享的,ab进行数据交互,需要ipc(inter-process communication);
  
- - os将虚拟空间对进程空间划分,相互隔离;
- 	- 用户空间 User Space
- 	- 内核空间 Kernel Space
+ - 进程空间划分,相互隔离;
+ 	- 用户空间 User Space 用户程序运行的空间;
+ 	- 内核空间 Kernel Space 系统内核运行的空间;
  
  
  - 系统调用,用户空间访问内核空间资源唯一方式,linux 两级保护机制,0级供系统内核使用(内核态),3级供用户程序使用(用户态);
- 	- 用户态
- 	- 内核态
+ 	- 用户态  进程在执行用户自己的代码的时候,处理器处于3级;
+ 	- 内核态  进程执行系统调用而陷入内核代码中执行,处于0级;
  
 `copy_from_user()` //将数据从用户空间拷贝到内核空间
 
@@ -2481,72 +2481,89 @@ int viewHeight=view.getMeasuredHeight();
  ![](https://pic1.zhimg.com/80/v2-aab2affe42958a659ea8a517ffaff5a0_hd.jpg)
 
 
-> **binder ipc 实现原理**: 
+> **binder ipc 实现原理**:  
 
- - 基于linux的`动态内核可加载模块机制`: `Binder Driver`就是动态添加内核模块运行在内核空间; 
+`动态内核可加载模块` && `内存映射`
+
+ - 基于linux的`动态内核可加载模块`机制: android系统通过动态添加一个内核模块运行在内核空间,用户进程之间通过这个内核模块作为桥梁来实现通信;   在android系统中, 这个运行在内核空间,负责各个用户进程通过BInder实现通信的内核模块就是`Binder Driver`;
  
- - `内存映射`: mmap() 内存映射方法,物理介质文件系统,用户空间的一块内存区域映射到内核空间;映射建立后,用户对内存区域的修改可以直接反映到内核空间,反之也成立;
+ - linux `内存映射`: `mmap()` 内存映射方法,将用户空间的一块内存区域映射到内核空间;映射建立后,用户对内存区域的修改可以直接反映到内核空间,反之也成立; 能有效减少拷贝次数;
  
- - binder中的ipc通信: 
- 	- binder驱动在内核空间创建一个数据接收缓存区;
- 	- 在内核空间开辟一块内核缓存区,建立内核缓存区和内核中数据接收缓存区之间的映射关系,以及内核中数据接收缓存区和接收进程用户空间地址的映射关系;
- 	- 发送方进程通过调用copyfromuser() 将数据拷贝到内核中的内核缓存区,由于存在映射,相当于把数据发送到接收进程的用户空间,完成一次进程间的通信;
+>一次完整的binder ipc通信: 
+
+ 	1.binder驱动在内核空间创建一个`数据接收缓存区`;
+ 	2.内核空间开辟一块内核缓存区,建立`内核缓存区`和`内核中数据接收缓存区`之间的映射关系,以及`内核中数据接收缓存区`和`接收进程用户空间地址`的映射关系;
+ 	3.发送方进程通过调用copyfromuser() 将数据拷贝到内核中的`内核缓存区`,由于存在映射,相当于把数据发送到接收进程的用户空间,完成一次进程间的通信;
 
 ![](https://pic4.zhimg.com/80/v2-cbd7d2befbed12d4c8896f236df96dbf_hd.jpg)
 
-> **binder 通信模型** 实名binder;
+> **binder 通信模型**
 
- c/s结构,client进程和server进程和servicemanager 都运行在用户空间,binder driver 运行在内核空间; 
+**Client Server ServiceManager BinderDriver**
+
+ binder基于c/s结构; client进程和server进程和servicemanager都运行在用户空间,binder driver 运行在内核空间; 
  
  servicemanager (DNS)和binder driver(路由)是由系统提供,client 和server 是由应用程序实现;
+
+- Binder驱动
+
+负责进程间binder通信的建立;
+
+- ServiceManager 和实名Binder
+
+将字符形式的Binder名字转化为Client中对该Binder的引用,使得Client能够通过Binder的名字获取对Binder实体的引用; 注册了名字的 Binder 叫实名 Binder;server 创建binder 将这个BInder实体连同名字一起以数据包的形式通过BInder驱动发送给ServiceManager,注册一个binder,serviceManager相当于一个注册中心;
+
+其中,servicemanager是一个进程,server是另一个进程 ,所以server注册binder时也是通过ipc方式; 这就好比鸡生蛋,蛋生鸡的问题一样;   servicemanager 与其他进程也是采用Binder通信;  servicemanager是Server端,所有其他的Server或者Client相对于ServiceManager都是一个Client;  servicemanager有自己的特殊的Binder,其他client,都需要通过这个Binder的引用来实现Binder的注册,查询和获取;
+
+servicemanager的这个`特殊的Binder`,没有名字也不需要注册; 当一个进程使用`BINDERSETCONTEXT_MGR`命令将自己注册成servicemanager时,binder驱动会自动为它创建Binder实体(预先造好的鸡); 其次这个Binder实体的引用在所有Client中都固定为0而无需通过其他手段获得; 
+
+也就是说: 一个 Server 想要向 ServiceManager 注册自己的 Binder 就必须通过这个 `0 号引用`和 ServiceManager 的 Binder 通信。
  
- servicemanager: 将字符形式的Binder名字转化为Client中对该Binder的引用,使得Client能够通过Binder的名字获取对Binder实体的引用;server向servicemanager注册一个binder,相当于一个注册中心;
- 
- servicemanager是一个进程,所以server注册binder时也是通过ipc方式,也是Server端,一个A Server想向servermanager注册自己的Binder就必须通过这个0号引用和ServiceManger的Binder通信; 
- 所有其他的Server或者Client相对于ServiceManager都是一个Client; 
- 0号引用指的是A进程`BINDERSETCONTEXT_MGR`命令将自己注册成Servicemanager中的binder时,binder driven会自动创建的Binder;(相当于域名服务器地址)
- 
- server向servicemanager注册了Binder以后,client通过名字获取Binder的引用,也是利用保留的0号引用向servicemanager请求访问某个Binder;所以Server中的Binder实体有多个引用,一个servicemanager保留的引用和多个Client中保留的引用;
+- Client 获得实名Binder的引用
+
+server向servicemanager注册了Binder以后,Client 可以通过名字获得Binder的引用; Client 也是利用保留的`0号引用`向servicemanager请求访问某个Binder; servicemanager收到请求后从请求数据包中取出Binder名称,在查找表中找到对应的Binder引用作为响应发送给请求的client; 
 
 
 ![](https://pic3.zhimg.com/80/v2-729b3444cd784d882215a24067893d0e_hd.jpg)
 
 > **binder 通信过程** (与Dubbo 好像!!)
 
- - 一个进程使用 `BINDERSETCONTEXT_MGR`命令通过binder driver 驱动将自己注册成为servicemanager ; 单独的进程(用户空间);
- 
- - server通过 binder driver(内核空间) 向 servicemanager 中注册Binder(`Server中的Binder实体`),binder driver 为binder创建内核中的实体节点和servicemanager对实体的引用;将名字和引用传给servicemanager查找表;
- 
- - client通过名字,在binder driver下从servicemanager中获取到对Binder实体的引用,通过这个引用实现与Server的通信;
+- 一个进程使用 `BINDERSETCONTEXT_MGR`命令通过binder驱动将自己注册成为servicemanager; 
+
+- server 通过binder驱动(0号引用的binder) 向 servicemanager 中注册Binder(`Server中的Binder实体`),binder driver 为binder创建内核中的实体节点和servicemanager对实体的引用;将名字和引用传给servicemanager查找表;
+
+- client使用名字,通过binder驱动从servicemanager中获取到对Binder实体的引用,通过这个引用实现与Server的通信;
 
 ![](https://pic4.zhimg.com/80/v2-67854cdf14d07a6a4acf9d675354e1ff_hd.jpg)
 
+> Binder通信中的代理模式
+
 ![](https://pic2.zhimg.com/80/v2-13361906ecda16e36a3b9cbe3d38cbc1_hd.jpg)
 
- binder:
- 
- - binder是一个进程间通信的机制;
- - Server: binder是Server中的binder实体对象;
- - Client: binder是Binder代理对象,Binder实体对象的远程代理;
- - 传输过程: 可以跨进程传输的对象;
+> Binder的完整定义
+
+- 从进程通信的角度看,binder是一个进程间通信的机制;
+- 从Server角度: binder是Server中的binder实体对象;
+- 从Client角度: binder是对Binder代理对象,是Binder实体对象的远程代理;
+- 从传输过程角度: binder是可跨进程传输的对象;
 
 ### Binder的构成有几部分？
 
-  进程空间中分为用户空间和内核空间,用户空间的内容不可享,内核空间的数据可共享,为了保证安全性和独立性,一个进程不能访问另一个进程,bindler就是充当两个进程间(内核空间)的通道.binder跨进程机制模型基于Client-Server模式;
- 
-  定义四个角色: Server ,Client ,ServiceManger, Binder驱动;
- 
-  server: 提供服务的进程;
- 
-  client: 使用服务的进程;
- 
-  serviceManger: 管理Service的注册和查询;
- 
-  binder驱动: 虚拟设备驱动,连接3者的桥梁; 传递进程间的数据,实现线程控制;
- 
-  binder驱动和servicemanager属于android基础架构,client进程属于android应用层(开发者实现),开发者只需自定义client和server进程并显示使用3个步骤(注册服务,获取服务,使用服务),最终借助android的基本架构功能就可完成进程间通信;
+进程空间中分为用户空间和内核空间,用户空间的内容不可享,内核空间的数据可共享,为了保证安全性和独立性,一个进程不能访问另一个进程,bindler就是充当两个进程间(内核空间)的通道.binder跨进程机制模型基于Client-Server模式;
 
-- binder的优点
+定义四个角色: Server ,Client ,ServiceManger, Binder驱动;
+
+server: 提供服务的进程;
+
+client: 使用服务的进程;
+
+serviceManger: 管理Service的注册和查询;
+
+binder驱动: 虚拟设备驱动,连接3者的桥梁; 传递进程间的数据,实现线程控制;
+
+binder驱动和servicemanager属于android基础架构,client进程属于android应用层(开发者实现),开发者只需自定义client和server进程并显示使用3个步骤(注册服务,获取服务,使用服务),最终借助android的基本架构功能就可完成进程间通信;
+
+### binder的优点
 
  高效(数据拷贝一次),稳定(基于CS结构),安全性高(Uid/Pid)
 
@@ -2574,7 +2591,7 @@ int viewHeight=view.getMeasuredHeight();
 
  server进程会创建很多进程来处理binder请求,管理binder模型的线程采用binder驱动的线程池,并由binder驱动自身进行管理,而不是由server进程管理;一个进程的binder线程数默认最大为16,超过的请求会被阻塞等待空闲的binder线程;所以在进程间通信处理并发问题时,如使用contentprovider时,它的curd方法只能同时有16个线程同时工作;
 
-- aidl
+### aidl
 
   AIDL（Android Interface Definition Language,AIDL）是Android的一种接口描述语言;编译器可以通过aidl文件生成一段代码，通过预先定义的接口达到两个进程内部通信进程的目的(简单来说,就是在app里绑定一个其他app的service,交互);
   创建aidl步骤: 
@@ -2587,12 +2604,12 @@ int viewHeight=view.getMeasuredHeight();
  
  使用aidl步骤:
  
- 1.将aidl文件拷贝到src目录下，同时注意添加到的包名要求跟原来工程的包名严格一致
+1.将aidl文件拷贝到src目录下，同时注意添加到的包名要求跟原来工程的包名严格一致
 2.通过隐式意图绑定service
 3.在onServiceConnected方法中通过Interface.stub.asinterface(service)获取Interface对象
 4.通过interface对象调用方法
 
- aidl通过binder实现的,生成相关的binder类,stub就是binder类;
+aidl通过binder实现的,生成相关的binder类,stub就是binder类;
 
 ### android 的几种进程
 
@@ -2615,22 +2632,12 @@ int viewHeight=view.getMeasuredHeight();
  3.Service的onDestroy里面重新启动自己
 
 
-### 使用服务而不是线程?
+>使用服务而不是线程?
 
-  进程中运行着线程,android应用程序把所有界面关闭时,进程还没有被销毁,处于空进程状态,很容易被销毁; 服务不容易被销毁,如果非法状态下被销毁了,系统会在内存够用时,重新启动;
- 
-  服务进程优先级比空进程优先级高,不容易被销毁,拥有service较高的优先级;
+进程中运行着线程,android应用程序把所有界面关闭时,进程还没有被销毁,处于空进程状态,很容易被销毁; 服务不容易被销毁,如果非法状态下被销毁了,系统会在内存够用时,重新启动;
 
+服务进程优先级比空进程优先级高,不容易被销毁,拥有service较高的优先级;
 
------------
-
-# 架构相关
-
-### MVC、MVP、MVVM
-
-### clean architecture ,android architecture components
-
-### app框架 分包,分层
 
 -----------
 
@@ -2641,55 +2648,125 @@ int viewHeight=view.getMeasuredHeight();
  通过系统的调用创建一个与原来进程完全相同的进程;n次的fork循环,最终创建了2n-1个子线程;
   fork函数执行成功后,出现两个进程,fork返回的值判断是否是父子进程;fpid(父进程Id)!=0 为父进程(相当于链表);##
 
-### android应用进程启动过程，涉及的进程，fork新进程(Linux),详细描述应用从点击桌面图标到首页Activity展示的流程(应用启动流程，Activity的Window创建过程) App 启动流程
+### android应用进程启动过程，涉及的进程，fork新进程(Linux);  手机进程的启动过程;  详细描述应用从点击桌面图标到首页Activity展示的流程(应用启动流程，Activity的Window创建过程) App 启动流程;
 
  android基于linux,基于linux的init进程创建出来;
 
- - Init进程- 启动 Zygote进程- fork 出SystemServer进程- 开启 应用进程;
+ - Init进程 - 启动 Zygote进程- fork 出SystemServer进程- 开启 应用进程;
  - SystemServer进程中启动系统的各种服务(AMS,PMS,WMS...);
  - 所有进程的父进程为Zygote进程,fork出SystemServer进程;
  - systemServer 启动主looper,创建Context上下文,创建SystemServiceManger,依次调用startBootStrapService- startCoreService- startOtherService;
 
-   Zygote 进程启动流程:
-  ZygoteInit main方法;
- 
-  - Zygote 和SystemServer进程间的通行使用的是socket;
 
-  SystemServer 进程启动流程;
-  SystemServer main方法中调用run初始化:
- 
+>Zygote 进程启动流程: ZygoteInit main方法;
 
-  - 创建了SystemServiceManger ;
-  - createSystemContext 创建上下文Context;
-  - SystemServiceManger start Services: `startBootStrapServices()`,`startCoreServices()`,`startOtherServices()`
-   - 其中,startBootStrapService,先启动第一个Installer服务, 然后启动Ams(管理android的四大组件), powerManagerService(电源管理服务),lightsService(闪光灯服务),displayManagerService(显示相关服务),Pms(包管理服务),UsermanagerService(用户管理服务),SensorService(传感器服务)...;
-   - 接下类调用startCoreServices ,启动核心服务,启动BatteryService(电池服务),UsageStatsService(用户状态),WebViewUpdateService()...;
-   - 最后调用startOtherService, 启动一些其他服务,VibratorService,NetworkManagermentService,NetworkStatsService,WindowmanagerService,还有5.0的JobService;
+- `init.rc`脚本启动zygote进程;
+- 创建一个Server端的socket,开启loop等待;
+- 等待systemServer进程启动后,在这个serversocket上等待systemserver的ams请求zygote进程来fork新的应用程序进程;
+
+
+>SystemServer 进程启动流程: SystemServer main方法中调用run初始化:
+
+- zygote进程fork 出systemServer进程;
+- systemserver 启动Binder线程池,用于与应用进程进行ipc通信;
+- 创建systemservermanager,运行`startBootStrapServices,startCoreServices,startOtherService`等方法启动各种manager,如ams,pms,wms;
 
 ![](https://upload-images.jianshu.io/upload_images/2156477-6f6ad71a21ff1d02.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/950)
 
-### Activity的启动流程 Launcher-  ActivityManager, 及销毁; Activity 启动流程
+>launcher启动过程
 
- - 调用context.startActivity()方法; 启动的app运行在另一个进程中,`ActivityManager`需要和`AMS`进行IPC通行;
- - ActivityMangerNative.getDefault()[即ActivityManger.getService(),也即AMSProxy,真正的实现类为AMS].startActivity();
- - Ams接受到四大组件的Intent请求后:
-  - ResolveInfo查找取出Intent的信息;
-  - 判断是否需要新建进程startProcessRecord;
-  - startProcessRecord调用Process.start方法,指定ActivityThread作为进程的入口,调用main方法;(具体是: 通过与zygote进程socket通信,fork zygote进程,就是`应用进程`; 接着初始化相应的进程,调用进程的main方法,这个进程中运行的线程即是activitythread主线程)
+launcher应用程序 即为显示系统中已经安装的应用程序; 会请求pms已安装的应用程序信息,作为android系统的启动器;
 
+- SystemServer进程会启动pms,pms启动后会将系统中的应用程序安装完成;
+- 在此之前已经启动的Ams会将launcher启动起来;启动入口为ams的systemReady方法,最终会调用ams的`startActivity`方法;
+- 最终就是启动了`com.android.launcher.Launcher`的activity;即android系统的桌面;
+
+>android应用程序的启动过程
+
+- ams发送启动应用程序进程请求;
+- zygote接受请求并创建应用程序进程;
+
+总的来说 Ams 再启动应用程序前会检查应用程序进程是否存在,不存在 systemserver进程使用socket与zygote进程通信通知zygote进程fork一个应用程序进程; Ams通过调用`startProcessLocked`方法向zygote进程发送请求; 启动应用进程的ActivityThread;
+
+[startProcessLocked 的调用处](https://www.shennongblog.com/android-app-startprocesslocked/)
+
+![](https://www.shennongblog.com/wp-content/uploads/2018/12/20190117131820233.png)
+
+###   Activity的启动流程 Launcher-  ActivityManager, 及销毁; Activity 启动流程
+
+>根activity 启动中涉及的进程
+
+涉及到四个进程 `zygote`,`systemServer`,`launcher进程`,`应用程序进程`;
+
+- launch进程 向 systemServer进程 请求创建根activity;
+- systemServer进程的AMS 判断是否存在
+	- 存在,systemserver进程与应用程序进程ipc,AMS<->ApplicationThread,请求创建根act;
+	- 不存在,ams 通过`startProcessLocked`请求zygote fork应用程序进程; 创建完成后在Ams通过binder通知ActivityThread去启动;
+
+>普通activity启动
+
+- 调用context.startActivity()方法; 最终通过binderipc 交由AMS startActivity方法运行; ActivityMangerNative.getDefault()[即ActivityManger.getService(),也即AMSProxy,真正的实现类为AMS.startActivity();
+- AMS 经过一系列的判断 最终交由`ActivityStackSupervisor`的realStartActivity方法,调用`ApplicationThread.scheduleLaunchActivity`方法; applicationThread 是ActivityThread内部类,负责与Ams的binder通信;
+- 调用ScheduleLaunchActivity 后 发送到主线程Handler,调用`handleLaunchActivity`,这个方法即为启动act的方法;
 
 ![](https://upload-images.jianshu.io/upload_images/2156477-37faec1410fbe670?imageMogr2/auto-orient/strip%7CimageView2/2/w/856)
 ![](https://upload-images.jianshu.io/upload_images/2156477-b29c71ab414e6d02.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/678)
 
-- 总结:
+**总结:** 
 
- - android基于linux,linux的init进程启动zygote进程,zygote进程fork systemserver进程,systemserver  主要是创建systemservermanager,创建context上下文,进行systemserver进程中的looper循环,而ssm创建 startbootstrapservice,startcoreservice,startotherservice,比如ams 处理四大组件的服务就是在第一个方法中初始化的;  
- - 等systemserver启动完成后,启动activity等四大组件时,context.startActivity()打开新的activity,最终是通过ActivityManager.getService()去startActivity(),而与之binder通信的是activitymanangerProxy,代理的是AMS;
- - AMS 实际启动组件时,接受Intent的信息,判断是否有相应的process,没有则使用systemserver当前进程通过socket与zygote通信去fork 一个新的进程,即应用进程; 这个进程会相应的初始化,与serversystem 可以ipc通信,调用此进程的main方法,这个main方法即ActivityThread的main方法;
+android系统启动(1,2,3,4) -> android 应用程序启动{根activity的启动}(5,6) -> activity创建(分为两种,此处特指普通activity的启动)(7,8,9);
+
+
+1 android基于linux,由linux的init进程通过android脚本`init.rc`启动zygote进程;
+
+2 zygote(zygoteInit main方法)进程启动后,创建serversocket并开启loop循环; fork 一个systemServer进程,启动Binder线程池;
+
+3 systemserver进程启动后,创建system context,创建systemservermanager,然后调用 `startBootstrapService,startCoreService,startotherservice`来启动一系列系统manager,如ams,pms,wms等; 
+
+4 systemserver进程启动了pms,会将系统中的应用程序安装完成,ams 调用`systemReady`方法启动Launcher进程的主界面activity(这个过程和启动应用程序进程的activity类似);
+
+5 启动根activity过程(启动应用程序进程),这里涉及到四个进程,分别是`launcher,systemserver,zygote,应用程序进程`;launch向systemServer(Ams) (startActivity)请求创建根Activity;
+
+6 最终调用Ams的startActivty方法, Ams 判断不存在应用程序进程,调用`startProcessLocked`方法 请求zygote进程(socket通信) fork一个应用程序进程, 应用程序进程创建后,建立Ams和应用程序进程的binder通信,AMS <-> ApplicationThread(ActivityThread内部类),运行ActivityThread的main方法 -> 调用ams.attachApplication最终调用 `ActivityStackSupervisor.realStartActivityLocked`方法 调用applicationThread(ActivityThread)`scheduleLaunchActivity`方法执行生命周期方法和view绘制;
+
+7 普通activity启动过程 就是调用`Activity.startActivity`方法, 实际上ipc通信调用的是AMS的startActivity方法,最终调用了`ActivityStackSupervisor.realStartActivitylocked`; 然后调用 与Ams通信的ApplicationThread(ActivityThread内部类)的`scheduleLaunchActivity`;
+
+8 scheduleLaunchActivity 发送启动activity的消息到主线程handler中,调用`handleLaunchActivity`方法,handlelaunchactivity方法调用 performLaunchactivity 方法运行onCreate,onStart方法; handleResumeActivity方法运行onResume方法并负责添加windowmanager绘制流程;
+
+9 handleResumeActivity 获取Activity的WindowManager(实际的实现是WindowManagerGlobel,被代理对象) 调用 addView方法,内部构建ViewRootImpl对象,会调用ViewRootImpl的`scheduleTraversals(requestLayout)`方法,发送TraversalRunnable到主线程handler中;这个runnable会调用performTraversal方法; 然后调用performMeasure,perfromLayout,performDraw方法,最终运行了View的measure,layout,draw方法,然后运行View的onMeasure,onLayout,onDraw方法; 
+(windowmanager (windowManagerGlobal,其实准确来说这是桥接模式) 在addview时使用ViewRootImpl的requestLayout去绘制界面;接着通过windowSession 完成window的添加工作,windowSession <-> WMS的Session进程ipc通信; 内部交由wms去处理添加window;)
+
+
+```
+
+	//-------------------ActivityStackSupervisor.java----------------------
+	void startSpecificActivityLocked(ActivityRecord r,
+            boolean andResume, boolean checkConfig) {
+        ...
+        if (app != null && app.thread != null) {//applicationThread
+            try {
+                ...
+				//开启activity生命中后期及渲染; 通过ipc ApplicationThread.scheduleLaunchActivity
+                realStartActivityLocked(r, app, andResume, checkConfig);
+                return;
+            } catch (RemoteException e) {
+                Slog.w(TAG, "Exception when starting activity "
+                        + r.intent.getComponent().flattenToShortString(), e);
+            }
+
+            // If a dead object exception was thrown -- fall through to
+            // restart the application.
+        }
+		//开启应用进程;
+        mService.startProcessLocked(r.processName, r.info.applicationInfo, true, 0,
+                "activity", r.intent.getComponent(), false, false, true);
+    }
+
+```
 
 ### activity view 的绘制流程(activity- phonewindow- decorview- titleView+contentView)
 
- ActivityThread ,main主要是 attach()建立与systemserver进程的ipc通信,启动当前应用进程的looper循环;
+ ActivityThread ,main主要是 attach()方法 启动activity还是启动应用进程,启动当前应用进程的looper循环;
 
  - activitythread会继续和ams通信,发送message至主线程的handler H中,最终通过AMS(ActivityStackSupervisor类)发送`LAUNCH_ACTIVITY`消息调用ActivityThread `handleLaunchActivity()`方法启动activity;
  - 调用performlaunchActivity,最终调用Activity的`onCreate`方法;
@@ -2724,15 +2801,33 @@ contentprovider没有发布的化,启动contentprovider所在的那个进程;即
 
 ###  AMS 、PMS , wms
 
-### Binder 机制（IPC、AIDL 的使用）
+AMS,pms,wms 都存在于systemServer进程中; 
+
+ams 负责启动四大组件;  和zygote进程通信;
+
+pms 负责安装软件;
+
+wms 负责窗口管理;
+ 
 
 ###为什么使用 Parcelable，好处是什么？
+
+parcelable 的作用: 永久保存对象,保存对象到本地文件中; 序列化对象在网络中传输;序列化在进程间传递对象;
+
+serializable 是java的实现方式,两者都可以实现序列化;  serializable 可能会有频繁的io操作,产生大量临时对象频繁gc,parcelable效率更高;
+
+一般内存的时候,使用parcelable; 存储在磁盘上,使用serialable,数据可能会持续变化;
 
 ### Android 图像显示相关流程，Vsync 信号等
 
 ### apk安装流程
 
-### activity与window/view的关系
+![https://upload-images.jianshu.io/upload_images/2095550-431f514ca7e648a1.png?imageMogr2/auto-orient/strip|imageView2/2/w/949/format/webp](https://img-blog.csdnimg.cn/20200830142400207.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70#pic_center)
+
+[app安装流程](https://www.jianshu.com/p/39402a37f705)
+
+context调用 getPackageManager方法返回packageManager,具体实现为 `applicationpackagemanager`对象,最终会调用 pms (systemserver)`installPackageAsUser()` 进行安装; ApplicationPackageManager <->PMS 
+
 
 ### contentprovide 全方位解析
 
@@ -2740,9 +2835,218 @@ contentprovider没有发布的化,启动contentprovider所在的那个进程;即
 
 ### window 和windowmanager (pop与dialog区别)
 
-### servicemanager
+[window windowmanager](https://www.jianshu.com/p/7e589ddb634a)
+
+window 是一个抽象类,phoneWindow是唯一实现类;
+
+windowmanager 创建一个window需要通过windowmanager,window的具体实现在windowManagerService中,ipc通信;
+
+每个window 都对应一个View和一个ViewRootImpl ,view和window通过ViewRootImpl连接,window实际上以view的形式存在; WindowManger也是一个接口,实现类为WindowMangerImpl,代理 windowmanagerGlobal; WindowManagerGlobal 是一个单例;  主要通过ViewRootImpl 来更新界面;
+
+windowmanager (windowManagerGlobal,其实准确来说这是桥接模式) 在addview时使用ViewRootImpl的requestLayout去绘制界面;接着通过windowSession 完成window的添加工作,windowSession <-> WMS的Session进程ipc通信; 内部交由wms去处理添加window;
+
+### Context 相关知识
+
+>Context 继承树;
+
+![](https://img-blog.csdn.net/20151022212109519?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
+总共的context数量为 application + activity + service 的数量;
+
+ContextWrapper的 `mBase`的Context 在 ActivityThread的performLaunchActivity中,构建ContextImpl ,并在创建Activity后 调用`activity.attach()`方法通过 `attachBaseContext` 设置ContextImpl 于ContextWrapper中保存; 所以ContextWrapper使用的就是ContextImpl对象;
+
+> 为什么receiver 调用startActivity(),如果不加New_task标志 会抛异常,而activity没事?
+
+receiver的Context和activity的Context都 继承于ContextWrapper,ContextWrapper.startActivity的方法真正的实现都是CotextImpl中; 该类对没有newtask标志intent会抛出运行时异常; 而activity 重写了ContextImpl的StartActivity方法,可以不用判断newtask标志; 
+
+-----------
+
+# 框架模式
+
+### MVC、MVP、MVVM 简介
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20200826215443678.png#pic_center)
+
+> [clean architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) 
 
 
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20200826221001187.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70#pic_center)
+
+### ViewModel相关知识及原理
+
+>ViewModel的特点
+
+- 以注重生命周期的方式存储和管理界面相关数据; 
+- 可以让数据在发生屏幕旋转等配置更改后继续保留;
+
+>ViewModel的生命周期
+
+viewmodel对象存在的时间范围是获取ViewModel时传递给ViewModelProvider的`LifeCycle`;vm在首次请求ViewModel一直留在内存中,直到限定其存在时间范围的LifeCycle永久消失;
+
+![](https://developer.android.google.cn/images/topic/libraries/architecture/viewmodel-lifecycle.png?hl=zh_cn)
+
+>常见使用
+
+- 在Fragment之间共享数据;
+
+两个Fragment 都使用activity 的ViewModelStoreOwner来构建VM,然后接受方 使用vm的liveData监听数据; 发送方 使用vm的set方法发布liveData;
+
+>**VM源码分析**
+
+- ViewModelProvider
+
+构建 ViewModelProvider 的参数为 `ViewModelStore`和`Factory`; 
+
+**fragment中使用VM通信原理:**
+
+提供`get`方法获取VM的实例,注意ViewModelStore 存储的VM key为 `DEFAULT_KEY+vm类名`,所以不同fragment中若使用同一个ViewModelStore,获取同类名的VM,其实获取的是同一个ViewModel,达到fragment通信的目的;
+
+- ViewModelStore + Factory
+
+ViewModelStore 属于容器类,负责存储VM,内部只有一个`HashMap<String,ViewModel>`; 提供put,get,clear方法;
+
+Factroy 为构造VM 的工厂,一般默认使用反射,注意配置混淆;
+
+- ViewModelStoreOwner 只有一个获取`ViewModelStore`的接口方法;
+
+**VM注重生命周期的方法保留数据原理**
+
+ViewModel能在Activity(Fragmnet)由于配置重建时恢复数据的实现原理是: 
+
+新版逻辑:
+
+- ViewModelStore的获取
+
+首先VMS是取自实现ViewModelStoreOwner接口(FragmentActivity),通过Activity的方法getLastConfigurationInstance() 
+
+-> 此处要区分同名的两个类,分别是Activity 和 FragmentActivity 的 NonConfigurationInstances类,其中ViewModelStore是存储在FAct的NonConfigrationInstances,而FAct的NonConfigurationInstances存储在Act的同名类中; 
+
+->Act的NonConfigurationInstances 是 Activity的`attach`方法赋值的,由performLaunchActivity(ActivityThread.handlerLaunchActivity)方法中,在onCreate方法之前,由`ActivityClientRecord`中保存的`lastNonConfigurationInstances`赋值, 这里涉及到activity的启动流程;
+
+-> 在OnCreate中,通过ViewModelProvider获取到了上次保留的ViewModelStore,即Vm的对象;
+
+
+- ViewModelStore的存储
+
+由VMS的获取可知,activityClientRecord 保存了 lastNonConfigurationInstances (Activity的NonConfigurationInstances类对象)
+
+-> 首先是在handlerReLaunchActivity()触发handleDestroyActivity(),因为保存的flag为true,普通的destroy不会触发储存逻辑;
+
+-> 在performDestroyActivity(ActivityThread.handleDestroyActivity) 中 ,使用了Activity的`retainNonConfigrationInstances()`存储实例到ActivityClientRecord中; 
+
+-> Activity的这个方法 存储了FragmentActivity重写的`onRetainNonConfigurationInstance()` ,这个方法中保存了 已经创建的ViewModelStore对象;
+
+
+旧版逻辑:
+
+是利用无ui的`HolderFragment` 和`ViewModelProviders`工具类实现;
+
+源码一览: 
+
+```
+	
+	//FragmentActivity.java
+	@NonNull
+    @Override
+    public ViewModelStore getViewModelStore() {
+        if (getApplication() == null) {
+            throw new IllegalStateException("Your activity is not yet attached to the "
+                    + "Application instance. You can't request ViewModel before onCreate call.");
+        }
+        if (mViewModelStore == null) {
+            NonConfigurationInstances nc =
+                    (NonConfigurationInstances) getLastNonConfigurationInstance();
+            if (nc != null) {
+                // Restore the ViewModelStore from NonConfigurationInstances
+                mViewModelStore = nc.viewModelStore;
+            }
+            if (mViewModelStore == null) {
+                mViewModelStore = new ViewModelStore();
+            }
+        }
+        return mViewModelStore;
+    }
+
+	//Activity
+	//注释中 `non-configuration instance data`来自于`onRetainNonConfigurationInstance()`可以在onCreate和onStart中获取对象; 注意此检索得到的数据仅仅用来作为处理配置改变的最佳做法;
+	// 
+	@Nullable
+    public Object getLastNonConfigurationInstance() {
+        return mLastNonConfigurationInstances != null
+                ? mLastNonConfigurationInstances.activity : null;
+    }
+
+	//特别要注意同名的两个类
+	//此为Activity.java的类; 其中activity保存的就是FragmentActivity的NonConfigurationInstances对象; 也是保存ViewModelStore的实体类;
+	
+	NonConfigurationInstances mLastNonConfigurationInstances;
+	static final class NonConfigurationInstances {
+        Object activity; // 这个就是FragmentActivity的NonConfigurationInstances对象;
+        HashMap<String, Object> children;
+        FragmentManagerNonConfig fragments;
+        ArrayMap<String, LoaderManager> loaders;
+        VoiceInteractor voiceInteractor;
+    }
+	//此为FragmentActivity.java的类;
+	static final class NonConfigurationInstances {
+        Object custom;
+        ViewModelStore viewModelStore;
+        FragmentManagerNonConfig fragments;
+    }
+
+```
+
+### viewmodel + databinding + LiveData 
+
+LiveData使用观察者模式;
+
+dataBinding: 布局使用<layout>标签嵌套, 自动生成一系列文件, 使用DataBindingUtil去生成ViewDataBinding,基于观察者模式ObservableField 会自动更新布局;
+
+-----------
+
+# 设计模式
+
+### 面向对象六大原则: 
+ 
+ - 单一职责原则; 单一职责的功能放在一个类中;
+ - 开闭原则; 一个类应该对于修改关闭,对于扩展开放;
+ - 里氏替换原则; 引用基类的地方,可以透明的使用其子类的对象;
+ - 依赖倒置原则; 高层模块和低层模块都应该依赖于抽象;模块间的依赖通过抽象发生;
+ - 接口隔离原则;类间的依赖关系,建立在最小的接口上;
+
+ - 最少知识原则(迪米特原则); 一个对象对其他对象有最少的了解;
+
+创建型: 
+
+- 单例
+- 构建者
+- 原型
+- 工厂
+- 抽象工厂
+
+行为型:
+
+- 策略
+- 状态
+- 责任链
+- 解释器
+- 命令
+- 观察者
+- 备忘录
+- 迭代器
+- 模板
+- 访问者
+- 中介者
+
+结构型:
+
+- 代理
+- 组合
+- 适配器
+- 装饰者
+- 享元
+- 外观
+- 桥接
 
 -----------
 
