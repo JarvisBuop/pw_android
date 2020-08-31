@@ -5,7 +5,7 @@
 //import android.view.View
 //import android.view.ViewGroup
 //import com.blankj.utilcode.util.ConvertUtils
-//import com.jarvisdong.kotlindemo.ui.BaseActivity
+//import com.jdev.kit.baseui.BaseActivity
 //import com.jdev.wandroid.R
 //import com.jdev.wandroid.utils.FloatUtils
 //import com.yhao.floatwindow.Util

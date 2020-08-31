@@ -1,7 +1,7 @@
 package com.jdev.wandroid.ui.act
 
 import android.os.Bundle
-import com.jarvisdong.kotlindemo.ui.BaseActivity
+import com.jdev.kit.baseui.BaseActivity
 import com.jdev.wandroid.R
 import kotlinx.android.synthetic.main.app_activity_container.*
 

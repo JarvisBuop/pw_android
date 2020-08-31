@@ -1,4 +1,4 @@
-package com.jarvisdong.kotlindemo.ui
+package com.jdev.kit.baseui
 
 import android.content.Context
 import android.os.Bundle

@@ -5,7 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import com.airbnb.lottie.LottieAnimationView
-import com.jarvisdong.kotlindemo.ui.BaseActivity
+import com.jdev.kit.baseui.BaseActivity
 import com.jdev.module_welcome.R
 
 /**

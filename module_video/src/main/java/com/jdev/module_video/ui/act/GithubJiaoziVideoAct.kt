@@ -13,7 +13,7 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import com.jarvisdong.kotlindemo.ui.BaseActivity
+import com.jdev.kit.baseui.BaseActivity
 import com.jdev.module_video.R
 
 /**

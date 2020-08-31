@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.PermissionChecker
 import com.example.module_filter.R
-import com.jarvisdong.kotlindemo.ui.BaseActivity
+import com.jdev.kit.baseui.BaseActivity
 import com.jdev.kit.baseui.BaseFragment
 import com.example.module_filter.ui.frag.JdGpuImageCameraFrag
 import com.example.module_filter.ui.frag.JdGpuImageMultiFrag

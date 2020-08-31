@@ -18,7 +18,7 @@ import com.blankj.utilcode.util.StringUtils
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.jarvisdong.kit.utils.ResourceIdUtils
-import com.jarvisdong.kotlindemo.ui.BaseActivity
+import com.jdev.kit.baseui.BaseActivity
 import com.jdev.module_video.ui.act.GithubJiaoziVideoAct
 import com.jdev.module_welcome.ui.act.FullscreenActivity
 import com.jdev.module_welcome.ui.act.WelcomeActivity
