@@ -47,9 +47,15 @@
 	private Object[] mValues; //保存的value为obj;
 	与arraymap不同的是用不同数组分别存储;
 
-	//arraymap的扩容和sparsearray的扩容一样;
+	//arraymap的扩容
 	final int n = osize >= (BASE_SIZE*2) ? (osize+(osize>>1))
                     : (osize >= BASE_SIZE ? (BASE_SIZE*2) : BASE_SIZE);
+
+	//sparseArray的扩容
+	public static int growSize(int currentSize) {
+        return currentSize <= 4 ? 8 : currentSize * 2;
+    }
+	
 
 1. 避免对key的自动装箱,默认就是int,内部通过两个数组实现,一个存储key,一个存储object,内部对数据采取压缩的方式表示稀疏数组的数据,节约内存;<br>
 2. 获取和添加数据时使用二分查找法比较int大小,按照顺序排好或判断元素位置;
@@ -143,7 +149,7 @@ hashmap只允许一条记录的键为null,允许多条记录的值为null;
 
 hashmap有3种主流遍历方式;
 
-1. `May.Entry`(entrySet()),
+1. `Map.Entry`(entrySet()),
 2. `keySet`, ( 迭代器就不算了) 
 3. 最新遍历方式(函数式遍历):`forEach(BiConsumer )` ;
 
@@ -284,7 +290,7 @@ DirectByteBuffer 对象作为这块内存的引用进行操作(详见: Java I/O 
 
 java并发采用的是`共享内存模型`,这里的共享内存模型就是java内存模型(JMM),
 
-JMM 只是一个`抽象概念`,定义线程和主内存之间的抽象关系;决定线程对共享变量的写入何时对其他线程可见,以及在必须时如何同步的访问共享变量;
+JMM **只是一个`抽象概念`,定义线程和主内存之间的抽象关系**;决定线程对共享变量的写入何时对其他线程可见,以及在必须时如何同步的访问共享变量;
 
 **JMM决定了一个线程对共享变量的写入何时对另一个线程可见**,
 
@@ -431,9 +437,10 @@ system.gc() 是建议进行垃圾回收,但不一定回收;
  将字节流所代表的静态存储结构转化为方法区的运行时数据结构;<br>
  在java堆中生成一个java.lang.Class对象,作为方法区中数据的访问入口;
 
- 加载阶段,使用了双亲委托机制,可以使用自定义的类加载器加载,涉及初始化加载器类的访问权限,根加载器->扩展类加载器->系统类加载器->自定义加载器;
+ 加载阶段,使用了双亲委托机制,可以使用自定义的类加载器加载
 
 **类加载的方式:**
+
 
 - 命令行启动应用时候由jvm初始化加载;
 
@@ -451,6 +458,7 @@ system.gc() 是建议进行垃圾回收,但不一定回收;
  内存分配的仅包括类变量(static),不包括实例变量, 实例变量在对象实例化时随着对象被初始化; 这里所设置的初始值通常情况下是数据类型默认的零值;
  
  **不同的是:** 注意`static final` 是准备阶段赋值,理解为编译时将其放入常量池中;
+
 
 而静态变量的赋值的初始值 put static指令编译后是放在类构造器`<clinit>`方法中;
  
@@ -525,7 +533,7 @@ Runnable 没有返回值,可将耗时操作写在里面,使用线程池去运行
 
 >多线程中运行时异常,UncaughtExceptionHandler,线程在执行单元中是不允许抛出check异常(编译时异常),所以需要`try..catch`,或者包装成RuntimeException,使用UncaughtExceptionHandler接受;
 
-- java线程池创建方式,线程池工作原理:
+- java线程池创建方式,线程池工作原理: new ThreadPoolExecutor(...)
 
  四种线程池,Executor;
  
@@ -680,7 +688,7 @@ cas缺点: 1.ABA问题(a b a,无法检测,使用版本号机制解决);2.循环�
 	} catch (InterruptedException e) {
 	e.printStackTrace();
 	}
-	finally13/04/2018 Page 68 of 283
+	finally
 	{
 	lock.unlock();
 	}
@@ -997,7 +1005,7 @@ Runtime 运行时保留,不丢弃; (可反射)
 
  都是继承Throwable类;
 
-1.error 是系统中的错误,修改程序才可,指java运行时系统的内部错误和资源耗尽错误; 
+1.error 是系统中的错误,修改程序才可,指java运行时系统的内部错误和资源耗尽错误;  oomerror 可以捕获;
 
 exception 是可以捕获处理, 分为编译时异常(CheckedException)和运行时异常(RuntimeException),RuntimeException不需要捕获,需要处理;
 
@@ -1042,9 +1050,7 @@ java位运算: 负数转为原码(补码+1)
 
 ###  加密 ,解密
 
-md5 摘要算法,不可逆;
-
-sha1 用于客户端的用户密码加密;
+md5 摘要算法,不可逆; sha1 用于客户端的用户密码加密;
 
 对称加密: AES,DES ,3DES
 
@@ -1545,6 +1551,35 @@ surfaceVIew的扩展,加入EGL的管理,自带渲染线程;
 > TextureView extends View 
 
 [简:] TextureView是一个可以把内容流作为外部纹理输出在上面的View;本身需要是一个硬件加速层; 事实上TextureView本身也包含了SurfaceTexture; 可以完成SurfaceView+SurfaceTexture类似的功能(内容流上的图像->纹理输出,在单独的Surface上做绘制,可以是用户提供的线程; 另外可以用`Hardware overlay`进行显示); 区别在于TextureView在View hierachy 上做绘制,一般在主线程上做的(5.0后引入渲染线程,在渲染线程上做的); 
+
+### Anr 监测机制
+
+anr 检测监测机制:  android对不同的anr类型 (Broadcast,service,inputEvent)都有一套检测机制;
+
+anr 报告机制机制: 检测到anr以后,需要显示anr对话框,输出日志(发生anr时的进程函数调用栈,cpu使用情况等)
+
+- app层: 应用主线程的处理逻辑;
+
+- framework层 anr机制的核心,主要有ams,broadcastqueue,activeservices,inputmanagerService,inputMonitor,inputChannel,ProcessCpuTracker等;
+
+- Native层 inputDisPatcher.cpp;
+
+
+##### input系统 的anr
+
+![](https://img-blog.csdnimg.cn/20190115171718338.png)
+
+[android anr](https://www.jianshu.com/p/ad1a84b6ec69)
+
+**anr检测**
+
+其中事件分发5s限制定义在`InputDispatcher.cpp`；InputDispatcher::handleTargetsNotReadyLocked（）方法中如果事件5s之内还没有分发完毕，则调用`InputDispatcher::onANRLocked()`提示用户应用发生ANR；
+
+Activity.onCreate执行耗时操作，不管用户如何操作都不会发生ANR，因为输入事件相关监听机制还没有建立起来；InputChannel通道还没有建立这时是不会响应输入事件，InputDispatcher还不能事件发送到应用窗口，ANR监听机制也还没有建立，所以此时是不会报告ANR的。
+
+**anr报告**
+
+最终都是通过`AppErrors.appNotResponding()`方法向用户报anr;弹出一个对话框,告诉用户当前某个程序没响应和日志输出;
 
 ### 音视频(音频解码器,audiotrack,视频解码,opengl绘制,视频编辑转码,视频滤镜)
 
@@ -2216,7 +2251,7 @@ ItemDecoration : onDraw: 绘制item之前调用绘制分割线;getItemOffset: on
 
   - measure 中设置 `match_parent` 节省measure的测量工作;
   - layout中,`dispatchLayoutStep` 分三步
-  	- dispatchLayoutStep1: 选择动画相关; dispatchLayoutStep2: 真正的布局;fill方法; dispatchLayoutStep3: 触发动画;
+  	- dispatchLayoutStep1: pre,选择动画相关fill方法; dispatchLayoutStep2: 真正的布局;fill方法; dispatchLayoutStep3: 触发动画;
   	- `fill`: 有滑动进行一次回收,填充子view,不断添加子view直到 `没有剩余空间`或者`添加的view是focusable且设置stopOnfocusable为true`停止填充; 其中,主要调用`layoutChunk`方法填充,计算剩余空间,有滑动的情况进行回收;
   	- `layoutChunk` 子view处理方法流程: 创建子View -  子View添加到RecyclerView中- 测量子View- 对子View进行布局操作;
   		- 创建子View : `layoutState.next()` 调用 `Recycler.getViewForPosition`方法,而Recycler 就是rlist的缓存关键类,从四大缓存中获取ViewHolder; 没有获取vh,那么调用了`onCreateViewHolder`创建view;接下来调用`bindViewHolder`;设置布局参数;
@@ -2225,6 +2260,8 @@ ItemDecoration : onDraw: 绘制item之前调用绘制分割线;getItemOffset: on
   ```
   LinearLayoutManager.layoutChunk() -  Recycler.getViewForPosition() -  Adapter.onCreateViewHolder() -  设置ownerRecyclerView -  Adapter.onBindViewHolder() -  设置LayoutParams -  RecyclerView.addView() -  Adapter.onViewAttachedToWindow() -  LayoutManager.measureChildWithMargins() -  LayoutManager.layoutDecorated()
   ```
+
+核心在于 RecyclerVIew的 `recycler.getViewForPosition`方法,里面定义了适配器的抽象方法的调用;
 
 回收
 
@@ -3017,95 +3054,126 @@ dataBinding: 布局使用<layout>标签嵌套, 自动生成一系列文件, 使�
  - 最少知识原则(迪米特原则); 一个对象对其他对象有最少的了解;
 
 创建型: 
-
-- 单例
-- 构建者
-- 原型
-- 工厂
-- 抽象工厂
+ 
+- 单例 (饿汉,懒汉,dcl单例,静态内部类单例,容器单例,枚举单例)
+- 构建者(统一组装过程类,构造产品)
+- 原型 (保护性拷贝)
+- 工厂 (简单工厂,静态方法构造对象)
+- 抽象工厂(抽象工厂+多个抽象产品)
 
 行为型:
 
-- 策略
-- 状态
-- 责任链
-- 解释器
-- 命令
-- 观察者
-- 备忘录
-- 迭代器
-- 模板
-- 访问者
-- 中介者
+- 策略 (强调可替换性)
+- 状态 (强调处于某种状态,各种状态平行)
+- 责任链 (强引用连接成一条责任链,由一个判断条件判断由哪个节点去处理; 纯责任链(可以被其中之一处理),不纯责任链)
+- 解释器 (文法)
+- 命令 (抽象出待执行的动作,methodInvoker)
+- 观察者 (发布-订阅)
+- 备忘录 (保存数据内部状态)
+- 迭代器 (统一多数据的遍历接口,不暴露对象内部显示)
+- 模板 (定义一套算法框架)
+- 访问者 (数据结构稳定,数据操作和数据结构分离)
+- 中介者 (松散耦合,将需要耦合的对象集中在中介者上,通过中介达到各对象间的相互作用)
 
 结构型:
 
-- 代理
-- 组合
-- 适配器
-- 装饰者
-- 享元
-- 外观
-- 桥接
+- 代理 (注重控制, 动态代理)
+- 组合 (透明组合模式(相同结构),安全的组合模式(结构可以不一样))
+- 适配器(将不兼容的类融合在一起,生成一个统一的接口)
+- 装饰者 (注重扩展,增强功能,继承关系的替代)
+- 享元 (对象池,减少重复对象的创建)
+- 外观 (将一些功能组合,对外提供统一接口,封装api)
+- 桥接(将抽象部分和实现部分分离,避免直接继承)
 
 -----------
 
 # 三方源码
 
-### okhttp3,拦截器
+### OkHttp (拦截器(责任链模式),超时重传&重定向,http缓存,socket连接池复用)
+
+- 拦截器链,根据拦截器处理请求和响应逻辑;
 
 ###  Glide (生命周期控制,二级缓存,bitmappool复用)
 
+- 采用责任链模式,将encode,decode等类append一起,判断多种情况的调用;
+- 构建者构建快速调用方法
+- 策略模式,提供多种不同缓存策略;
+- 外观模式, Glide类封装多种功能;
+- 二级缓存机制 
+	- 内存缓存,弱引用 + LruCache ->网络 
+	- 磁盘缓存, 原图 + 处理后的图
+
 ### EventBus
+
+- 观察者模式,发布-订阅模型;
 
 ### 依赖注入DI ,butterknife,dagger2;
 
+- apt abstractProcessor (javapoet)生成一系列java文件,初始化对象助于开发;
+
 ### LeakCanary
+
+强引用,弱引用,软引用,虚引用
+
+弱引用 + 引用队列,当弱引用被gc后,都会放入到引用队列中; 一个对象期望被回收,预期的时间没有出现在referenceQueue中,内存泄露了;
 
 ### ARouter
 
-### 插件化（不同插件化机制原理与流派，优缺点。局限性）
-
-### 热修复
+//TODO
 
 ### Rxjava （RxJava 的线程切换原理）
 
+基于事件流,实现异步操作的库
+
+- 观察者模式
+- Handler
+
 ### Retrofit (Retrofit 在 OkHttp 上做了哪些封装？动态代理和静态代理的区别，是怎么实现的; 动态代理,运行时注解)
 
-### OkHttp (拦截器(责任链模式),超时重传&重定向,http缓存,socket连接池复用)
+核心就是动态代理,为每个接口的每个接口方法,生成一个对应的ServiceMethod,并创建OkHttpCall,并使用`serviceMethod.callAdapter.adapt(okHttpCall)`调用并返回结果;
 
 ### acache ,room
 
+-----------
+
 # kotlin
+
+### 基础知识
 
 ### 协程
 
-
+### 高阶函数
 
 -----------
 
 # 算法与数据结构
 
-###
+### 算法基础知识
 
-- 栈 stack
+算法: 一系列程序指令,处理特定的运算和逻辑问题; 
 
-- 队列 queue
+数据结构: 数据的组织,管理和存储形式,为了高效的访问和修改数据;
 
-- 链表 link
+**时间复杂度:** 对一个算法运行时间长短的量度,用大O表示,记做`T(n)=O(f(n))`
 
-- 哈希表 hash table
+常见的时间复杂度从低到高的顺序: O(1) < O(logn) < O(n) < O(nlogn) < O(n^2)
 
-- 排序二叉树 
+**空间复杂度:** 对一个算法在运行过程中临时占用存储空间大小的量度,用大O表示,记做`S(n)=O(f(n))`
 
-- 红黑树 
-	- R-B Tree 特殊的二叉查找树; 每个节点是黑色或者红色;根节点是黑色; 每个null的叶子节点是黑色;如果一个节点是红色的,子节点必须是黑色的; 从一个节点到该节点的子孙节点的所有路径上包含相同数目的黑节点;
-	- 左旋: 将右孩子设为父亲节点,被旋转的节点将变成一个左节点;
-	- 右旋: 将左孩子设为父亲节点,被旋转的节点将变成一个右节点;
+常见空间复杂度从低到高的排序: O(1) < O(n) < O(n^2) ,其中 递归算法的空间复杂度和递归深度成正比;
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20200811072930929.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+> 数组和链表
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20200811073219302.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+数组的时间复杂度(按照索引) 增O(n) 删O(n) 改O(1) 查O(1); 适合读操作多,写操作少的场景;
+
+链表的时间复杂度  增O(1)  删O(1)  改O(1)  查O(n); 适合写操作多,读操作少的场景;
+
+> 逻辑结构和物理结构
+
+逻辑结构 是抽象的概念,
+
+
+
 
 ###  二叉排序树(二叉搜索树),查找下一个元素;
 
@@ -3136,6 +3204,16 @@ dataBinding: 布局使用<layout>标签嵌套, 自动生成一系列文件, 使�
 - 前序遍历: 根节点->左节点->右节点;
 - 中序遍历: 左节点->根节点->右节点;
 - 后序遍历: 左节点->右节点->根节点; 
+
+**红黑树** 
+
+- R-B Tree 特殊的二叉查找树; 每个节点是黑色或者红色;根节点是黑色; 每个null的叶子节点是黑色;如果一个节点是红色的,子节点必须是黑色的; 从一个节点到该节点的子孙节点的所有路径上包含相同数目的黑节点;
+- 左旋: 将右孩子设为父亲节点,被旋转的节点将变成一个左节点;
+- 右旋: 将左孩子设为父亲节点,被旋转的节点将变成一个右节点;
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20200811072930929.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20200811073219302.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01ySmFydmlzRG9uZw==,size_16,color_FFFFFF,t_70)
 
 ###  输出二叉树每层的最大值
 

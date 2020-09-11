@@ -3,11 +3,9 @@ package com.jdev.wandroid.ui.frg
 import android.os.Bundle
 import android.view.View
 import android.widget.QuickContactBadge
-import com.jdev.kit.baseui.BaseFragment
 import com.jdev.kit.baseui.BaseViewStubFragment
 import com.jdev.wandroid.R
 import com.jdev.wandroid.test.TestMath
-import kotlinx.android.synthetic.main.app_frag_show_customview.*
 
 /**
  * info: create by jd in 2019/12/9
