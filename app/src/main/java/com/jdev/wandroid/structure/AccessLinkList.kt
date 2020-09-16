@@ -47,7 +47,7 @@ class AccessLinkList {
     fun get(index: Int): Node? {
         if (index < 0 || index > size) throw IndexOutOfBoundsException("超出范围")
 
-        var currentNode: Node? = null
+        var currentNode: Node? = head
         for (i in 0 until index) {
             currentNode = head?.next
         }
