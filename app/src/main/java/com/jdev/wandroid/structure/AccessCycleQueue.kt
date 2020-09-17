@@ -6,7 +6,7 @@ import java.lang.StringBuilder
 /**
  * info: create by jd in 2020/9/16
  * @see:
- * @description:
+ * @description: 循环队列
  *
  */
 class AccessCycleQueue {

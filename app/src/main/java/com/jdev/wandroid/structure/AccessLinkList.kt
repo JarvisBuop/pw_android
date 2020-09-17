@@ -6,7 +6,7 @@ import java.lang.StringBuilder
 /**
  * info: create by jd in 2020/9/11
  * @see:
- * @description:
+ * @description: 链表
  *
  */
 data class Node(
