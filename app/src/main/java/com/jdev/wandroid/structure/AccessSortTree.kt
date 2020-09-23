@@ -63,12 +63,14 @@ class AccessSortTree {
 
     /**
      * 非递归 前序遍历方案
+     *
      */
     fun preOrderTraversalWithStack(node: TreeNode?) {
         var stack = Stack<TreeNode>()
         var treeNode = node
 
         while (treeNode != null || !stack.isEmpty()) {
+            //while 先查找left
             while (treeNode != null) {
                 System.out.print("-${treeNode.data}")
                 stack.push(treeNode)
@@ -90,11 +92,16 @@ class AccessSortTree {
         var treeNode = node
 
         while (treeNode != null || !queue.isEmpty()) {
-            while (treeNode != null) {
-                queue.push(treeNode)
-
-
+            if (treeNode != null) {
+                System.out.print("-${treeNode.data}")
+                if (treeNode.left != null) {
+                    queue.offer(treeNode.left)
+                }
+                if (treeNode.right != null) {
+                    queue.offer(treeNode.right)
+                }
             }
+            treeNode = queue.poll()
         }
     }
 }

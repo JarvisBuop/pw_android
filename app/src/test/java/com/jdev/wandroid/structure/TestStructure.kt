@@ -63,21 +63,58 @@ class TestStructure {
     @Test
     fun testSortTree1() {
         var linkedList = LinkedList<Int?>(listOf(
-                1, 2, 4, null, null, 5, null, null, 3, null, 6
+//                1, 2, 4, null, null, 5, null, null, 3, null, 6
+                1, 2, 4, null, null, 5, null, null, 3, 6, null, null, 7
         ))
 
         System.out.println("origin data: " + linkedList.joinToString())
         var accessSortTree = AccessSortTree()
         var createBTree1 = accessSortTree.createBTree1(linkedList)
 
+        System.out.print("前序遍历")
         accessSortTree.preOrderTraversal(createBTree1)
         System.out.println("")
+        System.out.print("中序遍历")
         accessSortTree.inOrderTraversal(createBTree1)
         System.out.println("")
+        System.out.print("后序遍历")
         accessSortTree.postOrderTraversal(createBTree1)
         System.out.println("")
-
+        System.out.print("前序遍历-非递归")
         accessSortTree.preOrderTraversalWithStack(createBTree1)
+        System.out.println("")
+        System.out.print("层级遍历")
+        accessSortTree.levelOrderTraversal(createBTree1)
+    }
+
+    @Test
+    fun testHeap(){
+        var array = intArrayOf(
+                1,3,2,6,5,7,8,9,10,0
+        )
+        System.out.println("start:  "+array.contentToString())
+        AccessBinaryHeap.upAdjust(array,array.size)
+        System.out.println("end:  "+array.contentToString())
+
+        array = intArrayOf(
+                7,1,3,10,5,2,8,9,6
+        )
+        System.out.println("start:  "+array.contentToString())
+        AccessBinaryHeap.buildHeap(array)
+        System.out.println("end:  "+array.contentToString())
+    }
+
+    @Test
+    fun testPriorityQueue(){
+        var accessBinaryHeap = AccessBinaryHeap()
+        accessBinaryHeap.enQueue(3)
+        accessBinaryHeap.enQueue(5)
+        accessBinaryHeap.enQueue(10)
+        accessBinaryHeap.enQueue(2)
+        accessBinaryHeap.enQueue(7)
+
+        System.out.println(" 出队元素：" + accessBinaryHeap.deQueue())
+        System.out.println(" 出队元素：" + accessBinaryHeap.deQueue())
     }
 
     @Test
@@ -109,7 +146,6 @@ class TestStructure {
         linkedList.offerFirst(7)
         linkedList.offerLast(8)
         linkedList.print()
-
 
         linkedList.first.toStr()
         linkedList.last.toStr()
