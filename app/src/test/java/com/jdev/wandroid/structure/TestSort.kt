@@ -3,6 +3,8 @@ package com.jdev.wandroid.structure
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 /**
  * info: create by jd in 2020/9/23
@@ -34,7 +36,8 @@ class TestSort {
     @Before
     fun prepare() {
         array = intArrayOf(
-                3, 1, 2, 8, 5, 7, 9, 10, 6, 4, 1
+//                3, 1, 2, 8, 5, 7, 9, 10, 6, 4, 1
+                6, 3, 7, 2, 5, 4, 8, 9
         )
         array.output("start")
     }
@@ -184,18 +187,69 @@ class TestSort {
         }
     }
 
+    /**
+     * 快速排序
+     */
     @Test
     fun quickSort() {
-        /**
-         * 快速排序
-         *
-         */
-        var size = array.size
-        var baseIndex = 0
-//        while ()
+        realQuickSortBilateral(array, 0, array.size - 1, false)
+    }
 
+    /**
+     * 快排:
+     * 双边法  bilateral = true 双边;
+     */
+    fun realQuickSortBilateral(array: IntArray, start: Int, end: Int, bilateral: Boolean) {
+        if (start >= end) return
+        //基准元素位置
+        var partition = if (bilateral) partition(array, start, end) else partitionUnilateral(array, start, end)
+        //根据基准元素,分别递归
+        realQuickSortBilateral(array, start, partition - 1, bilateral)
+        realQuickSortBilateral(array, partition + 1, end, bilateral)
+    }
 
+    /**
+     * 单边循环法
+     */
+    fun partitionUnilateral(array: IntArray, start: Int, end: Int): Int {
+        var pivot = array[start]
+        var mark = start
+        for (i in start+1..end) {
+            if (array[i] < pivot) {
+                mark++
+                changeOrder(mark, i)
+            }
+        }
+        array[start] = array[mark]
+        array[mark] = pivot
+        return mark
+    }
 
+    /**
+     * 分治
+     * 双边循环法
+     */
+    fun partition(array: IntArray, start: Int, end: Int): Int {
+        var pivot = array[start]
+        var left = start
+        var right = end
+        while (left != right) {
+            while (left < right && array[right] > pivot) {
+                right--
+            }
+
+            while (left < right && array[left] <= pivot) {
+                left++
+            }
+
+            if (left < right) {
+                changeOrder(left, right)
+            }
+        }
+        //pivot 和 指针重合点交换(将基准元素放在中间)
+        array[start] = array[left]
+        array[left] = pivot
+        return left
     }
 
 
