@@ -38,23 +38,32 @@ class AccessBinaryHeap {
         /**
          * 下沉调整
          *
-         *
          */
-        fun downAdjust(array: IntArray, parentIndex: Int, length: Int) {
+        fun downAdjust(array: IntArray, parentIndex: Int, length: Int, isSmallHeap: Boolean = true) {
             var temp = array[parentIndex]
             var leftIndex = 2 * parentIndex + 1 //左节点
             var tempParentIndex = parentIndex
             System.out.println(" \n 下沉开始 , 开始位置 ${array[tempParentIndex]} in $tempParentIndex")
             while (leftIndex < length) {
-                //右节点;
-                if (leftIndex + 1 < length && array[leftIndex + 1] < array[leftIndex]) {
-                    System.out.println("下沉使用右节点")
-                    leftIndex += 1
-                }
-                if (temp <= array[leftIndex]) {
-                    break
+                if (isSmallHeap) {
+                    if (leftIndex + 1 < length && array[leftIndex + 1] < array[leftIndex]) {
+                        System.out.println("下沉使用右节点")
+                        leftIndex++
+                    }
+                    if (temp <= array[leftIndex]) {
+                        break
+                    }
+                } else {
+                    if (leftIndex + 1 < length && array[leftIndex + 1] > array[leftIndex]) {
+                        System.out.println("下沉使用右节点")
+                        leftIndex++
+                    }
+                    if (temp >= array[leftIndex]) {
+                        break
+                    }
                 }
                 System.out.println("孩子节点[${array[leftIndex]} in ${leftIndex}]  ==>  父节点[${array[tempParentIndex]} in ${tempParentIndex}]")
+                //单向赋值;
                 array[tempParentIndex] = array[leftIndex]
                 tempParentIndex = leftIndex
                 leftIndex = 2 * tempParentIndex + 1
@@ -66,10 +75,10 @@ class AccessBinaryHeap {
         /**
          * 构建堆 ,从最后一个非叶子节点做下沉调整
          */
-        fun buildHeap(array: IntArray) {
+        fun buildHeap(array: IntArray, isSmallHeap: Boolean = true) {
             var parentIndex = (array.size - 2) / 2 //rightIndex = 2*parentIndex+2  -> parentIndex = (rightIndex -2)/2
             for (i in parentIndex downTo 0 step 1) {
-                downAdjust(array, i, array.size)
+                downAdjust(array, i, array.size, isSmallHeap)
             }
         }
     }
@@ -86,7 +95,7 @@ class AccessBinaryHeap {
             resize()
         }
         array[size++] = key
-        upAdjust(array,size)
+        upAdjust(array, size)
         System.out.println("enQueue: " + array.contentToString())
     }
 

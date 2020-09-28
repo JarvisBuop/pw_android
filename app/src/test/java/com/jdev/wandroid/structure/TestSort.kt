@@ -3,8 +3,6 @@ package com.jdev.wandroid.structure
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
 /**
  * info: create by jd in 2020/9/23
@@ -37,7 +35,8 @@ class TestSort {
     fun prepare() {
         array = intArrayOf(
 //                3, 1, 2, 8, 5, 7, 9, 10, 6, 4, 1
-                6, 3, 7, 2, 5, 4, 8, 9
+//                6, 3, 7, 2, 5, 4, 8, 9,
+                95, 94, 91, 98, 99, 90, 99, 93, 91, 92
         )
         array.output("start")
     }
@@ -49,6 +48,7 @@ class TestSort {
 
     fun changeOrder(start: Int, end: Int) {
         //xor 交换数据; 异或法
+        //注意 与自身交换的情况下会变0;
         array[start] = array[start] xor array[end]
         array[end] = array[start] xor array[end]
         array[start] = array[start] xor array[end]
@@ -195,9 +195,11 @@ class TestSort {
         realQuickSortBilateral(array, 0, array.size - 1, false)
     }
 
+
     /**
      * 快排:
-     * 双边法  bilateral = true 双边;
+     * 递归实现法:
+     * 双边法/单边法  bilateral = true 双边;
      */
     fun realQuickSortBilateral(array: IntArray, start: Int, end: Int, bilateral: Boolean) {
         if (start >= end) return
@@ -214,10 +216,13 @@ class TestSort {
     fun partitionUnilateral(array: IntArray, start: Int, end: Int): Int {
         var pivot = array[start]
         var mark = start
-        for (i in start+1..end) {
+        for (i in start + 1..end) {
             if (array[i] < pivot) {
                 mark++
-                changeOrder(mark, i)
+                if (mark != i) {
+                    // fix 异或交换下相同会置0;
+                    changeOrder(mark, i)
+                }
             }
         }
         array[start] = array[mark]
@@ -250,6 +255,60 @@ class TestSort {
         array[start] = array[left]
         array[left] = pivot
         return left
+    }
+
+    /**
+     * 堆排序
+     */
+    @Test
+    fun heapSort() {
+        //最大堆的升序排序
+        AccessBinaryHeap.buildHeap(array, false)
+        array.output("binaryHeap")
+
+        //循环交换顶部元素和尾部元素,下沉调整堆产生新的堆顶;
+        var lastIndex = array.size - 1
+        for (j in array.size - 1 downTo 1) {
+            changeOrder(j, 0)
+            AccessBinaryHeap.downAdjust(array, 0, j, false)
+        }
+    }
+
+    /**
+     * 计数排序 优化2
+     *
+     * 分清重复数据,稳定排序;
+     */
+    @Test
+    fun countSort() {
+        var max = array[0]
+        var min = array[0]
+        for (i in array) {
+            max = if (i > max) i else max
+            min = if (i < min) i else min
+        }
+        System.out.println("$max  $min")
+        var container = IntArray(max - min + 1)
+        for (i in array) {
+            container[i - min]++
+        }
+        container.output("preAdd")
+        // 从统计数组的第2个元素开始，每一个元素都加上 前面所有元素之和。
+        for (i in container.indices) {
+            if (i > 0) {
+
+                container[i] += container[i - 1]
+            }
+        }
+        container.output("postAdd")
+
+        var tempArray = IntArray(array.size)
+        for (index in array.size - 1 downTo 0) {
+            //元素值-最小值+1的索引即最终的排序索引;
+            tempArray[container[array[index] - min] - 1] = array[index]
+            container[array[index] - min]--
+        }
+        array = tempArray
     }
 
 

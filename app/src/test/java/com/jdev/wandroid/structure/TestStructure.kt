@@ -12,7 +12,9 @@ import kotlin.Comparator
  */
 class TestStructure {
 
-
+    /**
+     * 数组
+     */
     @Test
     fun testArray() {
         var accessArray = AccessArray(3)
@@ -26,6 +28,9 @@ class TestStructure {
         System.out.println(accessArray.toString())
     }
 
+    /**
+     * 链表
+     */
     @Test
     fun testLinkList() {
         var accessLinkList = AccessLinkList()
@@ -40,6 +45,9 @@ class TestStructure {
         System.out.println(accessLinkList.toString())
     }
 
+    /**
+     * 循环队列;
+     */
     @Test
     fun testCycleQueue() {
         var accessCycleQueue = AccessCycleQueue(6)
@@ -60,6 +68,9 @@ class TestStructure {
         System.out.println(accessCycleQueue.toString())
     }
 
+    /**
+     * 二叉排序树
+     */
     @Test
     fun testSortTree1() {
         var linkedList = LinkedList<Int?>(listOf(
@@ -87,25 +98,28 @@ class TestStructure {
         accessSortTree.levelOrderTraversal(createBTree1)
     }
 
+    /**
+     * 二叉堆 相关
+     */
     @Test
-    fun testHeap(){
+    fun testHeap() {
         var array = intArrayOf(
-                1,3,2,6,5,7,8,9,10,0
+                1, 3, 2, 6, 5, 7, 8, 9, 10, 0
         )
-        System.out.println("start:  "+array.contentToString())
-        AccessBinaryHeap.upAdjust(array,array.size)
-        System.out.println("end:  "+array.contentToString())
+        System.out.println("start:  " + array.contentToString())
+        AccessBinaryHeap.upAdjust(array, array.size)
+        System.out.println("end:  " + array.contentToString())
 
         array = intArrayOf(
-                7,1,3,10,5,2,8,9,6
+                7, 1, 3, 10, 5, 2, 8, 9, 6
         )
-        System.out.println("start:  "+array.contentToString())
+        System.out.println("start:  " + array.contentToString())
         AccessBinaryHeap.buildHeap(array)
-        System.out.println("end:  "+array.contentToString())
+        System.out.println("end:  " + array.contentToString())
     }
 
     @Test
-    fun testPriorityQueue(){
+    fun testPriorityQueue() {
         var accessBinaryHeap = AccessBinaryHeap()
         accessBinaryHeap.enQueue(3)
         accessBinaryHeap.enQueue(5)
