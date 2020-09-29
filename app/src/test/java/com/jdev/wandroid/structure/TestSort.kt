@@ -296,7 +296,6 @@ class TestSort {
         // 从统计数组的第2个元素开始，每一个元素都加上 前面所有元素之和。
         for (i in container.indices) {
             if (i > 0) {
-
                 container[i] += container[i - 1]
             }
         }
@@ -309,6 +308,14 @@ class TestSort {
             container[array[index] - min]--
         }
         array = tempArray
+    }
+
+    /**
+     * 桶排序
+     */
+    @Test
+    fun bucketSort() {
+        
     }
 
 
