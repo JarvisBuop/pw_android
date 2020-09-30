@@ -3,6 +3,7 @@ package com.jdev.wandroid.structure
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import java.util.*
 
 /**
  * info: create by jd in 2020/9/23
@@ -26,8 +27,11 @@ import org.junit.Test
  */
 class TestSort {
     lateinit var array: IntArray
-
     fun IntArray.output(prefix: String = "") {
+        System.out.println(prefix + " : " + this.contentToString())
+    }
+
+    fun DoubleArray.output(prefix: String = "") {
         System.out.println(prefix + " : " + this.contentToString())
     }
 
@@ -315,7 +319,27 @@ class TestSort {
      */
     @Test
     fun bucketSort() {
-        
+        var doubleArray: DoubleArray = doubleArrayOf(
+                4.12, 6.421, 0.0023, 3.0, 2.123, 8.122, 4.12, 10.09
+        )
+        doubleArray.output("double start")
+        var max = doubleArray[0]
+        var min = doubleArray[0]
+        for (i in doubleArray) {
+            max = if (i > max) i else max
+            min = if (i < min) i else min
+        }
+        //初始化桶;
+        var bucketNum = doubleArray.size
+        var bucketList = ArrayList<LinkedList<Double>>(bucketNum)
+        System.out.println(bucketList.joinToString())
+        //遍历数组,将元素放入桶中;
+        for (i in 0 until bucketNum) {
+            if (bucketList.get(i) == null) bucketList.add(LinkedList<Double>())
+            var num = (doubleArray[i] - min) * (bucketNum - 1) / (max - min)
+
+        }
+
     }
 
 
