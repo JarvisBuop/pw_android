@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Handler
 import android.os.Message
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
@@ -305,7 +305,7 @@ class ExhanceScrollViewContainer : FrameLayout {
             if (scrollableView is ScrollView) {
                 return HeaderScrollHelper.isScrollViewTop(scrollableView)
             }
-            if (scrollableView is RecyclerView) {
+            if (scrollableView is androidx.recyclerview.widget.RecyclerView) {
                 return HeaderScrollHelper.isRecyclerViewTopCompleteVisiable(scrollableView)
             }
             if (scrollableView is WebView) {
@@ -327,7 +327,7 @@ class ExhanceScrollViewContainer : FrameLayout {
             if (scrollableView is ScrollView) {
                 return HeaderScrollHelper.isScrollViewBottom(scrollableView)
             }
-            if (scrollableView is RecyclerView) {
+            if (scrollableView is androidx.recyclerview.widget.RecyclerView) {
                 return HeaderScrollHelper.isRecyclerViewBottomCompleteVisiable(scrollableView)
             }
             if (scrollableView is WebView) {

@@ -12,9 +12,9 @@ import android.content.IntentFilter
 import android.media.Image
 import android.os.Handler
 import android.os.Message
-import android.support.v4.view.animation.LinearOutSlowInInterpolator
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
@@ -63,7 +63,7 @@ class FloatUtils {
         var img: ImageView? = null
         var imgPlay: ImageView? = null
 
-        var floatDetailRecyclerView: RecyclerView? = null
+        var floatDetailRecyclerView: androidx.recyclerview.widget.RecyclerView? = null
         private var receiver: BroadcastReceiver? = null
         private var isLocationLeft: Boolean = false
 
@@ -154,7 +154,7 @@ class FloatUtils {
             //detail
             mFloatDetailView = mFloatView!!.findViewById(R.id.float_viewgroup)
             //控制gravity和marginTop 显示具体位置;
-            floatDetailRecyclerView = mFloatView!!.findViewById<RecyclerView>(R.id.float_recyclerview)
+            floatDetailRecyclerView = mFloatView!!.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.float_recyclerview)
 
 //            触摸关闭列表;
             mFloatDetailView?.setOnTouchListener { v, event ->
@@ -163,7 +163,7 @@ class FloatUtils {
             }
 
             //init recyclerview
-            floatDetailRecyclerView?.layoutManager = LinearLayoutManager(floatDetailRecyclerView!!.context)
+            floatDetailRecyclerView?.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(floatDetailRecyclerView!!.context)
             mAdapter = object : BaseQuickAdapter<String, BaseViewHolder>(R.layout.app_float_item_include, mDetailDatas) {
                 override fun convert(helper: BaseViewHolder?, item: String?) {
                     helper?.apply {

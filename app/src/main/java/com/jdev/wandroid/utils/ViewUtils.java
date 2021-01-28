@@ -3,7 +3,7 @@ package com.jdev.wandroid.utils;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.ColorRes;
+import androidx.annotation.ColorRes;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;

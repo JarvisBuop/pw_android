@@ -7,7 +7,7 @@ import android.graphics.ImageFormat
 import android.hardware.camera2.*
 import android.media.ImageReader
 import android.os.Build
-import android.support.annotation.RequiresApi
+import androidx.annotation.RequiresApi
 import android.util.Log
 import android.util.Size
 import android.view.Surface

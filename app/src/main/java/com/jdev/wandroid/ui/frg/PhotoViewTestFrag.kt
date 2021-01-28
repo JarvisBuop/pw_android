@@ -1,8 +1,8 @@
 package com.jdev.wandroid.ui.frg
 
 import android.os.Bundle
-import android.support.v4.view.PagerAdapter
-import android.support.v4.view.ViewPager
+import androidx.viewpager.widget.PagerAdapter
+import androidx.viewpager.widget.ViewPager
 import android.view.View
 import android.view.ViewGroup
 import com.jdev.kit.baseui.BaseViewStubFragment
@@ -26,10 +26,10 @@ class PhotoViewTestFrag : BaseViewStubFragment() {
         initScrollImg()
     }
 
-    lateinit var mPager: ViewPager
+    lateinit var mPager: androidx.viewpager.widget.ViewPager
     private fun initScrollImg() {
-        mPager = mRootView.findViewById<ViewPager>(R.id.pager)
-        val mPagerAdapter = object : PagerAdapter() {
+        mPager = mRootView.findViewById<androidx.viewpager.widget.ViewPager>(R.id.pager)
+        val mPagerAdapter = object : androidx.viewpager.widget.PagerAdapter() {
             override fun getCount(): Int {
                 return 3
             }
@@ -40,7 +40,7 @@ class PhotoViewTestFrag : BaseViewStubFragment() {
 
             override fun instantiateItem(container: ViewGroup, position: Int): Any {
                 val view = PhotoView(mContext)
-                val lp = ViewPager.LayoutParams()
+                val lp = androidx.viewpager.widget.ViewPager.LayoutParams()
                 view.layoutParams = lp
                 view.enable()
                 view.setImageResource(R.drawable.wx_notify_bg)

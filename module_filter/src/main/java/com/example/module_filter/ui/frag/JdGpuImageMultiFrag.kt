@@ -5,12 +5,6 @@ import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
-import android.support.v4.view.PagerAdapter
-import android.support.v4.view.ViewPager
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +12,10 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.blankj.utilcode.util.ConvertUtils
 import com.blankj.utilcode.util.StringUtils
 import com.chad.library.adapter.base.BaseQuickAdapter
@@ -39,9 +37,9 @@ import com.jdev.kit.baseui.BaseViewStubFragment
  *
  */
 class JdGpuImageMultiFrag : BaseViewStubFragment() {
-    private lateinit var mRecyclerView:RecyclerView
+    private lateinit var mRecyclerView: androidx.recyclerview.widget.RecyclerView
     private lateinit var mSeekBar:SeekBar
-    private lateinit var mViewPager:ViewPager
+    private lateinit var mViewPager: androidx.viewpager.widget.ViewPager
     private lateinit var mTxtCurrentTab:TextView
     private lateinit var mTxtCenterName:TextView
     private lateinit var mTxtBottomPercent:TextView
@@ -79,7 +77,7 @@ class JdGpuImageMultiFrag : BaseViewStubFragment() {
             var seekBar: Int = 0
     )
 
-    inner class MyPagerAdapter : PagerAdapter() {
+    inner class MyPagerAdapter : androidx.viewpager.widget.PagerAdapter() {
         var map = SparseArray<View>()
 
         override fun isViewFromObject(view: View, `object`: Any): Boolean {
@@ -145,12 +143,11 @@ class JdGpuImageMultiFrag : BaseViewStubFragment() {
     }
 
     private fun initRecyclerView() {
-        mRecyclerView = findView<RecyclerView>(R.id.mRecyclerView)
-        mRecyclerView.layoutManager = LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false)
-        mRecyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
-
-            override fun getItemOffsets(outRect: Rect?, view: View?, parent: RecyclerView?, state: RecyclerView.State?) {
-                var viewLayoutPosition = (view?.layoutParams as RecyclerView.LayoutParams).viewLayoutPosition
+        mRecyclerView = findView<androidx.recyclerview.widget.RecyclerView>(R.id.mRecyclerView)
+        mRecyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(mContext, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false)
+        mRecyclerView.addItemDecoration(object : androidx.recyclerview.widget.RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+                var viewLayoutPosition = (view?.layoutParams as androidx.recyclerview.widget.RecyclerView.LayoutParams).viewLayoutPosition
                 if (viewLayoutPosition == (parent?.adapter?.itemCount ?: 0) - 1) {
                     outRect?.set(ConvertUtils.dp2px(15f), 0, ConvertUtils.dp2px(15f), 0)
                 } else {
@@ -214,12 +211,12 @@ class JdGpuImageMultiFrag : BaseViewStubFragment() {
     }
 
     private fun initViewPager() {
-        mViewPager = findView<ViewPager>(R.id.mViewPager)
+        mViewPager = findView<androidx.viewpager.widget.ViewPager>(R.id.mViewPager)
         mTxtCurrentTab = findView<TextView>(R.id.mTxtCurrentTab)
         mTxtCenterName = findView<TextView>(R.id.mTxtCenterName)
         mTxtBottomPercent = findView<TextView>(R.id.mTxtBottomPercent)
         mGroupLabel = findView<View>(R.id.mGroupLabel)
-        mViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+        mViewPager.addOnPageChangeListener(object : androidx.viewpager.widget.ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(state: Int) {
             }
 
@@ -238,7 +235,7 @@ class JdGpuImageMultiFrag : BaseViewStubFragment() {
                 var indexOf = allFilters.indexOf(filterData.filterType)
 
                 if (indexOf != -1) {
-                    mRecyclerView.adapter.notifyDataSetChanged()
+                    mRecyclerView.adapter?.notifyDataSetChanged()
                     mRecyclerView.smoothScrollToPosition(indexOf)
                     //fromUser attention;
                     mSeekBar.progress = filterData.seekBar

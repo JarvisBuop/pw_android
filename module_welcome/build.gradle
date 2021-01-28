@@ -28,7 +28,7 @@ android {
         versionCode getGitVersion()
         versionName rootProject.ext.androidVersion.versionName
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
 //        //ARouter
 //        javaCompileOptions {
@@ -103,8 +103,8 @@ dependencies {
     api project(path: ':lib_kit')
 
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
 
     /**
      * lottie
@@ -115,8 +115,6 @@ dependencies {
         exclude group: 'com.android.support'
     }
 
-    //已扩展源码;
-//    implementation rootProject.ext.dependencies.flycotablayout_lib
     implementation rootProject.ext.dependencies.smartrefresh_lib
     implementation rootProject.ext.dependencies.smartrefresh_header_lib//没有使用特殊Header，可以不加这行
 }

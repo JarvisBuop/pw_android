@@ -3,7 +3,7 @@ package com.jdev.kit.widget
 import android.content.Context
 import android.graphics.*
 import android.os.Build
-import android.support.annotation.ColorRes
+import androidx.annotation.ColorRes
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View

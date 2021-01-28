@@ -4,7 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.support.multidex.MultiDexApplication
+import androidx.multidex.MultiDexApplication
 import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.Utils
 import com.bumptech.glide.Glide

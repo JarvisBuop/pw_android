@@ -1,13 +1,13 @@
 package com.jdev.wandroid.mvvm
 
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.Observer
-import android.databinding.BaseObservable
-import android.databinding.ObservableArrayList
-import android.databinding.ObservableField
-import android.databinding.ObservableInt
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import androidx.databinding.BaseObservable
+import androidx.databinding.ObservableArrayList
+import androidx.databinding.ObservableField
+import androidx.databinding.ObservableInt
 import android.graphics.drawable.Drawable
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.jarvisdong.kit.baseui.BaseApp
@@ -20,7 +20,7 @@ import com.jdev.wandroid.databinding.AppFragMvvmTestBinding
  * @description: 绑定的vm;
  *
  */
-class TestViewModel(val fragment: Fragment) : BaseObservable() {
+class TestViewModel(val fragment: androidx.fragment.app.Fragment) : BaseObservable() {
     var mAdapter: BaseQuickAdapter<String, BaseViewHolder>? = null
     var mDataLists = arrayListOf<String>()
     var mutableLiveData: MutableLiveData<ArrayList<String>> = MutableLiveData()

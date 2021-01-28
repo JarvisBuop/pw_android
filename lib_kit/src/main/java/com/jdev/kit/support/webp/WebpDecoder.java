@@ -2,7 +2,7 @@ package com.jdev.kit.support.webp;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.bumptech.glide.gifdecoder.GifDecoder;
 import com.bumptech.glide.gifdecoder.GifHeader;

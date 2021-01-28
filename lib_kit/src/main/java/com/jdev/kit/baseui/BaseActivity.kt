@@ -2,8 +2,8 @@ package com.jdev.kit.baseui
 
 import android.content.Context
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
-import android.support.v7.app.AppCompatActivity
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStub
@@ -22,7 +22,7 @@ abstract class BaseActivity : AppCompatActivity() {
     protected val TAG: String = this::class.java.name
 
     //init default view;
-    protected var toolbar: android.support.v7.widget.Toolbar? = null
+    protected var toolbar: androidx.appcompat.widget.Toolbar? = null
     protected var appbarLayout: View? = null
     protected var barLeftView: TextView? = null
     protected var barTitleView: TextView? = null

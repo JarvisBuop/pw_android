@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.PermissionChecker
+import androidx.core.app.ActivityCompat
+import androidx.core.content.PermissionChecker
 import com.jdev.kit.baseui.BaseActivity
 import com.jdev.kit.baseui.BaseFragment
 import com.jdev.wandroid.R

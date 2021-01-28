@@ -2,8 +2,8 @@ package com.jdev.wandroid.ui.frg
 
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
 import android.widget.SeekBar
@@ -36,7 +36,7 @@ class GpuImageMultiImageFrag : BaseViewStubFragment() {
     private var progress: Int = 0
 
     lateinit var seekBar:SeekBar
-    lateinit var recyclerview:RecyclerView
+    lateinit var recyclerview: androidx.recyclerview.widget.RecyclerView
 
     override fun getViewStubId(): Int {
         return R.layout.app_frag_gpuimage
@@ -94,7 +94,7 @@ class GpuImageMultiImageFrag : BaseViewStubFragment() {
 
     private fun initRecyclerView() {
         recyclerview = findView(R.id.recyclerview)
-        recyclerview.layoutManager = GridLayoutManager(mContext, 2)
+        recyclerview.layoutManager = androidx.recyclerview.widget.GridLayoutManager(mContext, 2)
         myAdapter = MyAdapter<FilterVo>(R.layout.app_item_gpuimage)
         recyclerview.adapter = myAdapter
     }

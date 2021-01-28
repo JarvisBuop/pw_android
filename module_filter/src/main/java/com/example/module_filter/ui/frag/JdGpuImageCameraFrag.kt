@@ -9,10 +9,10 @@ import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.PermissionChecker
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.PermissionChecker
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
@@ -42,7 +42,7 @@ class JdGpuImageCameraFrag : BaseViewStubFragment() {
     lateinit var btn_camera_mode:ImageView
     lateinit var btn_camera_beauty:ImageView
     lateinit var layout_filter:View
-    lateinit var filter_listView:RecyclerView
+    lateinit var filter_listView: androidx.recyclerview.widget.RecyclerView
     lateinit var displayView: JdGPUDisplayView
 
 
@@ -73,7 +73,7 @@ class JdGpuImageCameraFrag : BaseViewStubFragment() {
     }
 
     private lateinit var mFilterLayout: View
-    private lateinit var mFilterListView: RecyclerView
+    private lateinit var mFilterListView: androidx.recyclerview.widget.RecyclerView
     private lateinit var mAdapter: FilterAdapter
     private lateinit var btn_shutter: ImageView
     private lateinit var btn_mode: ImageView
@@ -101,8 +101,8 @@ class JdGpuImageCameraFrag : BaseViewStubFragment() {
         btn_camera_mode.setOnClickListener(btn_listener)
         btn_camera_beauty.setOnClickListener(btn_listener)
 
-        val linearLayoutManager = LinearLayoutManager(mContext)
-        linearLayoutManager.orientation = LinearLayoutManager.HORIZONTAL
+        val linearLayoutManager = androidx.recyclerview.widget.LinearLayoutManager(mContext)
+        linearLayoutManager.orientation = androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL
         mFilterListView!!.layoutManager = linearLayoutManager
 
         mAdapter = FilterAdapter(mContext, types)

@@ -6,8 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v7.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.util.SparseArray
 import android.view.*
 import android.view.inputmethod.EditorInfo
@@ -252,9 +252,9 @@ class MainActivity : BaseActivity() {
             clickItemByClazz(mAdapterBottom.getItem(position), mAdapterTop.getItem(position)?.clazzCode)
         }
 
-        first_recyclerview.layoutManager = LinearLayoutManager(mContext)
+        first_recyclerview.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(mContext)
         first_recyclerview.adapter = mAdapterTop
-        second_recyclerview.layoutManager = LinearLayoutManager(mContext)
+        second_recyclerview.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(mContext)
         second_recyclerview.adapter = mAdapterBottom
     }
 

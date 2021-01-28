@@ -1,17 +1,17 @@
 package com.zt.base.debug.coordinate
 
-import android.support.design.widget.CoordinatorLayout
-import android.support.v4.math.MathUtils
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.math.MathUtils
 import android.view.View
 import com.jdev.wandroid.R
 
-class TopBehavior : CoordinatorLayout.Behavior<View>() {
-    override fun layoutDependsOn(parent: CoordinatorLayout, child: View, dependency: View): Boolean {
+class TopBehavior : androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior<View>() {
+    override fun layoutDependsOn(parent: androidx.coordinatorlayout.widget.CoordinatorLayout, child: View, dependency: View): Boolean {
         return dependency.id == R.id.dynamicView
     }
 
-    override fun onDependentViewChanged(parent: CoordinatorLayout, child: View, dependency: View): Boolean {
-        val behavior = (dependency.layoutParams as CoordinatorLayout.LayoutParams).behavior
+    override fun onDependentViewChanged(parent: androidx.coordinatorlayout.widget.CoordinatorLayout, child: View, dependency: View): Boolean {
+        val behavior = (dependency.layoutParams as androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams).behavior
         if (behavior is MoveBehavior) {
             val left = child.left + behavior.dx
             val right = child.right + behavior.dx

@@ -16,11 +16,10 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.androidVersion.minSdkVersion
         targetSdkVersion rootProject.ext.androidVersion.targetSdkVersion
-//        applicationId "com.example.module_filter"
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         multiDexEnabled true
     }
 
@@ -75,8 +74,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     //test
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
 
     //func
     implementation rootProject.ext.dependencies.kotlin_stdlib

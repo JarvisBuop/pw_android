@@ -1,9 +1,9 @@
 package com.jdev.kit.baseui
 
 import android.os.Bundle
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.view.ViewStub
 import com.blankj.utilcode.util.LogUtils
@@ -19,7 +19,7 @@ import org.reactivestreams.Subscription
  * @description: only recyclerview fragment;
  *
  */
-abstract class BaseRecyclerViewFragment<T> : BaseViewStubFragment(), SwipeRefreshLayout.OnRefreshListener {
+abstract class BaseRecyclerViewFragment<T> : BaseViewStubFragment(), androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener {
     protected var mAdapter: BaseQuickAdapter<T, BaseViewHolder>? = null
     protected var mDataList: ArrayList<T>? = null
 
@@ -54,9 +54,9 @@ abstract class BaseRecyclerViewFragment<T> : BaseViewStubFragment(), SwipeRefres
     }
 
     open fun initRecyclerView() {
-        findView<RecyclerView>(R.id.recyclerView)?.layoutManager = getLayoutManager()
+        findView<androidx.recyclerview.widget.RecyclerView>(R.id.recyclerView)?.layoutManager = getLayoutManager()
         if (getItemDecoration() != null) {
-            findView<RecyclerView>(R.id.recyclerView)?.addItemDecoration(getItemDecoration()!!)
+            findView<androidx.recyclerview.widget.RecyclerView>(R.id.recyclerView)?.addItemDecoration(getItemDecoration()!!)
         }
         try {
             mDataList = ArrayList()
@@ -65,21 +65,21 @@ abstract class BaseRecyclerViewFragment<T> : BaseViewStubFragment(), SwipeRefres
         } catch (e: Exception) {
             LogUtils.e("${javaClass.name} adapter initial encounter a exception ")
         }
-        findView<RecyclerView>(R.id.recyclerView)?.adapter = mAdapter
+        findView<androidx.recyclerview.widget.RecyclerView>(R.id.recyclerView)?.adapter = mAdapter
     }
 
     private fun initSwipeView() {
         if (isSupportRefresh()) {
-            findView<SwipeRefreshLayout>(R.id.swipeRefreshLayout)?.isEnabled = true
-            findView<SwipeRefreshLayout>(R.id.swipeRefreshLayout)?.setColorSchemeResources(R.color.red, R.color.green, R.color.blue)
-            findView<SwipeRefreshLayout>(R.id.swipeRefreshLayout)?.setOnRefreshListener(this)
+            findView<androidx.swiperefreshlayout.widget.SwipeRefreshLayout>(R.id.swipeRefreshLayout)?.isEnabled = true
+            findView<androidx.swiperefreshlayout.widget.SwipeRefreshLayout>(R.id.swipeRefreshLayout)?.setColorSchemeResources(R.color.red, R.color.green, R.color.blue)
+            findView<androidx.swiperefreshlayout.widget.SwipeRefreshLayout>(R.id.swipeRefreshLayout)?.setOnRefreshListener(this)
         } else {
-            findView<SwipeRefreshLayout>(R.id.swipeRefreshLayout)?.isEnabled = false
+            findView<androidx.swiperefreshlayout.widget.SwipeRefreshLayout>(R.id.swipeRefreshLayout)?.isEnabled = false
         }
     }
 
     override fun onRefresh() {
-        findView<SwipeRefreshLayout>(R.id.swipeRefreshLayout)?.isRefreshing = false
+        findView<androidx.swiperefreshlayout.widget.SwipeRefreshLayout>(R.id.swipeRefreshLayout)?.isRefreshing = false
         resetInitParams()
         loadDatas()
     }
@@ -134,11 +134,11 @@ abstract class BaseRecyclerViewFragment<T> : BaseViewStubFragment(), SwipeRefres
     }
 
 
-    open fun getLayoutManager(): RecyclerView.LayoutManager {
-        return LinearLayoutManager(mContext)
+    open fun getLayoutManager(): androidx.recyclerview.widget.RecyclerView.LayoutManager {
+        return androidx.recyclerview.widget.LinearLayoutManager(mContext)
     }
 
-    open fun getItemDecoration(): RecyclerView.ItemDecoration? = null
+    open fun getItemDecoration(): androidx.recyclerview.widget.RecyclerView.ItemDecoration? = null
 
 
     abstract fun fetchDatas(): Subscription?

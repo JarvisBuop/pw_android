@@ -47,6 +47,4 @@ artifacts {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     compileOnly rootProject.ext.dependencies.support_recyclerview
-
-//    implementation rootProject.ext.dependencies.android_multidex
 }

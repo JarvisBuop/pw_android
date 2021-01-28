@@ -1,6 +1,6 @@
 package com.jdev.module_welcome.ui.act
 
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.PersistableBundle

@@ -3,7 +3,7 @@ package com.jdev.wandroid.utils.gputils
 import android.graphics.ImageFormat
 import android.media.Image
 import android.os.Build
-import android.support.annotation.RequiresApi
+import androidx.annotation.RequiresApi
 
 /**
  * Image类的扩展方法;

@@ -2,9 +2,9 @@ package com.jdev.module_welcome.ui.frag
 
 import android.os.Bundle
 import android.os.ProxyFileDescriptorCallback
-import android.support.v4.app.Fragment
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.StaggeredGridLayoutManager
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,7 +21,7 @@ import com.jdev.module_welcome.R
  *
  * 基类 fragment;
  */
-class KtChildBaseFragment : Fragment(), HeaderScrollHelper.ScrollableContainer {
+class KtChildBaseFragment : androidx.fragment.app.Fragment(), HeaderScrollHelper.ScrollableContainer {
 
     private var position: Int = 0
     var callback: ((position: Int) -> Unit)? = null
@@ -41,7 +41,7 @@ class KtChildBaseFragment : Fragment(), HeaderScrollHelper.ScrollableContainer {
     var mDataList: ArrayList<String> = ArrayList()
     var mChildAdapter: ChildBaseAdapter<String>? = null
     protected var isInitView: Boolean = false
-    protected var recyclerview: RecyclerView? = null
+    protected var recyclerview: androidx.recyclerview.widget.RecyclerView? = null
 
     override fun getScrollableView(): View? {
 //        LogUtils.e(TAG, "getScrollableView $recyclerview")
@@ -64,7 +64,7 @@ class KtChildBaseFragment : Fragment(), HeaderScrollHelper.ScrollableContainer {
 
     fun initRecyclerView() {
         mDataList = ArrayList()
-        recyclerview?.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+        recyclerview?.layoutManager = androidx.recyclerview.widget.StaggeredGridLayoutManager(2, androidx.recyclerview.widget.StaggeredGridLayoutManager.VERTICAL)
         mChildAdapter = ChildBaseAdapter(R.layout.mw_item_sample_view, mDataList)
         mChildAdapter?.setOnLoadMoreListener({
             recyclerview?.postDelayed({

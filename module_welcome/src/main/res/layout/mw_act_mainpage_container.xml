@@ -17,7 +17,7 @@
             android:orientation="vertical"
             app:hvp_topOffset="0dp">
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white">
@@ -70,9 +70,9 @@
                     app:tl_textsize="15sp"
                     app:tl_underline_height="1dp" />
 
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <android.support.v4.view.ViewPager
+            <androidx.viewpager.widget.ViewPager
                 android:id="@+id/common_viewpager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

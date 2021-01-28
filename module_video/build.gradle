@@ -28,7 +28,7 @@ android {
         versionCode getGitVersion()
         versionName rootProject.ext.androidVersion.versionName
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
 //        //ARouter
 //        javaCompileOptions {
@@ -106,8 +106,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
 
     api project(path: ':lib_kit')
     api project(path: ':lib_jiaozivideoplayer')

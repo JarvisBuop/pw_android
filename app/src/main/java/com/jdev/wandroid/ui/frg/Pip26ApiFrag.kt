@@ -11,9 +11,9 @@ import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.support.annotation.DrawableRes
-import android.support.annotation.RequiresApi
-import android.support.v4.app.FragmentActivity
+import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
+import androidx.fragment.app.FragmentActivity
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -112,7 +112,7 @@ class Pip26ApiFrag : BaseViewStubFragment() {
     /**
      * 进入画中画模式;
      */
-    private fun enterPip(activity: FragmentActivity) {
+    private fun enterPip(activity: androidx.fragment.app.FragmentActivity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // Calculate the aspect ratio of the PiP screen.
             var rational = Rational(mVideoView.width, mVideoView.height)

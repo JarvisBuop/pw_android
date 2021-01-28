@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/menu_icon_user" />
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -122,6 +122,6 @@
                     android:text="222222222222222222222222222222222222222222" />
             </com.jdev.kit.widget.ShadowViewWrapper>
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 </FrameLayout>

@@ -2,8 +2,8 @@ package com.jdev.kit.baseui
 
 import android.content.Context
 import android.os.Bundle
-import android.support.annotation.IdRes
-import android.support.v4.app.Fragment
+import androidx.annotation.IdRes
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +15,7 @@ import com.blankj.utilcode.util.ToastUtils
  * @description:
  *
  */
-abstract class BaseFragment : Fragment() {
+abstract class BaseFragment : androidx.fragment.app.Fragment() {
     private val isDebug = true
     protected var mContext: Context? = null
     protected val TAG: String = this::class.java.name

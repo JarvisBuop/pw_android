@@ -39,7 +39,7 @@ android {
 
         multiDexEnabled true
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
 //        externalNativeBuild {
 //            cmake {
@@ -155,8 +155,8 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
 
     //公用库
     api project(path: ':lib_kit')

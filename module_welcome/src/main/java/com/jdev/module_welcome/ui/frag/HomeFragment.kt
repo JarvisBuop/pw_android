@@ -3,9 +3,9 @@ package com.jdev.module_welcome.ui.frag
 import android.animation.IntEvaluator
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.view.ViewPager
-import android.support.v4.widget.SwipeRefreshLayout
+import androidx.fragment.app.Fragment
+import androidx.viewpager.widget.ViewPager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import android.view.View
 import android.view.ViewGroup
 import com.blankj.utilcode.util.BarUtils
@@ -30,7 +30,7 @@ import java.util.ArrayList
  */
 class HomeFragment : BaseFragment() {
     private lateinit var mCurrentFragment: KtChildBaseFragment
-    private var fragments: ArrayList<Fragment> = arrayListOf()
+    private var fragments: ArrayList<androidx.fragment.app.Fragment> = arrayListOf()
     private var tabs: ArrayList<String> = arrayListOf("")
     private var currentItem: Int = 1
     private var fakeIsShow: Boolean = false
@@ -38,7 +38,7 @@ class HomeFragment : BaseFragment() {
 
     lateinit var swipeRefreshView: SmartRefreshLayout
     lateinit var scrollView: HeaderViewPager
-    lateinit var common_viewpager: ViewPager
+    lateinit var common_viewpager: androidx.viewpager.widget.ViewPager
     lateinit var common_tablayout: SlidingTabLayout
     lateinit var fake_search_item_compat: KtStatusBarHeightView
     lateinit var real_search_item: View
@@ -87,7 +87,7 @@ class HomeFragment : BaseFragment() {
             animForFlexMarginBar(currentY, floatViewMarginTop - getStateBarByVersion() + paddingOffset)
         }
 
-        common_viewpager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+        common_viewpager.addOnPageChangeListener(object : androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener() {
             override fun onPageSelected(position: Int) {
                 currentItem = position
                 setCurrentContainer(fragments, currentItem)
@@ -116,8 +116,8 @@ class HomeFragment : BaseFragment() {
         notifyTabAdapterChanged()
     }
 
-    private fun getFragmentByTabs(tabs: ArrayList<String>): ArrayList<Fragment> {
-        var fragments: ArrayList<Fragment> = arrayListOf()
+    private fun getFragmentByTabs(tabs: ArrayList<String>): ArrayList<androidx.fragment.app.Fragment> {
+        var fragments: ArrayList<androidx.fragment.app.Fragment> = arrayListOf()
         for (i in tabs.indices) {
             fragments.add(KtChildBaseFragment.newInstance(i) { onInitView(i) })
         }
@@ -176,7 +176,7 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    fun setCurrentContainer(fragments: ArrayList<Fragment>, position: Int) {
+    fun setCurrentContainer(fragments: ArrayList<androidx.fragment.app.Fragment>, position: Int) {
         try {
             if (position < fragments.size) {
                 val fragment = fragments.get(position)
@@ -188,7 +188,7 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    fun scrollOtherListToTop(current: Int, fragments: ArrayList<Fragment>) {
+    fun scrollOtherListToTop(current: Int, fragments: ArrayList<androidx.fragment.app.Fragment>) {
         try {
             for (i in fragments.indices) {
                 val fragment = fragments.get(i) as KtChildBaseFragment

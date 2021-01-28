@@ -1,7 +1,7 @@
 package com.chad.library.adapter.base.util;
 
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 /**
  * info: create by jd in 2019/5/5

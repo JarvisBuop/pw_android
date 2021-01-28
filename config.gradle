@@ -12,17 +12,18 @@ ext {
 
 //    android  third party version ;
     dependencyVersion = [
-            supportLibraryVersion     : "27.1.1",
+//            supportLibraryVersion     : "27.1.1",
+            androidx_version          : "1.0.0",
             constraintVersion         : "1.1.3",
-            multidex_version          : "1.0.3",
+            multidex_version          : "2.0.0",
             rxjava_version            : "2.1.9",
             rxandroid_version         : "2.0.1",
             lottie_version            : "2.7.0",
             blackjutil_version        : "1.26.0",
             glide_core_version        : "4.7.1",
-//            glide_core_version        : "4.11.0",
             glide_compiler_version    : "4.11.0",
             facebook_webp_version     : "1.9.0",
+            facebook_webp_soloader    : "0.6.0",
             okhttp_version            : "3.10.0",
             okhttp_integration_version: "4.6.1",
             ijkplayer_java_version    : "0.8.8",
@@ -38,14 +39,14 @@ ext {
 //    android support & third party;
     dependencies = [
             //android support
-            appcompatV7                   : "com.android.support:appcompat-v7:${dependencyVersion.supportLibraryVersion}",
-            supportV4                     : "com.android.support:support-v4:${dependencyVersion.supportLibraryVersion}",
-            support_annotations           : "com.android.support:support-annotations:${dependencyVersion.supportLibraryVersion}",
-            support_design                : "com.android.support:design:${dependencyVersion.supportLibraryVersion}",
-            support_recyclerview          : "com.android.support:recyclerview-v7:${dependencyVersion.supportLibraryVersion}",
-            support_cardview              : "com.android.support:cardview-v7:${dependencyVersion.supportLibraryVersion}",
-            support_palette               : "com.android.support:palette-v7:${dependencyVersion.supportLibraryVersion}",
-            constraint_layout             : "com.android.support.constraint:constraint-layout:${dependencyVersion.constraintVersion}",
+            appcompatV7                   : "androidx.appcompat:appcompat:${dependencyVersion.androidx_version}",
+            supportV4                     : "androidx.legacy:legacy-support-v4:${dependencyVersion.androidx_version}",
+            support_annotations           : "androidx.annotation:annotation:${dependencyVersion.androidx_version}",
+            support_design                : "com.google.android.material:material:${dependencyVersion.androidx_version}",
+            support_recyclerview          : "androidx.recyclerview:recyclerview:${dependencyVersion.androidx_version}",
+            support_cardview              : "androidx.cardview:cardview:${dependencyVersion.androidx_version}",
+            constraint_layout             : "androidx.constraintlayout:constraintlayout:${dependencyVersion.constraintVersion}",
+//            support_palette               : "com.android.support:palette-v7:${dependencyVersion.supportLibraryVersion}",
 
             //kotlin support
             kotlin_stdlib                 : "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",
@@ -54,7 +55,7 @@ ext {
             kotlin_stdlib_coroutines      : "org.jetbrains.kotlinx:kotlinx-coroutines-core:${dependencyVersion.kotlin_lib_version}",
 
             //multidex support
-            android_multidex              : "com.android.support:multidex:${dependencyVersion.multidex_version}",
+            android_multidex              : "androidx.multidex:multidex:${dependencyVersion.multidex_version}",
 
             //rxjava support
             rxjava2_core                  : "io.reactivex.rxjava2:rxjava:${dependencyVersion.rxjava_version}",
@@ -79,12 +80,12 @@ ext {
             //commonutil
             blackj_util                   : "com.blankj:utilcode:${dependencyVersion.blackjutil_version}",
 
-            //webp support   依赖不了的话 1.9.0 <->2.0.0 互换,gradle 真是活见鬼的bug;
+            //webp support   依赖不了的话 1.9.0 <->2.0.0 互换,gradle 真是活见鬼的android studio 缓存bug;
             glide_lib                     : "com.github.bumptech.glide:glide:${dependencyVersion.glide_core_version}",
             glide_compiler_lib            : "com.github.bumptech.glide:compiler:${dependencyVersion.glide_compiler_version}",
             facebook_webp                 : "com.facebook.fresco:animated-webp:${dependencyVersion.facebook_webp_version}",
             facebook_gif                  : "com.facebook.fresco:animated-gif:${dependencyVersion.facebook_webp_version}",
-            facebook_soloader             : "com.facebook.soloader:soloader:0.6.0",
+            facebook_soloader             : "com.facebook.soloader:soloader:${dependencyVersion.facebook_webp_soloader}",
             facebook_imagepipeline_base   : "com.facebook.fresco:imagepipeline-base:${dependencyVersion.facebook_webp_version}",
             facebook_imagepipeline        : "com.facebook.fresco:imagepipeline:${dependencyVersion.facebook_webp_version}",
             facebook_webpsupport          : "com.facebook.fresco:webpsupport:${dependencyVersion.facebook_webp_version}",
@@ -96,7 +97,6 @@ ext {
             exoplayer_core                : "com.google.android.exoplayer:exoplayer:${dependencyVersion.exoplayer_version}",
 
             //customview support
-            flycotablayout_lib            : "com.flyco.tablayout:FlycoTabLayout_Lib:${dependencyVersion.flycotablayout_version}",
             smartrefresh_lib              : "com.scwang.smartrefresh:SmartRefreshLayout:${dependencyVersion.smartrefresh_core_version}",
             smartrefresh_header_lib       : "com.scwang.smartrefresh:SmartRefreshHeader:${dependencyVersion.smartrefresh_core_version}",
     ]

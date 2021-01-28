@@ -55,6 +55,4 @@ dependencies {
     api (rootProject.ext.dependencies.blackj_util) {
         exclude group: 'org.jetbrains.kotlin'
     }
-
-//    compileOnly rootProject.ext.dependencies.appcompatV7
 }

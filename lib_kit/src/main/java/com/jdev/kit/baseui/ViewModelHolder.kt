@@ -1,8 +1,8 @@
 package com.jdev.kit.baseui
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 
 /**
  * info: create by jd in 2020/4/1
@@ -10,7 +10,7 @@ import android.support.v4.app.FragmentManager
  * @description: Non-UI Fragment used to retain ViewModels.
  *
  */
-class ViewModelHolder<VM> : Fragment() {
+class ViewModelHolder<VM> : androidx.fragment.app.Fragment() {
 
     var mViewModel: VM? = null
 
@@ -24,7 +24,7 @@ class ViewModelHolder<VM> : Fragment() {
         }
 
         //绑定指定tag至fm,如果没有绑定则新建一个新的无ui fragment(内部有vm)加入fm监听生命周期;
-        fun <VM> bindVMToActivity(fragmentManager: FragmentManager, tag: String, createAction: (() -> VM)? = null): VM? {
+        fun <VM> bindVMToActivity(fragmentManager: androidx.fragment.app.FragmentManager, tag: String, createAction: (() -> VM)? = null): VM? {
             var retainedVmHolder = fragmentManager.findFragmentByTag(tag) as ViewModelHolder<VM>?
             if (retainedVmHolder?.mViewModel != null) {
                 return retainedVmHolder?.mViewModel
