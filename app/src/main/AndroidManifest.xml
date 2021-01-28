@@ -53,6 +53,9 @@
         <activity android:name=".ui.act.RecentActivity"
             android:screenOrientation="portrait"/>
 
+        <activity android:name="com.zt.base.debug.coordinate.TestCoordinateAct"
+            android:screenOrientation="portrait"/>
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

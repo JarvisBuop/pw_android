@@ -23,6 +23,7 @@ import com.jdev.module_video.ui.act.GithubJiaoziVideoAct
 import com.jdev.module_welcome.ui.act.FullscreenActivity
 import com.jdev.module_welcome.ui.act.WelcomeActivity
 import com.jdev.wandroid.R
+import com.zt.base.debug.coordinate.TestCoordinateAct
 import kotlinx.android.synthetic.main.app_activity_main.*
 import kotlinx.android.synthetic.main.app_include_main_top.*
 import kotlin.properties.ReadWriteProperty
@@ -90,8 +91,9 @@ class MainActivity : BaseActivity() {
                     "最近使用的应用act,可在多任务栏中查看到多个任务",
                     clazz = RecentActivity::class.java
             ),
-            OrientVo("test",
-                    "desc")
+            OrientVo("coordinate",
+                    "desc",
+            clazz = TestCoordinateAct::class.java)
     )
 
 

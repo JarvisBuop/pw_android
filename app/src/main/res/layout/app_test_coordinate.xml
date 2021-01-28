@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--    <android.support.v4.widget.NestedScrollView-->
+    <!--        android:id="@+id/dynamicView"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:background="@color/blue_alpha"-->
+    <!--        android:layout_height="match_parent">-->
+
+    <!--        <LinearLayout-->
+    <!--            android:id="@+id/dv_container"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="match_parent"-->
+    <!--            android:orientation="vertical">-->
+
+    <!--            <android.support.v7.widget.RecyclerView-->
+    <!--                android:id="@+id/rvView"-->
+    <!--                android:layout_width="match_parent"-->
+    <!--                android:layout_height="match_parent"/>-->
+
+    <!--        </LinearLayout>-->
+
+
+    <!--    </android.support.v4.widget.NestedScrollView>-->
+
+
+    <com.zt.base.debug.coordinate.MoveView
+        android:id="@+id/dynamicView"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:background="@color/blue_alpha" />
+
+
+    <View
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="#ff00ff"
+        app:layout_anchor="@id/dynamicView"
+        app:layout_anchorGravity="right" />
+
+    <com.zt.base.debug.coordinate.BehaviorFrameView
+        android:id="@+id/viewTop"
+        android:layout_width="wrap_content"
+        android:layout_height="200dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@color/green"
+            android:padding="20dp"
+            android:text="toptoptoptoptoptoptoptoptoptoptoptop" />
+    </com.zt.base.debug.coordinate.BehaviorFrameView>
+
+    <com.zt.base.debug.coordinate.BehaviorFrameView
+        android:id="@+id/viewBottom"
+        android:layout_width="wrap_content"
+        android:layout_height="200dp"
+        android:layout_gravity="bottom">
+
+        <com.jdev.wandroid.ui.coordinate.DependTextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@color/blue"
+            android:padding="20dp"/>
+    </com.zt.base.debug.coordinate.BehaviorFrameView>
+
+
+</android.support.design.widget.CoordinatorLayout>
