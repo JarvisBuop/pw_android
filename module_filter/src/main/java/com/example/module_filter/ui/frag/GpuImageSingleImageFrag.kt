@@ -1,4 +1,4 @@
-package com.example.module_filter.ui.frag
+package com.jdev.wandroid.ui.frg
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -18,33 +18,25 @@ import com.example.libimagefilter.filter.base.gpuimage.GPUImageFilter
 import com.example.libimagefilter.filter.helper.FilterAdjuster
 import com.example.libimagefilter.filter.helper.MagicFilterFactory
 import com.example.libimagefilter.filter.helper.MagicFilterType
-import com.example.libimagefilter.widget.JdGPUDisplayView
-import com.example.libimagefilter.widget.JdGPUImage
+import com.example.libimagefilter.widgetimport.gpuwidget.GPUImageView
 import com.example.module_filter.R
 import com.example.module_filter.utils.GPUImageFilterTools
 import com.jdev.kit.baseui.BaseViewStubFragment
 
 /**
- * info: create by jd in 2019/12/20
+ * info: create by jd in 2019/12/10
  * @see:
- * @description:
+ * @description: gpuimage test
  *
+ * https://github.com/cats-oss/android-gpuimage
+ *
+ * Android filters based on OpenGL (idea from GPUImage for iOS)
+ *
+ * https://github.com/jameswanliu/MagicCamera_master
+ *
+ * magiccamera demo;
  */
-class JdGpuImageSingleFrag : BaseViewStubFragment() {
-    lateinit var txt_style_action: TextView
-    lateinit var layout_controller: View
-    lateinit var gpuImageView: JdGPUDisplayView
-    lateinit var txt_style_name: TextView
-    lateinit var txt_style_save: TextView
-    lateinit var txt_style_custom: TextView
-    lateinit var txt_save_flex: TextView
-    lateinit var txt_style_select: TextView
-    lateinit var image_origin: ImageView
-
-    override fun getViewStubId(): Int {
-        return R.layout.app_frag_jdgpu_single
-    }
-
+class GpuImageSingleImageFrag : BaseViewStubFragment() {
     companion object {
         private const val REQUEST_PHOTOPICKER = 1
         private const val REQUEST_STORAGE_PERMISSION = 2
@@ -54,24 +46,35 @@ class JdGpuImageSingleFrag : BaseViewStubFragment() {
     var progress: Int = 50
     var filterAdjuster: FilterAdjuster? = null
 
+    lateinit var layout_controller:View
+    lateinit var gpuImageView: GPUImageView
+    lateinit var txt_style_name:TextView
+    lateinit var txt_style_action:TextView
+    lateinit var txt_style_save:TextView
+    lateinit var txt_style_select:TextView
+    lateinit var txt_style_custom:TextView
+    lateinit var image_origin:ImageView
+
+    override fun getViewStubId(): Int {
+        return R.layout.app_item_gpuimage
+    }
+
     override fun initIntentData(): Boolean = true
 
     override fun customOperate(savedInstanceState: Bundle?) {
-        txt_style_action = findView(R.id.txt_style_action)
         layout_controller = findView(R.id.layout_controller)
         gpuImageView = findView(R.id.gpuImageView)
         txt_style_name = findView(R.id.txt_style_name)
+        txt_style_action = findView(R.id.txt_style_action)
         txt_style_save = findView(R.id.txt_style_save)
-        txt_style_custom = findView(R.id.txt_style_custom)
-        txt_save_flex = findView(R.id.txt_save_flex)
         txt_style_select = findView(R.id.txt_style_select)
+        txt_style_custom = findView(R.id.txt_style_custom)
         image_origin = findView(R.id.image_origin)
-
 
         layout_controller.visibility = View.VISIBLE
         gpuImageView.setImage(BitmapFactory.decodeResource(mContext!!.resources, R.drawable.gpuimage_origin))
 
-        filterType = MagicFilterType.NONE
+        filterType = MagicFilterType.CUSTOM_美颜
         var filterName = filterType.name
         var filter: GPUImageFilter? = MagicFilterFactory.getFilterByType(filterType)
         filterAdjuster = FilterAdjuster(filter)
@@ -128,29 +131,23 @@ class JdGpuImageSingleFrag : BaseViewStubFragment() {
             }
         }
 
-        txt_save_flex.setOnClickListener {
-            JdGPUImage.getBitmapForMultipleFilters(BitmapFactory.decodeResource(mContext!!.resources, R.drawable.gpuimage_origin),
-                    arrayListOf<GPUImageFilter>(MagicFilterFactory.getFilterByType(MagicFilterType.BLACKCAT)!!)) { item ->
-                Toast.makeText(mContext!!, "Saved: ${item.width}  ${item.height}", Toast.LENGTH_SHORT).show()
-            }
-        }
-
     }
 
     @SuppressLint("SetTextI18n")
-    private fun switchFilterTo(filter: GPUImageFilter?, gpuImageView: JdGPUDisplayView, filterAdjuster: FilterAdjuster?,
+    private fun switchFilterTo(filter: GPUImageFilter?, gpuImageView: GPUImageView, filterAdjuster: FilterAdjuster?,
                                name: String) {
         //ui
         txt_style_name.text = name
         txt_style_action.text = "++ ${filterAdjuster?.canAdjust()} " + if (filterAdjuster?.canAdjust() == true) "$progress" else ""
 
         //logic
-//        if (filter != null && (gpuImageView.filter == null || gpuImageView.filter.javaClass != filter.javaClass)) {
-        gpuImageView.filter = filter
-        if (filterAdjuster?.canAdjust() == true) {
-            filterAdjuster?.adjust(progress)
+        if (filter != null && (gpuImageView.filter == null || gpuImageView.filter.javaClass != filter.javaClass)) {
+            gpuImageView.filter = filter
+            if (filterAdjuster?.canAdjust() == true) {
+                filterAdjuster?.adjust(progress)
+            }
         }
-//        }
+
         gpuImageView.requestRender()
     }
 

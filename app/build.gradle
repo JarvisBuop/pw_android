@@ -30,13 +30,11 @@ android {
     resourcePrefix "app_"
 
     defaultConfig {
-
         applicationId rootProject.ext.androidVersion.applicationId
         minSdkVersion rootProject.ext.androidVersion.minSdkVersion
         targetSdkVersion rootProject.ext.androidVersion.targetSdkVersion
         versionCode getGitVersion()
         versionName rootProject.ext.androidVersion.versionName
-
 //        vectorDrawables.useSupportLibrary = true
 
         multiDexEnabled true
@@ -151,8 +149,6 @@ android {
     dataBinding {
         enabled = true
     }
-
-
 }
 
 dependencies {
@@ -162,15 +158,10 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-
+    //公用库
     api project(path: ':lib_kit')
-    api project(path: ':lib_gpuimage')
-    api project(path: ':lib_floatwindow')
 
-//    implementation 'androidx.appcompat:appcompat:1.0.2'
-    //module import
+    //module
     api project(path: ':module_welcome')
     api project(path: ':module_video')
-
-
 }

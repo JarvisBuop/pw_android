@@ -1,16 +1,19 @@
 package com.example.module_filter.ui.act
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.PermissionChecker
+import com.blankj.utilcode.util.StringUtils
 import com.example.module_filter.R
-import com.jdev.kit.baseui.BaseActivity
-import com.jdev.kit.baseui.BaseFragment
 import com.example.module_filter.ui.frag.JdGpuImageCameraFrag
 import com.example.module_filter.ui.frag.JdGpuImageMultiFrag
 import com.example.module_filter.ui.frag.JdGpuImageSingleFrag
+import com.jdev.kit.baseui.BaseActivity
+import com.jdev.kit.baseui.BaseFragment
+import com.jdev.wandroid.ui.frg.*
 import kotlinx.android.synthetic.main.act_main.*
 
 /**
@@ -20,13 +23,30 @@ import kotlinx.android.synthetic.main.act_main.*
  *
  */
 
-const val KEY_ANDROID_JDGPU_SINGLE = 10
-const val KEY_ANDROID_JDGPU_CAMERA = 11
-const val KEY_ANDROID_JDGPU_MULTI = 12
+const val KEY_ANDROID_JDGPU_SINGLE = "JdGpu 图片滤镜"
+const val KEY_ANDROID_JDGPU_CAMERA = "JdGpu 视频滤镜"
+const val KEY_ANDROID_JDGPU_MULTI = "JdGpu 效果图"
+const val KEY_ANDROID_GPUIMAGE_SIMPLE = "GPUImageView 图片滤镜"
+const val KEY_ANDROID_GPUIMAGE = "GPUImageView 图片滤镜 在rv中"
+const val KEY_ANDROID_GPUIMAGE_CAMERA = "GPUImageView 原demo"
+const val KEY_ANDROID_MAGIC_CAMERA = "MagicFilter 视频滤镜原demo"
+const val KEY_ANDROID_GPU_TEST = "MagicFilter 图片滤镜原demo"
 
 class MainActivity : BaseActivity() {
-    //todo 当前入口;
-    var intKey = KEY_ANDROID_JDGPU_SINGLE
+
+    val array = arrayOf(
+            KEY_ANDROID_JDGPU_SINGLE,
+            KEY_ANDROID_JDGPU_CAMERA,
+            KEY_ANDROID_JDGPU_MULTI,
+            KEY_ANDROID_GPUIMAGE_SIMPLE,
+            KEY_ANDROID_GPUIMAGE,
+            KEY_ANDROID_GPUIMAGE_CAMERA,
+            KEY_ANDROID_MAGIC_CAMERA,
+            KEY_ANDROID_GPU_TEST
+    )
+
+    //当前入口;
+    var key: String? = null
     var currentFrag: BaseFragment? = null
 
     override fun getViewStubId(): Int {
@@ -44,36 +64,40 @@ class MainActivity : BaseActivity() {
     companion object {
         const val EXTRA_KEY = "KEY"
 
-        fun getFragmentByKey(code: Int): BaseFragment? {
-            when (code) {
-                KEY_ANDROID_JDGPU_SINGLE -> {
-                    return JdGpuImageSingleFrag()
-                }
-                KEY_ANDROID_JDGPU_CAMERA -> {
-                    return JdGpuImageCameraFrag()
-                }
-                KEY_ANDROID_JDGPU_MULTI -> {
-                    return JdGpuImageMultiFrag()
-                }
+        fun getFragmentByKey(code: String?): BaseFragment? {
+            return when (code) {
+                KEY_ANDROID_JDGPU_SINGLE -> JdGpuImageSingleFrag()
+                KEY_ANDROID_JDGPU_CAMERA -> JdGpuImageCameraFrag()
+                KEY_ANDROID_JDGPU_MULTI -> JdGpuImageMultiFrag()
+                KEY_ANDROID_GPUIMAGE -> GpuImageMultiImageFrag()
+                KEY_ANDROID_GPUIMAGE_SIMPLE -> GpuImageSingleImageFrag()
+                KEY_ANDROID_GPUIMAGE_CAMERA -> GpuImageCameraFrag()
+                KEY_ANDROID_MAGIC_CAMERA -> GpuMagicCameraFrag()
+                KEY_ANDROID_GPU_TEST -> GpuMagicSingleFrag()
                 else -> return null
             }
         }
     }
 
     override fun initIntentData(): Boolean {
-        intKey = intent.getIntExtra(EXTRA_KEY, intKey)
-        return intKey != -1
+        return true
     }
 
     override fun customOperate(savedInstanceState: Bundle?) {
+        key = intent.getStringExtra(EXTRA_KEY) ?: KEY_ANDROID_JDGPU_SINGLE
+        btn_select.setOnClickListener {
+            AlertDialog.Builder(this).setItems(array) { dialog, which ->
+                key = array[which]
+                btn_select.text = key
+            }.create().show()
+        }
         btn_retry.setOnClickListener {
             isPermission({ fillContainer() }, permission, permissions)
         }
-        isPermission({ fillContainer() }, permission, permissions)
     }
 
     fun fillContainer() {
-        currentFrag = getFragmentByKey(intKey)
+        currentFrag = getFragmentByKey(key)
         if (currentFrag != null) {
             layout_fragment_container.removeAllViews()
             setTextMarkTips(currentFrag!!.javaClass.simpleName)

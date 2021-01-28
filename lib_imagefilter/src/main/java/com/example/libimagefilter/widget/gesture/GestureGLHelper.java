@@ -1,7 +1,6 @@
 package com.example.libimagefilter.widget.gesture;
 
 import android.content.Context;
-import android.support.v4.view.ViewPager;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;

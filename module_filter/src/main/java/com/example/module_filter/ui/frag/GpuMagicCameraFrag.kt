@@ -1,4 +1,4 @@
-package com.example.module_filter.ui.frag
+package com.jdev.wandroid.ui.frg
 
 import android.Manifest
 import android.animation.Animator
@@ -15,11 +15,11 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
-import android.widget.Toast
-import com.example.libimagefilter.camera.CameraEngine
+import com.blankj.utilcode.util.ToastUtils
 import com.example.libimagefilter.filter.helper.MagicFilterType
 import com.example.libimagefilter.utils.MagicParams
-import com.example.libimagefilter.widget.JdGPUDisplayView
+import com.example.libimagefilter.widgetimport.magicwidget.MagicCameraView
+import com.example.libimagefilter.widgetimport.magicwidget.MagicEngine
 import com.example.module_filter.R
 import com.example.module_filter.ui.adapter.FilterAdapter
 import com.example.module_filter.utils.GPUImageFilterTools
@@ -31,10 +31,12 @@ import java.util.*
 /**
  * info: create by jd in 2019/12/12
  * @see:
- * @description: gpuimage camera
+ * @description: magic camera demo
+ *
+ * @see https\://github.com/jameswanliu/MagicCamera_master
  *
  */
-class JdGpuImageCameraFrag : BaseViewStubFragment() {
+class GpuMagicCameraFrag : BaseViewStubFragment() {
     lateinit var btn_camera_filter:ImageView
     lateinit var btn_camera_closefilter:ImageView
     lateinit var btn_camera_shutter:ImageView
@@ -43,22 +45,23 @@ class JdGpuImageCameraFrag : BaseViewStubFragment() {
     lateinit var btn_camera_beauty:ImageView
     lateinit var layout_filter:View
     lateinit var filter_listView:RecyclerView
-    lateinit var displayView: JdGPUDisplayView
-
-
+    lateinit var glsurfaceview_camera: MagicCameraView
 
     override fun getViewStubId(): Int {
-        return R.layout.app_frag_jdgpucamera
+        return R.layout.app_frag_magiccamera
     }
 
     override fun initIntentData(): Boolean = true
 
     override fun customOperate(savedInstanceState: Bundle?) {
         bindView()
+        magicEngine = MagicEngine.Builder().build(glsurfaceview_camera)
         initView()
+
     }
 
     private fun bindView() {
+
         btn_camera_filter = findView(R.id.btn_camera_filter)
         btn_camera_closefilter = findView(R.id.btn_camera_closefilter)
         btn_camera_shutter = findView(R.id.btn_camera_shutter)
@@ -68,13 +71,13 @@ class JdGpuImageCameraFrag : BaseViewStubFragment() {
         layout_filter = findView(R.id.layout_filter)
 
         filter_listView = findView(R.id.filter_listView)
-        displayView = findView(R.id.displayView)
-
+        glsurfaceview_camera = findView(R.id.glsurfaceview_camera)
     }
 
     private lateinit var mFilterLayout: View
     private lateinit var mFilterListView: RecyclerView
     private lateinit var mAdapter: FilterAdapter
+    private lateinit var magicEngine: MagicEngine
     private lateinit var btn_shutter: ImageView
     private lateinit var btn_mode: ImageView
 
@@ -114,16 +117,16 @@ class JdGpuImageCameraFrag : BaseViewStubFragment() {
         animator!!.duration = 500
         animator!!.repeatCount = ValueAnimator.INFINITE
 
-//        val params = displayView.layoutParams as ViewGroup.LayoutParams
+//        val params = glsurfaceview_camera.layoutParams as RelativeLayout.LayoutParams
 //        params.width = ScreenUtils.getScreenWidth()
 //        params.height = ScreenUtils.getScreenWidth() * 4 / 3
-//        displayView.layoutParams = params
+//        glsurfaceview_camera.layoutParams = params
     }
 
     private val onFilterChangeListener = object : FilterAdapter.onFilterChangeListener {
 
         override fun onFilterChanged(filterType: MagicFilterType) {
-            displayView.setFilter(filterType)
+            magicEngine!!.setFilter(filterType)
         }
     }
 
@@ -144,17 +147,8 @@ class JdGpuImageCameraFrag : BaseViewStubFragment() {
         override fun onClick(v: View) {
             when (v.id) {
                 btn_camera_mode.id -> switchMode()
-                btn_camera_shutter.id -> if (
-                        (PermissionChecker.checkSelfPermission(mContext!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) &&
-                        (PermissionChecker.checkSelfPermission(mContext!!, Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) &&
-                        (PermissionChecker.checkSelfPermission(mContext!!, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED)
-
-                ) {
-                    ActivityCompat.requestPermissions(mContext as Activity, arrayOf(
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.CAMERA,
-                            Manifest.permission.RECORD_AUDIO
-                    ), v.id)
+                btn_camera_shutter.id -> if ((PermissionChecker.checkSelfPermission(mContext!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED)) {
+                    ActivityCompat.requestPermissions(mContext as Activity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), v.id)
                 } else {
                     if (mode == MODE_PIC)
                         takePhoto()
@@ -162,16 +156,11 @@ class JdGpuImageCameraFrag : BaseViewStubFragment() {
                         takeVideo()
                 }
                 btn_camera_filter.id -> showFilters()
-                btn_camera_switch.id -> {
-                    CameraEngine.switchCamera()
-
-                }
+                btn_camera_switch.id -> magicEngine!!.switchCamera()
                 btn_camera_beauty.id -> AlertDialog.Builder(mContext!!)
                         .setSingleChoiceItems(arrayOf("关闭", "1", "2", "3", "4", "5"), MagicParams.beautyLevel
                         ) { dialog, which ->
-//                            magicEngine!!.setBeautyLevel(which)
-                            MagicParams.beautyLevel = which
-//                            displayView.setbea
+                            magicEngine!!.setBeautyLevel(which)
                             dialog.dismiss()
                         }
                         .setNegativeButton("取消", null)
@@ -189,23 +178,22 @@ class JdGpuImageCameraFrag : BaseViewStubFragment() {
             mode = MODE_PIC
             btn_mode!!.setImageResource(R.drawable.icon_video)
         }
+        ToastUtils.showShort(if (mode == MODE_PIC) "拍摄" else "录制")
     }
 
     private fun takePhoto() {
-        val folderName = "GPUImage"
-        val fileName = System.currentTimeMillis().toString() + ".jpg"
-        displayView.saveToPictures(folderName, fileName) {
-            Toast.makeText(activity, "$folderName/$fileName saved", Toast.LENGTH_SHORT).show()
-        }
+        ToastUtils.showShort("开始拍照")
+        magicEngine!!.savePicture(getOutputMediaFile(), null)
     }
 
     private fun takeVideo() {
+        ToastUtils.showShort("开始录制")
         if (isRecording) {
             animator!!.end()
-            displayView.changeRecordingState(false)
+            magicEngine!!.stopRecord()
         } else {
             animator!!.start()
-            displayView.changeRecordingState(true)
+            magicEngine!!.startRecord()
         }
         isRecording = !isRecording
     }

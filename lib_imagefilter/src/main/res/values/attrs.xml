@@ -13,4 +13,16 @@
             <enum name="render_video" value="1" />
         </attr>
     </declare-styleable>
+
+    <attr name="gpuimage_surface_type" format="enum">
+        <enum name="surface_view" value="0" />
+        <enum name="texture_view" value="1" />
+    </attr>
+    <attr name="gpuimage_show_loading" format="boolean" />
+
+    <declare-styleable name="GPUImageView">
+        <attr name="gpuimage_surface_type" />
+        <attr name="gpuimage_show_loading" />
+    </declare-styleable>
+
 </resources>

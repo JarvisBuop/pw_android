@@ -31,7 +31,6 @@ import com.example.module_filter.R
 import com.example.module_filter.utils.GPUImageFilterTools
 import com.example.module_filter.utils.KtHandlerSingleton
 import com.jdev.kit.baseui.BaseViewStubFragment
-import kotlinx.android.synthetic.main.frag_gpufilter.*
 
 /**
  * info: create by jd in 2019/12/20

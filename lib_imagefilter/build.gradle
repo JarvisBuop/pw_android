@@ -13,12 +13,20 @@ android {
         versionCode 1
         versionName "1.0"
 
+//        ndk.abiFilters 'armeabi-v7a','arm64-v8a','x86','x86_64'
+//        externalNativeBuild {
+//            cmake { cppFlags "" }
+//        }
     }
 
     buildTypes {
+        debug {
+            debuggable true
+        }
         release {
             minifyEnabled = false
-            proguardFiles.add(file('proguard-rules.txt'))
+            debuggable false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
@@ -48,5 +56,5 @@ dependencies {
         exclude group: 'org.jetbrains.kotlin'
     }
 
-    compileOnly rootProject.ext.dependencies.appcompatV7
+//    compileOnly rootProject.ext.dependencies.appcompatV7
 }

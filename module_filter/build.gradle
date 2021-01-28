@@ -73,16 +73,16 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    //test
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
+    //func
     implementation rootProject.ext.dependencies.kotlin_stdlib
     implementation rootProject.ext.dependencies.kotlin_stdlib_common
     implementation rootProject.ext.dependencies.kotlin_stdlib_jdk8
 
     api project(path: ':lib_kit')
     api project(path: ':lib_imagefilter')
-
-
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }

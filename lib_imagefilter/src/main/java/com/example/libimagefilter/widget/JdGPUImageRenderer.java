@@ -21,7 +21,6 @@ import android.graphics.Canvas;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 
-
 import com.example.libimagefilter.filter.base.gpuimage.GPUImageFilter;
 import com.example.libimagefilter.utils.OpenGlUtils;
 import com.example.libimagefilter.utils.Rotation;
@@ -35,7 +34,6 @@ import java.util.Queue;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
-
 
 public class JdGPUImageRenderer implements GLSurfaceView.Renderer/*, GLTextureView.Renderer*/ {
     //滤镜;
@@ -77,13 +75,13 @@ public class JdGPUImageRenderer implements GLSurfaceView.Renderer/*, GLTextureVi
         runOnDrawEnd = new LinkedList<>();
 
         glCubeBuffer = ByteBuffer.allocateDirect(TextureRotationUtil.CUBE.length * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
+            .order(ByteOrder.nativeOrder())
+            .asFloatBuffer();
         glCubeBuffer.put(TextureRotationUtil.CUBE).position(0);
 
         glTextureBuffer = ByteBuffer.allocateDirect(TextureRotationUtil.TEXTURE_NO_ROTATION.length * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
+            .order(ByteOrder.nativeOrder())
+            .asFloatBuffer();
         setRotation(Rotation.NORMAL, false, false);
     }
 
@@ -105,7 +103,9 @@ public class JdGPUImageRenderer implements GLSurfaceView.Renderer/*, GLTextureVi
         GLES20.glViewport(0, 0, width, height);
         outputWidth = width;
         outputHeight = height;
-        GLES20.glUseProgram(filter.getProgram());
+        if (filter != null) {
+            GLES20.glUseProgram(filter.getProgram());
+        }
         onFilterChanged();
         adjustSize();
         synchronized (surfaceChangedWaiter) {
@@ -137,9 +137,9 @@ public class JdGPUImageRenderer implements GLSurfaceView.Renderer/*, GLTextureVi
     /**
      * Sets the background color
      *
-     * @param red   red color value
+     * @param red red color value
      * @param green green color value
-     * @param blue  red color value
+     * @param blue red color value
      */
     public void setBackgroundColor(float red, float green, float blue) {
         backgroundRed = red;
@@ -154,7 +154,6 @@ public class JdGPUImageRenderer implements GLSurfaceView.Renderer/*, GLTextureVi
             }
         }
     }
-
 
     public void setFilter(final GPUImageFilter filter) {
         runOnDraw(new Runnable() {
@@ -181,8 +180,8 @@ public class JdGPUImageRenderer implements GLSurfaceView.Renderer/*, GLTextureVi
 
             @Override
             public void run() {
-                GLES20.glDeleteTextures(1, new int[]{
-                        glTextureId
+                GLES20.glDeleteTextures(1, new int[] {
+                    glTextureId
                 }, 0);
                 glTextureId = OpenGlUtils.NO_TEXTURE;
             }
@@ -205,7 +204,7 @@ public class JdGPUImageRenderer implements GLSurfaceView.Renderer/*, GLTextureVi
                 Bitmap resizedBitmap = null;
                 if (bitmap.getWidth() % 2 == 1) {
                     resizedBitmap = Bitmap.createBitmap(bitmap.getWidth() + 1, bitmap.getHeight(),
-                            Bitmap.Config.ARGB_8888);
+                        Bitmap.Config.ARGB_8888);
                     Canvas can = new Canvas(resizedBitmap);
                     can.drawARGB(0x00, 0x00, 0x00, 0x00);
                     can.drawBitmap(bitmap, 0, 0, null);
@@ -215,7 +214,7 @@ public class JdGPUImageRenderer implements GLSurfaceView.Renderer/*, GLTextureVi
                 }
 
                 glTextureId = OpenGlUtils.loadTexture(
-                        resizedBitmap != null ? resizedBitmap : bitmap, glTextureId, recycle);
+                    resizedBitmap != null ? resizedBitmap : bitmap, glTextureId, recycle);
                 if (resizedBitmap != null) {
                     resizedBitmap.recycle();
                 }
@@ -270,23 +269,23 @@ public class JdGPUImageRenderer implements GLSurfaceView.Renderer/*, GLTextureVi
         float ratioHeight = imageHeightNew / (float) outputHeight;
 
         if (scaleType == JdGPUImage.ScaleType.CENTER_INSIDE) {
-            cube = new float[]{
-                    TextureRotationUtil.CUBE[0] / ratioHeight, TextureRotationUtil.CUBE[1] / ratioWidth,
-                    TextureRotationUtil.CUBE[2] / ratioHeight, TextureRotationUtil.CUBE[3] / ratioWidth,
-                    TextureRotationUtil.CUBE[4] / ratioHeight, TextureRotationUtil.CUBE[5] / ratioWidth,
-                    TextureRotationUtil.CUBE[6] / ratioHeight, TextureRotationUtil.CUBE[7] / ratioWidth,
-            };
+            cube = new float[] {
+                TextureRotationUtil.CUBE[0] / ratioHeight, TextureRotationUtil.CUBE[1] / ratioWidth,
+                TextureRotationUtil.CUBE[2] / ratioHeight, TextureRotationUtil.CUBE[3] / ratioWidth,
+                TextureRotationUtil.CUBE[4] / ratioHeight, TextureRotationUtil.CUBE[5] / ratioWidth,
+                TextureRotationUtil.CUBE[6] / ratioHeight, TextureRotationUtil.CUBE[7] / ratioWidth,
+                };
         } else if (scaleType == JdGPUImage.ScaleType.FIT_XY) {
 
         } else if (scaleType == JdGPUImage.ScaleType.CENTER_CROP) {
             float distHorizontal = (1 - 1 / ratioWidth) / 2;
             float distVertical = (1 - 1 / ratioHeight) / 2;
-            textureCords = new float[]{
-                    addDistance(textureCords[0], distVertical), addDistance(textureCords[1], distHorizontal),
-                    addDistance(textureCords[2], distVertical), addDistance(textureCords[3], distHorizontal),
-                    addDistance(textureCords[4], distVertical), addDistance(textureCords[5], distHorizontal),
-                    addDistance(textureCords[6], distVertical), addDistance(textureCords[7], distHorizontal),
-            };
+            textureCords = new float[] {
+                addDistance(textureCords[0], distVertical), addDistance(textureCords[1], distHorizontal),
+                addDistance(textureCords[2], distVertical), addDistance(textureCords[3], distHorizontal),
+                addDistance(textureCords[4], distVertical), addDistance(textureCords[5], distHorizontal),
+                addDistance(textureCords[6], distVertical), addDistance(textureCords[7], distHorizontal),
+                };
         }
 
         glCubeBuffer.clear();
@@ -308,7 +307,7 @@ public class JdGPUImageRenderer implements GLSurfaceView.Renderer/*, GLTextureVi
     }
 
     public void setRotation(final Rotation rotation,
-                            final boolean flipHorizontal, final boolean flipVertical) {
+        final boolean flipHorizontal, final boolean flipVertical) {
         adjustSize(rotation, flipHorizontal, flipVertical);
     }
 

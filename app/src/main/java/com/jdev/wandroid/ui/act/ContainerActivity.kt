@@ -27,12 +27,7 @@ const val KEY_WEBP = 3
 const val KEY_KOTLIN_TEST = 12
 const val KEY_MVVM_TEST = 13
 
-//-------gpuimage---------
-const val KEY_ANDROID_GPUIMAGE = 4
-const val KEY_ANDROID_GPUIMAGE_SIMPLE = 5
-const val KEY_ANDROID_GPUIMAGE_CAMERA = 6
-const val KEY_ANDROID_MAGIC_CAMERA = 7
-const val KEY_ANDROID_GPU_TEST = 9
+
 const val KEY_ANDROID_OPENGL_SIMGLE_DEMO = 8
 
 //------------window-------------
@@ -60,12 +55,12 @@ class ContainerActivity : BaseActivity() {
                 KEY_PHOTOVIEW -> PhotoViewTestFrag()
                 KEY_SHADOW -> ShadowTestFrag()
                 KEY_WEBP -> WebPTestFrag()
-                KEY_ANDROID_GPUIMAGE -> GpuImageMultiImageFrag()
-                KEY_ANDROID_GPUIMAGE_SIMPLE -> GpuImageSingleImageFrag()
-                KEY_ANDROID_GPUIMAGE_CAMERA -> GpuImageCameraFrag()
-                KEY_ANDROID_MAGIC_CAMERA -> GpuMagicCameraFrag()
+//                KEY_ANDROID_GPUIMAGE -> GpuImageMultiImageFrag()
+//                KEY_ANDROID_GPUIMAGE_SIMPLE -> GpuImageSingleImageFrag()
+//                KEY_ANDROID_GPUIMAGE_CAMERA -> GpuImageCameraFrag()
+//                KEY_ANDROID_MAGIC_CAMERA -> GpuMagicCameraFrag()
+//                KEY_ANDROID_GPU_TEST -> GpuMagicSingleFrag()
                 KEY_ANDROID_OPENGL_SIMGLE_DEMO -> SimpleOpenglDemoFrag()
-                KEY_ANDROID_GPU_TEST -> GpuMagicSingleFrag()
                 KEY_ANDROID_FLOAT_WINDOW -> FloatWindowFrag()
                 KEY_ANDROID_PIP -> Pip26ApiFrag()
                 KEY_KOTLIN_TEST -> KotlinTestFrag()

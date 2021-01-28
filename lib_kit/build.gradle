@@ -49,11 +49,11 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    //test
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    api project(path: ':lib_adapter')
 
     /**
      * android support
@@ -75,26 +75,29 @@ dependencies {
     api rootProject.ext.dependencies.kotlin_stdlib_coroutines
 
     /**
-     * third layout
+     * google layout
      */
     api rootProject.ext.dependencies.constraint_layout
 
     /**
-     * third lib
+     * multidex support
      */
-    api rootProject.ext.dependencies.rxjava2_core
-    api rootProject.ext.dependencies.rxandroid_core
+    api rootProject.ext.dependencies.android_multidex
 
     /**
-     * utils
+     * tools lib
      */
+    api project(path: ':lib_adapter')
     api(rootProject.ext.dependencies.blackj_util) {
         exclude group: 'org.jetbrains.kotlin'
     }
+    api project(path: ':lib_floatwindow')
 
-    /**
-     * webp support
-     */
+    //rx lib
+    api rootProject.ext.dependencies.rxjava2_core
+    api rootProject.ext.dependencies.rxandroid_core
+
+    //webp support
     api rootProject.ext.dependencies.glide_lib
 //    annotationProcessor rootProject.ext.dependencies.glide_compiler_lib
     api rootProject.ext.dependencies.facebook_webp
@@ -106,9 +109,4 @@ dependencies {
 
     api rootProject.ext.dependencies.okhttp3_core
     api rootProject.ext.dependencies.okhttp3_integration
-
-    /**
-     * multidex support
-     */
-    api rootProject.ext.dependencies.android_multidex
 }
