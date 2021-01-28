@@ -70,8 +70,10 @@ class WebPTestFrag : BaseViewStubFragment() {
     }
 
     private fun initPop() {
-        var pop = KtVersionMainPop(mContext!!, ViewUtils.OnCallback<Any> {
+        var pop = KtVersionMainPop(mContext!!, object :ViewUtils.OnCallback<Any> {
+            override fun callback(ts: Any?) {
 
+            }
         })
         pop.showAtLocation(mRootView, Gravity.CENTER, 0, 0)
     }

@@ -1,0 +1,130 @@
+{
+  "main": {
+    "topList": [
+      {
+        "title": "kotlin 协程",
+        "desc": "kotlin 协程demo",
+        "actName": null,
+        "fragName": "com.jdev.wandroid.ui.frg.KotlinTestFrag",
+        "level": "high",
+        "state": "ongoing"
+      },
+      {
+        "title": "mvvm 测试",
+        "desc": "mvvm 测试",
+        "actName": null,
+        "fragName": "com.jdev.wandroid.ui.frg.MvvmTestFrag",
+        "level": "high",
+        "state": "ongoing"
+      },
+      {
+        "title": "opengl test",
+        "desc": "opengl基础绘制",
+        "actName": null,
+        "fragName": "com.jdev.wandroid.ui.frg.SimpleOpenglDemoFrag",
+        "level": "nope",
+        "state": "suspend"
+      },
+      {
+        "title": "自定义window悬浮框",
+        "desc": "window manager 自定义全局悬浮窗调研",
+        "actName": null,
+        "fragName": "com.jdev.wandroid.ui.frg.FloatWindowFrag",
+        "level": "nope",
+        "state": "suspend"
+      },
+      {
+        "title": "pip test",
+        "desc": "PictureInPicture Mode 画中画模式调研",
+        "actName": null,
+        "fragName": "com.jdev.wandroid.ui.frg.Pip26ApiFrag",
+        "level": "nope",
+        "state": "completed"
+      },
+      {
+        "title": "mediaMuxer test",
+        "desc": "MediaMuxer 分离及合成视频调研 todo",
+        "actName": null,
+        "fragName": "com.jdev.wandroid.ui.frg.MediaMuxerTestFrag",
+        "level": "nope",
+        "state": "suspend"
+      },
+      {
+        "title": "概览屏幕",
+        "desc": "最近使用的应用act,可在多任务栏中查看到多个任务",
+        "actName": "com.jdev.wandroid.ui.act.RecentActivity",
+        "fragName": null,
+        "level": "nope",
+        "state": "completed"
+      },
+      {
+        "title": "coordinate + behavior",
+        "desc": "协调布局 和 behavior的调研",
+        "actName": "com.zt.base.debug.coordinate.TestCoordinateAct",
+        "fragName": null,
+        "level": "nope",
+        "state": "suspend"
+      }
+    ],
+    "bottomList": [
+      {
+        "title": "组件module_welcome",
+        "desc": "显示welcome页面",
+        "actName": "com.jdev.module_welcome.ui.act.WelcomeActivity",
+        "fragName": null,
+        "level": "nope",
+        "state": "completed"
+      },
+      {
+        "title": "组件module_video",
+        "desc": "测试jiaozi视频",
+        "actName": "com.jdev.module_video.ui.act.GithubJiaoziVideoAct",
+        "fragName": null,
+        "level": "nope",
+        "state": "completed"
+      },
+      {
+        "title": "组件module_video",
+        "desc": "smart+headvp+rv 滑动冲突 处理滑动冲突首页效果",
+        "actName": "com.jdev.module_welcome.ui.act.FullscreenActivity",
+        "fragName": null,
+        "level": "nope",
+        "state": "suspend"
+      }
+    ],
+    "secretList": [
+      {
+        "title": "GestureOverlayView 测试",
+        "desc": "GestureOverlayView 自带view手势绘制及保存",
+        "actName": null,
+        "fragName": "com.jdev.wandroid.ui.frg.GestureTestFrag",
+        "level": "nope",
+        "state": "completed"
+      },
+      {
+        "title": "PhotoView 测试",
+        "desc": "PhotoView 三方图片浏览库",
+        "actName": null,
+        "fragName": "com.jdev.wandroid.ui.frg.PhotoViewTestFrag",
+        "level": "nope",
+        "state": "completed"
+      },
+      {
+        "title": "QuickContactBadge + ShadowViewWrapper",
+        "desc": "自定义阴影view的测试 ps:此view在超过一屏时不显示",
+        "actName": null,
+        "fragName": "com.jdev.wandroid.ui.frg.ShadowTestFrag",
+        "level": "nope",
+        "state": "suspend"
+      },
+      {
+        "title": "webp + 动画测试",
+        "desc": "webp 和 属性动画测试",
+        "actName": null,
+        "fragName": "com.jdev.wandroid.ui.frg.WebPTestFrag",
+        "level": "nope",
+        "state": "ongoing"
+      }
+    ]
+  }
+}

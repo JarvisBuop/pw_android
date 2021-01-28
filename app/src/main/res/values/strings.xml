@@ -8,6 +8,7 @@
     <string name="app_version_main_3">新的资源库全新上线</string>
 
     <string name="app_action_settings">Settings</string>
+    <string name="app_input">please input secret code</string>
 
     <string name="filter_none">Original</string>
     <string name="filter_amaro">Amaro</string>

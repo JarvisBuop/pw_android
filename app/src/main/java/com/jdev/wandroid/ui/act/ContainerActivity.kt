@@ -5,13 +5,17 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.PermissionChecker
+import com.blankj.utilcode.util.LogUtils
+import com.blankj.utilcode.util.StringUtils
 import com.jdev.kit.baseui.BaseActivity
 import com.jdev.kit.baseui.BaseFragment
 import com.jdev.wandroid.R
 import com.jdev.wandroid.ui.frg.*
 import kotlinx.android.synthetic.main.app_activity_container.*
+import java.lang.Exception
 
 /**
  * info: create by jd in 2019/12/9
@@ -19,24 +23,6 @@ import kotlinx.android.synthetic.main.app_activity_container.*
  * @description:
  *
  */
-//--------selftest--------
-const val KEY_GESTURE = 0
-const val KEY_PHOTOVIEW = 1
-const val KEY_SHADOW = 2
-const val KEY_WEBP = 3
-const val KEY_KOTLIN_TEST = 12
-const val KEY_MVVM_TEST = 13
-
-
-const val KEY_ANDROID_OPENGL_SIMGLE_DEMO = 8
-
-//------------window-------------
-const val KEY_ANDROID_FLOAT_WINDOW = 10
-
-//---------------pip-----------------
-const val KEY_ANDROID_PIP = 11
-const val KEY_ANDROID_MEDIA_MUXER = 14
-
 class ContainerActivity : BaseActivity() {
     var callback: (() -> Unit)? = null
     var permission = Manifest.permission.CAMERA
@@ -49,36 +35,24 @@ class ContainerActivity : BaseActivity() {
     companion object {
         const val EXTRA_KEY = "KEY"
 
-        fun getFragmentByKey(code: Int): BaseFragment? {
-            return when (code) {
-                KEY_GESTURE -> GestureTestFrag()
-                KEY_PHOTOVIEW -> PhotoViewTestFrag()
-                KEY_SHADOW -> ShadowTestFrag()
-                KEY_WEBP -> WebPTestFrag()
-//                KEY_ANDROID_GPUIMAGE -> GpuImageMultiImageFrag()
-//                KEY_ANDROID_GPUIMAGE_SIMPLE -> GpuImageSingleImageFrag()
-//                KEY_ANDROID_GPUIMAGE_CAMERA -> GpuImageCameraFrag()
-//                KEY_ANDROID_MAGIC_CAMERA -> GpuMagicCameraFrag()
-//                KEY_ANDROID_GPU_TEST -> GpuMagicSingleFrag()
-                KEY_ANDROID_OPENGL_SIMGLE_DEMO -> SimpleOpenglDemoFrag()
-                KEY_ANDROID_FLOAT_WINDOW -> FloatWindowFrag()
-                KEY_ANDROID_PIP -> Pip26ApiFrag()
-                KEY_KOTLIN_TEST -> KotlinTestFrag()
-                KEY_MVVM_TEST -> MvvmTestFrag.newInstance()
-                KEY_ANDROID_MEDIA_MUXER -> MediaMuxerTestFrag.newInstance()
-                else -> return null
+        fun getFragmentByKey(name: String?): BaseFragment? {
+            try {
+                return Class.forName(name).newInstance() as BaseFragment?
+            } catch (e: Exception) {
+                LogUtils.e("构建fragment失败 ! ")
             }
+            return null
         }
 
-        fun launch(mContext: Context, code: Int) {
+        fun launch(mContext: Context, name: String?) {
             mContext.startActivity(
                     Intent(mContext, ContainerActivity::class.java)
-                            .putExtra(EXTRA_KEY, code)
+                            .putExtra(EXTRA_KEY, name)
             )
         }
     }
 
-    var intKey = -1
+    var name: String? = null
     var currentFrag: BaseFragment? = null
 
     override fun getViewStubId(): Int {
@@ -86,8 +60,8 @@ class ContainerActivity : BaseActivity() {
     }
 
     override fun initIntentData(): Boolean {
-        intKey = intent.getIntExtra(EXTRA_KEY, -1)
-        return intKey != -1
+        name = intent.getStringExtra(EXTRA_KEY)
+        return !StringUtils.isEmpty(name)
     }
 
     override fun customOperate(savedInstanceState: Bundle?) {
@@ -98,7 +72,7 @@ class ContainerActivity : BaseActivity() {
     }
 
     fun fillContainer() {
-        currentFrag = getFragmentByKey(intKey)
+        currentFrag = getFragmentByKey(name)
         if (currentFrag != null) {
             layout_fragment_container.removeAllViews()
             setTextMarkTips(currentFrag!!.javaClass.simpleName)

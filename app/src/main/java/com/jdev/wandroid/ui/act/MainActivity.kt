@@ -3,30 +3,26 @@ package com.jdev.wandroid.ui.act
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.recyclerview.widget.LinearLayoutManager
-import android.util.SparseArray
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.BaseAdapter
-import android.widget.Magnifier
 import android.widget.TextView
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.blankj.utilcode.util.StringUtils
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
-import com.jarvisdong.kit.utils.ResourceIdUtils
+import com.google.android.material.snackbar.Snackbar
 import com.jdev.kit.baseui.BaseActivity
-import com.jdev.module_video.ui.act.GithubJiaoziVideoAct
-import com.jdev.module_welcome.ui.act.FullscreenActivity
-import com.jdev.module_welcome.ui.act.WelcomeActivity
 import com.jdev.wandroid.R
-import com.zt.base.debug.coordinate.TestCoordinateAct
+import com.jdev.wandroid.mockdata.ItemVo
+import com.jdev.wandroid.utils.OpenUtils
+import com.jdev.wandroid.utils.ParseUtils
+import com.jdev.wandroid.utils.ViewUtils
 import kotlinx.android.synthetic.main.app_activity_main.*
 import kotlinx.android.synthetic.main.app_include_main_top.*
 import kotlin.properties.ReadWriteProperty
+import kotlin.random.Random
 import kotlin.reflect.KProperty
 
 
@@ -34,99 +30,9 @@ import kotlin.reflect.KProperty
  * home page
  */
 class MainActivity : BaseActivity() {
-
-    //----------------DATA CODE---------------------
-    //top recyclerview datas
-    var mTopDatas = arrayListOf<OrientVo>(
-            OrientVo("kotlin",
-                    "kotlin 协程",
-                    clazz = ContainerActivity::class.java,
-                    clazzCode = KEY_KOTLIN_TEST, level = LEVEL.LEVEL_HIGH),
-            OrientVo("mvvm",
-                    "mvvm test",
-                    clazz = ContainerActivity::class.java,
-                    clazzCode = KEY_MVVM_TEST, level = LEVEL.LEVEL_HIGH),
-//            OrientVo("gpuimage 滤镜列表测试 (有问题)",
-//                    "Android filters based on OpenGL (idea from GPUImage for iOS)",
-//                    clazz = ContainerActivity::class.java,
-//                    clazzCode = KEY_ANDROID_GPUIMAGE),
-//            OrientVo("gpuimage 滤镜单张图片测试",
-//                    level = LEVEL.LEVEL_HIGH,
-//                    clazz = ContainerActivity::class.java,
-//                    clazzCode = KEY_ANDROID_GPUIMAGE_SIMPLE),
-//            OrientVo("gpuimage 美颜相机",
-//                    "gpuimage camera demo",
-//                    clazz = ContainerActivity::class.java,
-//                    clazzCode = KEY_ANDROID_GPUIMAGE_CAMERA),
-//            OrientVo("magicCamera 美颜相机 MagicCameraDemo",
-//                    "https://github.com/jameswanliu/MagicCamera_master",
-//                    level = LEVEL.LEVEL_HIGH,
-//                    clazz = ContainerActivity::class.java,
-//                    clazzCode = KEY_ANDROID_MAGIC_CAMERA),
-//            OrientVo("magicCamera MagicImageView",
-//                    "magic 图片处理demo 滤镜",
-//                    clazz = ContainerActivity::class.java,
-//                    clazzCode = KEY_ANDROID_GPU_TEST),
-            OrientVo("opengl test",
-                    "opengl基础绘制",
-                    clazz = ContainerActivity::class.java,
-                    clazzCode = KEY_ANDROID_OPENGL_SIMGLE_DEMO),
-
-            OrientVo("自定义悬浮框 仿微信",
-                    "window manager 自定义全局悬浮窗调研",
-                    clazz = ContainerActivity::class.java,
-                    clazzCode = KEY_ANDROID_FLOAT_WINDOW
-            ),
-            OrientVo("pip test",
-                    "PictureInPicture Mode 画中画模式调研",
-                    clazz = ContainerActivity::class.java,
-                    clazzCode = KEY_ANDROID_PIP
-            ),
-            OrientVo("mediaMuxer test",
-                    "MediaMuxer 分离及合成视频调研 todo",
-                    clazz = ContainerActivity::class.java,
-                    clazzCode = KEY_ANDROID_MEDIA_MUXER
-            ),
-            OrientVo("概览屏幕",
-                    "最近使用的应用act,可在多任务栏中查看到多个任务",
-                    clazz = RecentActivity::class.java
-            ),
-            OrientVo("coordinate",
-                    "desc",
-            clazz = TestCoordinateAct::class.java)
-    )
-
-
-    //bottom recyclerview datas
-    var mBottomDatas = arrayListOf<OrientVo>(
-            OrientVo("组件module_welcome",
-                    "显示welcome页面",
-                    clazz = WelcomeActivity::class.java),
-            OrientVo("组件module_video",
-                    "测试视频及三方",
-                    clazz = GithubJiaoziVideoAct::class.java),
-            OrientVo("处理滑动冲突首页效果",
-                    "两个三方处理滑动冲突",
-                    clazz = FullscreenActivity::class.java),
-            OrientVo("test", "desc"),
-            OrientVo("test", "desc"),
-            OrientVo("test", "desc"),
-            OrientVo("test", "desc")
-    )
-
-    //secretcode other datas (not important)
-    var mSecretString = mutableMapOf<Int, OrientVo>(
-            Pair(KEY_GESTURE, OrientVo("${KEY_GESTURE} : gesture_test")),
-            Pair(KEY_PHOTOVIEW, OrientVo("${KEY_PHOTOVIEW} : photoview_test")),
-            Pair(KEY_SHADOW, OrientVo("${KEY_SHADOW} : shadow_test")),
-            Pair(KEY_WEBP, OrientVo("${KEY_WEBP} : webp_test"))
-    )
-
-    var mSecretCodes: SparseArray<OrientVo> by CodeDelegate(mSecretString)
-
-    //----------------LOGIC CODE--------------------
-    lateinit var mAdapterTop: MyAdapter<OrientVo>
-    lateinit var mAdapterBottom: MyAdapter<OrientVo>
+    var mSecretCodes: List<ItemVo>? by CodeDelegate()
+    lateinit var mAdapterTop: MyAdapter<ItemVo>
+    lateinit var mAdapterBottom: MyAdapter<ItemVo>
 
     override fun getViewStubId(): Int {
         return R.layout.app_activity_main
@@ -135,6 +41,15 @@ class MainActivity : BaseActivity() {
     override fun initIntentData(): Boolean {
         setSupportActionBar(toolbar)
         return true
+    }
+
+    override fun customOperate(savedInstanceState: Bundle?) {
+        initToolBar()
+        initTopView()
+        initFootView()
+        initRecyclerViews()
+
+        fetchDatas()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -153,15 +68,6 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    override fun customOperate(savedInstanceState: Bundle?) {
-        initToolBar()
-        initRecyclerViews()
-        initTopView()
-        initFootView()
-
-        fetchDatas()
-    }
-
     /**
      * A native method that is implemented by the 'native-lib' native library,
      * which is packaged with this application.
@@ -178,7 +84,7 @@ class MainActivity : BaseActivity() {
 //    }
 
     private fun initToolBar() {
-        fabView?.visibility = View.VISIBLE
+        fabView?.show()
         fabView?.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
@@ -201,17 +107,19 @@ class MainActivity : BaseActivity() {
 
     private fun initFootView() {
         txt_foot.setOnClickListener {
-            var codeDatas = mSecretCodes
-            if (codeDatas?.size() == 0) return@setOnClickListener
+            val codeDatas = mSecretCodes
+            if (codeDatas?.isEmpty() != false) return@setOnClickListener
             AlertDialog.Builder(mContext)
                     .setAdapter(object : BaseAdapter() {
                         @SuppressLint("ViewHolder")
                         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-                            var view = LayoutInflater.from(mContext).inflate(R.layout.app_item_centerdrag, parent, false)
-                            var txtTips = view.findViewById<TextView>(R.id.scroll_tip)
-                            var id = codeDatas.keyAt(position)
-                            var orientVo = codeDatas[id]
-                            txtTips.text = orientVo?.title ?: ""
+                            val view = LayoutInflater.from(mContext).inflate(R.layout.app_item_centerdrag, parent, false)
+                            val txtTips = view.findViewById<TextView>(R.id.scroll_tip)
+                            val itemVo = codeDatas.get(position)
+                            txtTips.text = itemVo.title ?: ""
+                            view.setOnClickListener {
+                                OpenUtils.open(mContext, itemVo)
+                            }
                             return view
                         }
 
@@ -224,7 +132,7 @@ class MainActivity : BaseActivity() {
                         }
 
                         override fun getCount(): Int {
-                            return codeDatas.size()
+                            return codeDatas.size
                         }
 
                     }) { dialog, which ->
@@ -237,173 +145,63 @@ class MainActivity : BaseActivity() {
 
     private fun initRecyclerViews() {
         main_container.setDisableDoubleScroll(false)
-
-        mAdapterTop = MyAdapter(R.layout.app_item_normalitem)
-        mAdapterTop.openLoadAnimation(BaseQuickAdapter.SLIDEIN_LEFT)
-        mAdapterTop.isFirstOnly(false)
-        mAdapterBottom = MyAdapter(R.layout.app_item_normalitem_reverse)
-        mAdapterBottom.openLoadAnimation(BaseQuickAdapter.SLIDEIN_RIGHT)
-        mAdapterBottom.isFirstOnly(false)
-        mAdapterTop.setOnItemClickListener { adapter, view, position ->
-            clickItemByClazz(mAdapterTop.getItem(position), mAdapterTop.getItem(position)?.clazzCode)
-        }
-
-        mAdapterBottom.setOnItemClickListener { adapter, view, position ->
-            clickItemByClazz(mAdapterBottom.getItem(position), mAdapterTop.getItem(position)?.clazzCode)
-        }
-
-        first_recyclerview.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(mContext)
-        first_recyclerview.adapter = mAdapterTop
-        second_recyclerview.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(mContext)
-        second_recyclerview.adapter = mAdapterBottom
-    }
-
-    private fun clickItemByClazz(item: OrientVo?, clazzCode: Int? = -1) {
-        item?.also {
-            if (it.clazz != null) {
-                if (it.clazz == ContainerActivity::class.java && clazzCode != null && clazzCode != -1) {
-                    mSecretString.put(clazzCode, item)
-                    clickItemByCode(clazzCode)
-                } else if (it.clazz == RecentActivity::class.java) {
-                    mContext.startActivity(Intent(mContext, it.clazz).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS)
-                        addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-                    })
-                } else {
-                    mContext.startActivity(Intent(mContext, it.clazz))
+        first_recyclerview.apply {
+            layoutManager = LinearLayoutManager(mContext)
+            mAdapterTop = MyAdapter<ItemVo>(R.layout.app_item_normalitem).apply {
+                openLoadAnimation(BaseQuickAdapter.SLIDEIN_LEFT)
+                isFirstOnly(false)
+                setOnItemClickListener { adapter, view, position ->
+                    OpenUtils.open(mContext, mAdapterTop.getItem(position))
                 }
             }
+            adapter = mAdapterTop
         }
-    }
-
-    private fun clickItemByCode(indexOfKey: Int) {
-        ContainerActivity.launch(mContext, indexOfKey)
+        second_recyclerview.apply {
+            layoutManager = LinearLayoutManager(mContext)
+            mAdapterBottom = MyAdapter<ItemVo>(R.layout.app_item_normalitem_reverse).apply {
+                openLoadAnimation(BaseQuickAdapter.SLIDEIN_RIGHT)
+                isFirstOnly(false)
+                setOnItemClickListener { adapter, view, position ->
+                    OpenUtils.open(mContext, mAdapterTop.getItem(position))
+                }
+            }
+            adapter = mAdapterBottom
+        }
     }
 
     private fun searchItem(codeStr: String) {
         if (!StringUtils.isEmpty(codeStr)) {
             try {
-                var code = java.lang.Integer.parseInt(codeStr)
-                var indexOfKey = mSecretCodes.indexOfKey(code)
-                if (indexOfKey >= 0) {
-                    clickItemByCode(indexOfKey)
-                }
+                val codes = mSecretCodes
+                val random = Random.nextInt(codes!!.size)
+                OpenUtils.open(mContext, mSecretCodes!![random])
             } catch (e: Exception) {
-
             }
         }
     }
 
     private fun fetchDatas() {
-        mAdapterTop?.also {
-            it.setNewData(mTopDatas)
+        ParseUtils.getMainConfigList<ItemVo>("topList")?.apply {
+            mAdapterTop.setNewData(this)
         }
-
-        mAdapterBottom.also {
-            it.setNewData(mBottomDatas)
+        ParseUtils.getMainConfigList<ItemVo>("bottomList").apply {
+            mAdapterBottom.setNewData(this)
         }
     }
-
 
     //----------------EXTRA CLASS------------------
     class MyAdapter<T>(layoutId: Int, mDataList: List<T>? = null) : BaseQuickAdapter<T, BaseViewHolder>(layoutId, mDataList) {
-        var longPressFlag: Boolean = false
-
-        init {
-
-        }
-
         override fun convert(helper: BaseViewHolder?, item: T?) {
-            if (item is OrientVo) {
-                helper?.apply {
-                    setText(R.id.txt_title, item.title)
-                    setText(R.id.txt_desc, item.desc)
-                    setText(R.id.txt_content, item.level.toString())
-                    when (item.level) {
-                        LEVEL.LEVEL_CRITICAL -> {
-                            setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.red))
-                        }
-                        LEVEL.LEVEL_HIGH -> {
-                            setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.color_orange))
-                        }
-                        LEVEL.LEVEL_MIDDLE -> {
-                            setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.color_violet))
-                        }
-                        LEVEL.LEVEL_LOW -> {
-                            setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.color_blue))
-                        }
-                        LEVEL.LEVEL_NOPE -> {
-                            setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.color_green))
-                        }
-                        else -> {
-                            setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.text_second_color))
-                        }
-                    }
-
-                    //magnifier
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        longPressFlag = false
-                        var magnifier: Magnifier? = null
-                        val viewPosition = IntArray(2)
-                        itemView?.setOnTouchListener { v, event ->
-                            if (longPressFlag) {
-                                when (event.actionMasked) {
-                                    MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
-                                        if (magnifier == null) {
-                                            magnifier = Magnifier(helper.itemView)
-                                        }
-                                        v.getLocationOnScreen(viewPosition)
-                                        magnifier?.show(event.rawX - viewPosition[0], event.rawY - viewPosition[1])
-                                    }
-                                    MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                                        magnifier?.dismiss()
-                                    }
-                                }
-                            }
-                            return@setOnTouchListener false
-                        }
-                        itemView?.setOnLongClickListener {
-                            longPressFlag = true
-                            return@setOnLongClickListener true
-                        }
-
-                    } else {
-                    }
-
-                }
-            }
+            ViewUtils.bind(helper, item)
         }
     }
 
-    data class OrientVo(
-            var title: String,
-            var desc: String = "",
-            var level: LEVEL = LEVEL.LEVEL_NOPE,
-            var clazz: Class<*>? = null,
-            var clazzCode: Int = -1
-    )
-
-    enum class LEVEL {
-        LEVEL_CRITICAL,
-        LEVEL_HIGH,
-        LEVEL_MIDDLE,
-        LEVEL_LOW,
-        LEVEL_NOPE
-    }
-
-    //
-    class CodeDelegate(val al: Map<Int, OrientVo>) : ReadWriteProperty<Context, SparseArray<OrientVo>> {
-        override fun getValue(thisRef: Context, property: KProperty<*>): SparseArray<OrientVo> {
-            var sa = SparseArray<OrientVo>()
-            for ((key, value) in al.entries) {
-                sa.put(key, value)
-            }
-            return sa
+    //lazy load
+    class CodeDelegate() : ReadWriteProperty<Context, List<ItemVo>?> {
+        override fun getValue(thisRef: Context, property: KProperty<*>): List<ItemVo>? {
+            return ParseUtils.getMainConfigList("secretList")
         }
 
-        override fun setValue(thisRef: Context, property: KProperty<*>, value: SparseArray<OrientVo>) {
-
-        }
-
+        override fun setValue(thisRef: Context, property: KProperty<*>, value: List<ItemVo>?) {}
     }
 }

@@ -21,12 +21,6 @@ import com.jdev.wandroid.popwindow.BasicFunctionPopWindow
 import com.jdev.wandroid.utils.ViewUtils
 import com.jdev.wandroid.R
 
-/**
- * info: create by jd in 2019/6/14
- * @see:
- * @description: 主页 新版功能修改的引导;
- *
- */
 class KtVersionMainPop(context: Context, var callback: ViewUtils.OnCallback<*>) : BasicFunctionPopWindow(context) {
     lateinit var image1: ImageView
     lateinit var image2: ImageView
@@ -74,9 +68,7 @@ class KtVersionMainPop(context: Context, var callback: ViewUtils.OnCallback<*>) 
 
 
         setOnDismissListener {
-            if (callback != null) {
-                callback.callback(null)
-            }
+            callback.callback(null)
         }
     }
 

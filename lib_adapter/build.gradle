@@ -47,4 +47,7 @@ artifacts {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     compileOnly rootProject.ext.dependencies.support_recyclerview
+
+    //代理方式的adapter
+    api rootProject.ext.dependencies.multi_adapter
 }

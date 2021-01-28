@@ -33,12 +33,6 @@
             </intent-filter>
         </activity>
 
-        <!--支持画中画效果配置
-        <activity android:name="VideoActivity"
-    android:supportsPictureInPicture="true"
-    android:configChanges=
-        "screenSize|smallestScreenSize|screenLayout|orientation"
-        -->
         <activity
             android:name=".ui.act.ContainerActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
@@ -46,15 +40,15 @@
             android:supportsPictureInPicture="true" />
 
         <activity
-            android:name=".ui.act.FloatLocationActivity"
-            android:theme="@style/AppTheme.NoActionBar.Trans2"
+            android:name=".ui.act.RecentActivity"
+            android:alwaysRetainTaskState="true"
+            android:documentLaunchMode="always"
+            android:maxRecents="2"
             android:screenOrientation="portrait" />
 
-        <activity android:name=".ui.act.RecentActivity"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name="com.zt.base.debug.coordinate.TestCoordinateAct"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name="com.zt.base.debug.coordinate.TestCoordinateAct"
+            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="preloaded_fonts"

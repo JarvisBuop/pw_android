@@ -21,7 +21,7 @@ class RecentActivity : BaseActivity() {
     }
 
     override fun customOperate(savedInstanceState: Bundle?) {
-        btn_retry?.text = "recent in document"
+        btn_retry?.text = "概览Act -> recent in document"
     }
 
 }

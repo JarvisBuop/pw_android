@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/color_blue_3a9efb">
+    android:background="@color/color_permit">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guide_line_vertical"
@@ -17,7 +18,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="30dp" />
+        app:layout_constraintGuide_begin="20dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guide_line_vertical2"
@@ -70,6 +71,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="desc"
+        android:textColor="@color/text_second_color"
         app:layout_constraintLeft_toRightOf="@id/guide_line_middle"
         app:layout_constraintRight_toLeftOf="@id/guide_line_vertical2"
         app:layout_constraintTop_toBottomOf="@id/barrier" />
@@ -78,5 +80,13 @@
         style="@style/horizontal_line_margin"
         android:layout_marginTop="5dp"
         app:layout_constraintTop_toBottomOf="@id/txt_title" />
+
+    <TextView
+        android:id="@+id/txt_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:text="test" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

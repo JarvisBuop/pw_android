@@ -13,7 +13,7 @@
         android:layout_gravity="center"
         android:layout_weight="1"
         android:background="@null"
-        android:hint="please input secret code"
+        android:hint="@string/app_input"
         android:imeOptions="actionGo"
         android:inputType="number"
         android:maxLines="1"

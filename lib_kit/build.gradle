@@ -54,7 +54,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
 
-
     /**
      * android support
      */
@@ -109,4 +108,7 @@ dependencies {
 
     api rootProject.ext.dependencies.okhttp3_core
     api rootProject.ext.dependencies.okhttp3_integration
+
+    //json
+    api rootProject.ext.dependencies.gson_core
 }
