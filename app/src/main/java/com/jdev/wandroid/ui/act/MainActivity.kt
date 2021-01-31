@@ -162,7 +162,7 @@ class MainActivity : BaseActivity() {
                 openLoadAnimation(BaseQuickAdapter.SLIDEIN_RIGHT)
                 isFirstOnly(false)
                 setOnItemClickListener { adapter, view, position ->
-                    OpenUtils.open(mContext, mAdapterTop.getItem(position))
+                    OpenUtils.open(mContext, mAdapterBottom.getItem(position))
                 }
             }
             adapter = mAdapterBottom
@@ -181,10 +181,10 @@ class MainActivity : BaseActivity() {
     }
 
     private fun fetchDatas() {
-        ParseUtils.getMainConfigList<ItemVo>("topList")?.apply {
+        ParseUtils.getMainConfigList("topList")?.apply {
             mAdapterTop.setNewData(this)
         }
-        ParseUtils.getMainConfigList<ItemVo>("bottomList").apply {
+        ParseUtils.getMainConfigList("bottomList").apply {
             mAdapterBottom.setNewData(this)
         }
     }

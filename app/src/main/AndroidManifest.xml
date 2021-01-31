@@ -39,12 +39,15 @@
             android:screenOrientation="portrait"
             android:supportsPictureInPicture="true" />
 
+<!--       addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS)
+           addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)-->
         <activity
             android:name=".ui.act.RecentActivity"
             android:alwaysRetainTaskState="true"
             android:documentLaunchMode="always"
             android:maxRecents="2"
             android:screenOrientation="portrait" />
+
 
         <activity
             android:name="com.zt.base.debug.coordinate.TestCoordinateAct"

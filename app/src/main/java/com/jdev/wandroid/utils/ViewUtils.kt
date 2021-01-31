@@ -39,19 +39,19 @@ object ViewUtils {
                 setText(R.id.txt_desc, item.desc)
                 setText(R.id.txt_content, item.level.toString())
                 when (item.level) {
-                    LEVEL.LEVEL_CRITICAL -> {
+                    LEVEL.CRITICAL -> {
                         setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.red))
                     }
-                    LEVEL.LEVEL_HIGH -> {
+                    LEVEL.HIGH -> {
                         setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.color_orange))
                     }
-                    LEVEL.LEVEL_MIDDLE -> {
+                    LEVEL.MIDDLE -> {
                         setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.color_violet))
                     }
-                    LEVEL.LEVEL_LOW -> {
+                    LEVEL.LOW -> {
                         setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.color_blue))
                     }
-                    LEVEL.LEVEL_NOPE -> {
+                    LEVEL.NOPE -> {
                         setTextColor(R.id.txt_content, ResourceIdUtils.getColorById(R.color.color_green))
                     }
                     else -> {
