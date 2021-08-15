@@ -72,4 +72,4 @@ build/
 
 # private
 # gradle.properties
-local.properties
+#local.properties
