@@ -90,6 +90,14 @@
         "fragName": null,
         "level": "NOPE",
         "state": "SUSPEND"
+      },
+      {
+        "title": "手势测试",
+        "desc": "",
+        "actName": null,
+        "fragName": "com.jdev.wandroid.ui.frg.TouchEventFrag",
+        "level": "NOPE",
+        "state": "COMPLETED"
       }
     ],
     "secretList": [

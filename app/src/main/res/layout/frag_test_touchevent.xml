@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.jdev.wandroid.test.MyViewGroup
+            android:id="@+id/vg_a"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:background="@color/blue">
+
+            <com.jdev.wandroid.test.MyViewGroupB
+                android:id="@+id/vg_b"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:background="@color/green">
+
+                <com.jdev.wandroid.test.MyView
+                    android:id="@+id/v_a"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:background="@color/red" />
+
+            </com.jdev.wandroid.test.MyViewGroupB>
+
+        </com.jdev.wandroid.test.MyViewGroup>
+
+
+    </FrameLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/show"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="log:\n" />
+    </ScrollView>
+
+
+</LinearLayout>
