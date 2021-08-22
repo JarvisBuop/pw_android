@@ -98,6 +98,14 @@
         "fragName": "com.jdev.wandroid.ui.frg.TouchEventFrag",
         "level": "NOPE",
         "state": "COMPLETED"
+      },
+      {
+        "title": "camera3D",
+        "desc": "",
+        "level": "NOPE",
+        "state": "COMPLETED",
+        "actName": null,
+        "fragName": "com.jdev.wandroid.ui.frg.Camera3DAnimationFrag"
       }
     ],
     "secretList": [

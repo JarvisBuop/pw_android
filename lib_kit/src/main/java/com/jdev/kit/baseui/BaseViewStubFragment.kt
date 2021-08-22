@@ -27,7 +27,7 @@ abstract class BaseViewStubFragment : BaseFragment() {
         var viewStub = getViewStubDefault()
         if (viewStub != null) {
             var rootViewGroup = findView(R.id.root_coor_layout) as ViewGroup
-            rootViewGroup.addView(viewStub)
+            rootViewGroup.addView(viewStub, generateLayoutParams())
         }
     }
 
@@ -41,5 +41,10 @@ abstract class BaseViewStubFragment : BaseFragment() {
     open fun getViewStubId(): Int = 0
 
     open fun getViewStubDefault(): View? = null
+
+    open fun generateLayoutParams(): ViewGroup.LayoutParams = ViewGroup.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.MATCH_PARENT
+    )
 
 }
