@@ -37,7 +37,7 @@ class ContainerActivity : BaseActivity() {
 
         fun getFragmentByKey(name: String?): BaseFragment? {
             try {
-                return Class.forName(name).newInstance() as BaseFragment?
+                return Class.forName(name!!).newInstance() as BaseFragment?
             } catch (e: Exception) {
                 LogUtils.e("构建fragment失败 ! ")
             }

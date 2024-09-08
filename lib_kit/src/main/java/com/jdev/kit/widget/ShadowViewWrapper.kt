@@ -28,7 +28,7 @@ class ShadowViewWrapper : FrameLayout {
     }
 
     private var childView: View? = null
-    private var mShadowPaint: Paint? = null
+    private lateinit var mShadowPaint: Paint
 
     private var cornerRadius: Float = ConvertUtils.dp2px(12f).toFloat() //绘制有圆角的背景;
     private var shadowColor: Int = Color.RED
